@@ -1,0 +1,31 @@
+@import 'variables';
+
+.user-login {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+input {
+  padding: 10px;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  font-size: 16px;
+}
+
+.success {
+  color: $success-color;
+}
+
+.error {
+  color: $error-color;
+}

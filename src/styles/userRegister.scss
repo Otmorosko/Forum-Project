@@ -1,0 +1,113 @@
+$dark-bg: #1a1a1a;
+$form-bg: #2a2a2a;
+$light-gray: #cccccc;
+$white: #ffffff;
+$black: #000000;
+
+.user-register {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: $dark-bg;
+  color: $white;
+
+  .form-container {
+    background-color: $form-bg;
+    padding: 40px;
+    border-radius: 16px; // Zwiększono zaokrąglenie kontenera
+    width: 100%;
+    max-width: 400px;
+    margin: 40px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); // Opcjonalny cień
+
+    h1 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+
+      input {
+        margin-bottom: 15px;
+        padding: 12px;
+        border: 1px solid $light-gray;
+        border-radius: 12px; // Zwiększono zaokrąglenie inputów
+        background-color: transparent;
+        color: $white;
+        font-size: 16px;
+
+        &::placeholder {
+          color: $light-gray;
+        }
+
+        &:focus {
+          outline: none;
+          border-color: $white;
+        }
+      }
+
+      button {
+        padding: 12px;
+        background-color: $black;
+        color: $white;
+        border: none;
+        border-radius: 12px; // Zaokrąglenie przycisku
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 10px;
+        font-weight: bold;
+        transition: opacity 0.3s ease; // Płynna zmiana opacity
+
+        &:hover {
+          opacity: 0.9;
+        }
+      }
+    }
+
+    .login-prompt {
+      text-align: center;
+      margin-top: 15px;
+      color: $light-gray;
+
+      a {
+        color: $light-gray;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  .footer {
+    margin-top: auto;
+    text-align: center;
+    color: $light-gray;
+    font-size: 14px;
+
+    .links {
+      margin-bottom: 10px;
+
+      a {
+        color: $light-gray;
+        text-decoration: none;
+        margin: 0 10px;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .copyright {
+      font-size: 12px;
+    }
+  }
+}
