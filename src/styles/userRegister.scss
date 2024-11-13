@@ -1,26 +1,27 @@
-$dark-bg: #1a1a1a;
-$form-bg: #2a2a2a;
-$light-gray: #cccccc;
-$white: #ffffff;
-$black: #000000;
+$dark-bg: #1a1a1a; // Ciemne tło strony
+$form-bg: #2a2a2a; // Ciemnoszare tło formularza
+$light-gray: #cccccc; // Jasnoszare kontury
+$white: #ffffff; // Biały tekst
+$black: #000000; // Czarny kolor
 
 .user-register {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  padding: 20px;
-  background-color: $dark-bg;
-  color: $white;
+  align-items: center; // Centrowanie w poziomie
+  justify-content: center; // Centrowanie w pionie
+  min-height: 100vh; // Zapewnienie minimalnej wysokości
+  padding: 0; // Upewnij się, że nie ma dodatkowego paddingu
+  background-color: $dark-bg; // Ciemne tło
+  color: $white; // Biały tekst
 
   .form-container {
-    background-color: $form-bg;
+    background-color: $form-bg; // Ciemnoszare tło formularza
     padding: 40px;
-    border-radius: 16px; // Zwiększono zaokrąglenie kontenera
+    border-radius: 16px; // Zaokrąglenie kontenera
     width: 100%;
     max-width: 400px;
-    margin: 40px 0;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); // Opcjonalny cień
+    margin: 0; // Upewnij się, że nie ma dodatkowego marginesu
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); // Cień kontenera
 
     h1 {
       font-size: 24px;
@@ -36,25 +37,25 @@ $black: #000000;
       input {
         margin-bottom: 15px;
         padding: 12px;
-        border: 1px solid $light-gray;
-        border-radius: 12px; // Zwiększono zaokrąglenie inputów
+        border: 1px solid $light-gray; // Jasnoszare obramowanie
+        border-radius: 12px; // Zaokrąglenie inputów
         background-color: transparent;
         color: $white;
         font-size: 16px;
 
         &::placeholder {
-          color: $light-gray;
+          color: $light-gray; // Kolor placeholdera
         }
 
         &:focus {
           outline: none;
-          border-color: $white;
+          border-color: $white; // Kolor obramowania przy fokusu
         }
       }
 
       button {
         padding: 12px;
-        background-color: $black;
+        background-color: $black; // Czarny przycisk
         color: $white;
         border: none;
         border-radius: 12px; // Zaokrąglenie przycisku
@@ -65,7 +66,7 @@ $black: #000000;
         transition: opacity 0.3s ease; // Płynna zmiana opacity
 
         &:hover {
-          opacity: 0.9;
+          opacity: 0.9; // Efekt hover
         }
       }
     }
@@ -80,7 +81,7 @@ $black: #000000;
         text-decoration: none;
 
         &:hover {
-          text-decoration: underline;
+          text-decoration: underline; // Podkreślenie linku przy hoverze
         }
       }
     }
@@ -101,7 +102,7 @@ $black: #000000;
         margin: 0 10px;
 
         &:hover {
-          text-decoration: underline;
+          text-decoration: underline; // Podkreślenie linku przy hoverze
         }
       }
     }

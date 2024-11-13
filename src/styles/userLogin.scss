@@ -1,31 +1,75 @@
-@import 'variables';
 
+@import '_variables';
 .user-login {
-  max-width: 400px;
-  margin: 50px auto;
-  padding: 20px;
-  border: 1px solid $border-color;
-  border-radius: $border-radius;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-}
+  align-items: center;
+  justify-content: center;
+  height: 100vh; // Wysokość ekranu
+  background-color: $dark-bg; // Ciemne tło strony
 
-input {
-  padding: 10px;
-  border: 1px solid $border-color;
-  border-radius: $border-radius;
-  font-size: 16px;
-}
+  .form-container {
+    background-color: #2a2a2a; // Ciemnoszare tło formularza
+    padding: 40px;
+    border-radius: 16px; // Zaokrąglenie kontenera formularza
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px; // Maksymalna szerokość formularza
 
-.success {
-  color: $success-color;
-}
+    h1 {
+      text-align: center; // Wyśrodkowanie nagłówka
+      color: $white; // Kolor nagłówka
+      font-size: 24px; // Rozmiar czcionki nagłówka
+      margin-bottom: 20px; // Odstęp poniżej nagłówka
+    }
 
-.error {
-  color: $error-color;
+    input {
+      margin: 10px 0; // Odstęp między polami
+      padding: 12px; // Padding wewnętrzny
+      border: 1px solid #ccc; // Jasnoszara obwódka
+      border-radius: 12px; // Zaokrąglenie rogów
+      width: 100%; // Szerokość pól
+      background-color: transparent; // Przezroczystość tła
+      color: $white; // Kolor tekstu
+      font-size: 16px; // Rozmiar czcionki
+
+      &::placeholder {
+        color: #e0e0e0; // Jaśniejszy kolor placeholdera
+      }
+
+      &:focus {
+        outline: none; // Brak obramowania przy fokusu
+        border-color: $white; // Zmiana koloru obramowania przy fokusu
+      }
+    }
+
+    button {
+      padding: 12px;
+      background-color: $black; // Czarny tło przycisku
+      color: $white; // Biały tekst
+      border: none; // Brak obramowania
+      border-radius: 12px; // Zaokrąglenie rogów
+      width: 100%; // Szerokość przycisku
+      cursor: pointer; // Kursor wskazujący na przycisk
+      font-size: 16px; // Rozmiar czcionki
+
+      &:hover {
+        background-color: darken($black, 10%); // Ciemniejszy odcień przycisku przy najechaniu
+      }
+    }
+
+    .login-prompt {
+      text-align: center; // Wyśrodkowanie tekstu
+      color: #e0e0e0; // Jasnoszary kolor tekstu
+
+      .register-link {
+        color: #b0b0b0; // Jaśniejszy odcień szarości dla linku
+        text-decoration: none; // Brak podkreślenia
+
+        &:hover {
+          text-decoration: underline; // Podkreślenie przy najechaniu
+        }
+      }
+    }
+  }
 }

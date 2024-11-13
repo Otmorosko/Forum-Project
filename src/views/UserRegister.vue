@@ -10,14 +10,6 @@
       <p v-if="message">{{ message }}</p>
       <p class="login-prompt">Masz już konto? <router-link to="/login">Zaloguj się</router-link></p>
     </div>
-
-    <footer class="footer">
-      <div class="links">
-        <a href="#">Regulamin</a>
-        <a href="#">Polityka prywatności</a>
-        <a href="#">Skontaktuj się z nami</a>
-      </div>
-    </footer>
   </div>
 </template>
 
@@ -64,53 +56,6 @@ export default {
 }
 </script>
 
-<style scoped>
-.user-register {
-  max-width: 400px;
-  margin: auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-}
-
-.form-container {
-  display: flex;
-  flex-direction: column;
-}
-
-input {
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-button {
-  padding: 10px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #218838;
-}
-
-.footer {
-  margin-top: 20px;
-  text-align: center;
-}
-
-.links a {
-  margin: 0 10px;
-  color: #007bff;
-  text-decoration: none;
-}
-
-.links a:hover {
-  text-decoration: underline;
-}
+<style lang="scss">
+@import '../styles/userRegister.scss'; // Referencja do pliku stylów
 </style>

@@ -1,6 +1,12 @@
-$primary-color: #4CAF50;
-$primary-color-hover: #45a049;
-$error-color: red;
-$success-color: green;
-$border-color: #ccc;
-$border-radius: 4px;
+// src/styles/_variables.scss
+$light-gray: #cccccc; // Jasnoszary kolor
+$primary-color: #4CAF50; // Inny przykład koloru
+$error-color: red; // Kolor błędu
+$success-color: green; // Kolor sukcesu
+$border-color: #ccc; // Kolor obramowania
+$border-radius: 4px; // Promień obramowania
+$dark-bg: #1a1a1a; // Ciemne tło
+$form-bg: #2a2a2a; // Tło formularza
+$white: #ffffff; // Biały kolor
+$black: #000000; // Czarny kolor
+$dark-gray: #333333; // Ciemniejszy odcień szarości

@@ -1,18 +1,20 @@
-<!-- src/App.vue -->
 <template>
   <div id="app">
     <NavBar />
     <router-view></router-view>
+    <AppFooter /> <!-- Użycie komponentu AppFooter -->
   </div>
 </template>
 
 <script>
-import NavBar from './components/NavBar.vue'
+import NavBar from './components/NavBar.vue';
+import AppFooter from './components/AppFooter.vue'; // Import komponentu AppFooter
 
 export default {
   name: 'App',
   components: {
-    NavBar
+    NavBar,
+    AppFooter // Dodanie komponentu do lokalnych komponentów
   }
 }
 </script>
