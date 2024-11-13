@@ -1,9 +1,3 @@
-$dark-bg: #1a1a1a; // Ciemne tło strony
-$form-bg: #2a2a2a; // Ciemnoszare tło formularza
-$light-gray: #cccccc; // Jasnoszare kontury
-$white: #ffffff; // Biały tekst
-$black: #000000; // Czarny kolor
-
 .user-register {
   display: flex;
   flex-direction: column;
@@ -11,11 +5,11 @@ $black: #000000; // Czarny kolor
   justify-content: center; // Centrowanie w pionie
   min-height: 100vh; // Zapewnienie minimalnej wysokości
   padding: 0; // Upewnij się, że nie ma dodatkowego paddingu
-  background-color: $dark-bg; // Ciemne tło
-  color: $white; // Biały tekst
+  background-color: #1a1a1a; // Ciemne tło
+  color: #ffffff; // Biały tekst
 
   .form-container {
-    background-color: $form-bg; // Ciemnoszare tło formularza
+    background-color: #2a2a2a; // Ciemnoszare tło formularza
     padding: 40px;
     border-radius: 16px; // Zaokrąglenie kontenera
     width: 100%;
@@ -37,28 +31,28 @@ $black: #000000; // Czarny kolor
       input {
         margin-bottom: 15px;
         padding: 12px;
-        border: 1px solid $light-gray; // Jasnoszare obramowanie
+        border: 1px solid #cccccc; // Jasnoszare obramowanie
         border-radius: 12px; // Zaokrąglenie inputów
         background-color: transparent;
-        color: $white;
+        color: #ffffff;
         font-size: 16px;
 
         &::placeholder {
-          color: $light-gray; // Kolor placeholdera
+          color: #cccccc; // Kolor placeholdera
         }
 
         &:focus {
           outline: none;
-          border-color: $white; // Kolor obramowania przy fokusu
+          border-color: #ffffff; // Kolor obramowania przy fokusu
         }
       }
 
       button {
         padding: 12px;
-        background-color: $black; // Czarny przycisk
-        color: $white;
+        background-color: #000000; // Czarny przycisk
+        color: #ffffff;
         border: none;
-        border-radius: 12px; // Zaokrąglenie przycisku
+        border-radius: 12px; // Zaokrą glenie przycisku
         cursor: pointer;
         font-size: 16px;
         margin-top: 10px;
@@ -74,41 +68,16 @@ $black: #000000; // Czarny kolor
     .login-prompt {
       text-align: center;
       margin-top: 15px;
-      color: $light-gray;
+      color: #cccccc;
 
       a {
-        color: $light-gray;
+        color: #cccccc;
         text-decoration: none;
 
         &:hover {
-          text-decoration: underline; // Podkreślenie linku przy hoverze
+          text-decoration: underline; // Podkreślenie linku
         }
       }
-    }
-  }
-
-  .footer {
-    margin-top: auto;
-    text-align: center;
-    color: $light-gray;
-    font-size: 14px;
-
-    .links {
-      margin-bottom: 10px;
-
-      a {
-        color: $light-gray;
-        text-decoration: none;
-        margin: 0 10px;
-
-        &:hover {
-          text-decoration: underline; // Podkreślenie linku przy hoverze
-        }
-      }
-    }
-
-    .copyright {
-      font-size: 12px;
     }
   }
 }

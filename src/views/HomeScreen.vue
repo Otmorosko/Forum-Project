@@ -1,8 +1,8 @@
 <!-- src/views/HomeScreen.vue -->
 <template>
   <div class="home">
-    <h1>Witaj na naszym forum!</h1>
-    <p>To jest strona główna naszego forum. Tutaj możesz znaleźć najnowsze dyskusje i tematy.</p>
+    <h1>Witaj na ModHub!</h1>
+    <p>To jest strona główna ModHub. Tutaj możesz znaleźć najnowsze dyskusje i tematy.</p>
     <!-- Możesz dodać tutaj listę najnowszych tematów lub inne elementy, które chcesz pokazać na stronie głównej -->
   </div>
 </template>
