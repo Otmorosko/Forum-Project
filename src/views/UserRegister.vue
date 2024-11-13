@@ -4,7 +4,6 @@
       <h1>Utwórz konto w ModHub</h1>
       <form @submit.prevent="registerUser ">
         <input type="text" v-model="username" placeholder="Nazwa użytkownika" required />
-        <input type="email" v-model="email" placeholder="Email" required />
         <input type="password" v-model="password" placeholder="Hasło" required />
         <button type="submit">Zarejestruj się</button>
       </form>
@@ -22,23 +21,21 @@ export default {
   data() {
     return {
       username: '',
-      email: '',
       password: '',
       message: ''
     };
   },
   methods: {
     async registerUser () {
-      if (!this.username || !this.email || !this.password) {
+      if (!this.username || !this.password) {
         this.message = 'Wszystkie pola są wymagane.';
         return;
       }
 
-      console.log('Rejestracja z danymi:', { username: this.username, email: this.email, password: this.password });
+      console.log('Rejestracja z danymi:', { username: this.username, password: this.password });
       try {
         const response = await axios.post('http://localhost:3000/register', {
           username: this.username,
-          email: this.email,
           password: this.password
         });
 
