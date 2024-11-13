@@ -9,12 +9,13 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
-// Konfiguracja połączenia z bazą danych MySQL
+require('dotenv').config();
+
 const db = mysql.createConnection({
-  host: 'localhost', 
-  user: 'root', 
-  password: 'Qdwo39bj2khc!qdw!wdq', 
-  database: 'modhub' 
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
 });
 
 // Połączenie z bazą danych
