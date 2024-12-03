@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('registrationForm').reset(); // Resetuje formularz
 
                 // Przekierowanie do strony logowania
-                window.location.href = 'login.html';
+                window.location.href = '../html/login.html';
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('message').textContent = 'Zalogowano pomyślnie!';
 
                     // Przekierowanie do strony głównej
-                    window.location.href = 'index.html';
+                    window.location.href = '../html/index.html';
                 })
                 .catch((error) => {
                     const errorCode = error.code;

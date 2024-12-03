@@ -29,6 +29,11 @@ nav a:hover {
     background-color: #575757; /* Zmiana koloru tła linków po najechaniu */
 }
 
+nav .user-icon {
+    height: 30px; /* Ustal wysokość ikony użytkownika */
+    margin-left: 10px; /* Odstęp od linku */
+}
+
 @media (max-width: 600px) {
     nav a {
         padding: 10px; /* Zwiększenie paddingu dla linków na małych ekranach */

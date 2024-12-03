@@ -6,8 +6,8 @@ body {
 }
 
 main {
-    max-width: 400px;
-    margin: 100px auto;
+    max-width: 600px;
+    margin: auto;
     background: white;
     padding: 20px;
     border-radius: 8px;
@@ -27,8 +27,7 @@ label {
     margin-bottom: 5px;
 }
 
-input[type="email"],
-input[type="password"] {
+input[type="text"] {
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
@@ -40,9 +39,8 @@ button {
     background-color: #28a745;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s;
 }
 
 button:hover {
