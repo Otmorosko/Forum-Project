@@ -4,17 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles/login.css"> 
+    <link rel="stylesheet" href="styles/navbar.css"> 
     <title>Logowanie - ModHub</title>
 </head>
 <body>
-    <header>
-        <h1>ModHub</h1>
-        <nav>
-            <a href="index.html">Strona Główna</a>
-            <a href="register.html">Rejestracja</a>
-            <a href="post.html">Dodaj Post</a>
-        </nav>
-    </header>
+
     <main>
         <h2>Logowanie</h2>
         <form id="loginForm">
@@ -27,7 +21,9 @@
             <button type="submit">Zaloguj się</button>
         </form>
         <div id="message"></div>
+        <p>Nie masz konta? <a href="register.html">Zarejestruj się</a></p>
     </main>
-    <script type="module" src="script.js"></script>
+    <script type="module" src="navbar.js"></script>
+    <script type="module" src="script.js"></script> 
 </body>
 </html>

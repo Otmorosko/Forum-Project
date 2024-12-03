@@ -1,0 +1,36 @@
+header {
+    display: flex;
+    align-items: center; /* Wyśrodkowanie elementów w pionie */
+    justify-content: center; /* Wyśrodkowanie elementów w poziomie */
+    background-color: #333; /* Kolor tła nawigacji */
+    padding: 10px; /* Odstęp wewnętrzny dla headera */
+}
+
+nav {
+    display: flex;
+    flex-wrap: wrap; /* Pozwolenie na przenoszenie elementów */
+    justify-content: center; /* Wyśrodkowanie elementów nawigacji */
+}
+
+nav .logo {
+    height: 50px; /* Ustal wysokość logo */
+    margin-right: 20px; /* Odstęp od tytułu */
+}
+
+nav a {
+    flex: 1; /* Równomierne rozłożenie linków w nawigacji */
+    text-align: center; /* Wyśrodkowanie tekstu */
+    padding: 10px; /* Dodanie paddingu do linków */
+    color: white; /* Kolor tekstu */
+    text-decoration: none; /* Usunięcie podkreślenia z linków */
+}
+
+nav a:hover {
+    background-color: #575757; /* Zmiana koloru tła linków po najechaniu */
+}
+
+@media (max-width: 600px) {
+    nav a {
+        padding: 10px; /* Zwiększenie paddingu dla linków na małych ekranach */
+    }
+}

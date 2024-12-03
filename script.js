@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-// Twoja konfiguracja Firebase
+// Konfiguracja Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBPfqFhhCv09KnFAhvURHQMeEjxKxqv00A",
   authDomain: "forum-project-20acc.firebaseapp.com",
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('registrationForm')?.addEventListener('submit', function(event) {
         event.preventDefault(); // Zapobiega przeładowaniu strony
 
-        const email = document.getElementById('email').value; // Zmieniono 'username' na 'email'
+        const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
         // Rejestracja użytkownika w Firebase
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('registrationForm').reset(); // Resetuje formularz
 
                 // Przekierowanie do strony logowania
-                window.location.href = 'login.html'; // Zmiana na adres URL strony logowania
+                window.location.href = 'login.html';
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loginForm.addEventListener('submit', function(event) {
             event.preventDefault(); // Zapobiega przeładowaniu strony
 
-            const email = document.getElementById('email').value; // Zmieniono 'username' na 'email'
+            const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
             // Logowanie użytkownika w Firebase
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('message').textContent = 'Zalogowano pomyślnie!';
 
                     // Przekierowanie do strony głównej
-                    window.location.href = 'index.html'; // Zmiana na adres URL strony głównej
+                    window.location.href = 'index.html';
                 })
                 .catch((error) => {
                     const errorCode = error.code;
