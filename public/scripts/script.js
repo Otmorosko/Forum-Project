@@ -4,18 +4,21 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } f
 
 // Konfiguracja Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyBPfqFhhCv09KnFAhvURHQMeEjxKxqv00A",
-  authDomain: "forum-project-20acc.firebaseapp.com",
-  projectId: "forum-project-20acc",
-  storageBucket: "forum-project-20acc.appspot.com",
-  messagingSenderId: "941755754883",
-  appId: "1:941755754883:web:14a587a2e956c25602eeb6",
-  measurementId: "G-WCCBFDS86P"
+    apiKey: "AIzaSyBPfqFhhCv09KnFAhvURHQMeEjxKxqv00A",
+    authDomain: "forum-project-20acc.firebaseapp.com",
+    projectId: "forum-project-20acc",
+    storageBucket: "forum-project-20acc.firebasestorage.app",
+    messagingSenderId: "941755754883",
+    appId: "1:941755754883:web:14a587a2e956c25602eeb6",
+    measurementId: "G-WCCBFDS86P"
 };
 
 // Inicjalizacja Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+
+// log, aby sprawdzić, czy Firebase został poprawnie zainicjowany
+console.log('Firebase zainicjowany: ', app);
 
 document.addEventListener('DOMContentLoaded', function() {
     const posts = [];
@@ -49,7 +52,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const user = userCredential.user;
                 document.getElementById('message').textContent = 'Rejestracja zakończona sukcesem!';
                 document.getElementById('registrationForm').reset(); // Resetuje formularz
-
                 // Przekierowanie do strony logowania
                 window.location.href = '../html/login.html';
             })
@@ -77,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('message').textContent = 'Zalogowano pomyślnie!';
 
                     // Przekierowanie do strony głównej
-                    window.location.href = '../html/index.html';
+                    window.location.href = '../index.html';
                 })
                 .catch((error) => {
                     const errorCode = error.code;
