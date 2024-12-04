@@ -1,6 +1,6 @@
 // Importowanie Firebase z CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
 // Konfiguracja Firebase
 const firebaseConfig = {
@@ -17,7 +17,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// log, aby sprawdzić, czy Firebase został poprawnie zainicjowany
+// Log do konsoli, aby potwierdzić inicjalizację Firebase
 console.log('Firebase zainicjowany: ', app);
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -27,38 +27,36 @@ document.addEventListener('DOMContentLoaded', function() {
         const postsContainer = document.getElementById('posts');
         postsContainer.innerHTML = '<h2>Ostatnie Posty w ModHub</h2>'; 
         posts.forEach(post => {
-            const postElement = document.createElement('div');
-            postElement.textContent = post;
-            postsContainer.appendChild(postElement);
+            const postElement = document.createElement('div'); // Tworzy nowy element dla posta
+            postElement.textContent = post; // Ustawia treść posta
+            postsContainer.appendChild(postElement); // Dodaje post do kontenera
         });
     }
 
     function addPost(postContent) {
-        posts.push(postContent);
-        displayPosts();
+        posts.push(postContent); // Dodaje nowy post do tablicy
+        displayPosts(); // Wyświetla zaktualizowaną listę postów
     }
 
     // Obsługa formularza rejestracyjnego
     document.getElementById('registrationForm')?.addEventListener('submit', function(event) {
         event.preventDefault(); // Zapobiega przeładowaniu strony
 
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+        const email = document.getElementById('email').value; // Pobiera adres e-mail
+        const password = document.getElementById('password').value; // Pobiera hasło
 
         // Rejestracja użytkownika w Firebase
         createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
-                // Rejestracja zakończona sukcesem
-                const user = userCredential.user;
-                document.getElementById('message').textContent = 'Rejestracja zakończona sukcesem!';
+                const user = userCredential.user; // Użytkownik po rejestracji
+                // document.getElementById('message').textContent = 'Rejestracja zakończona sukcesem!'; // Komunikat o sukcesie
                 document.getElementById('registrationForm').reset(); // Resetuje formularz
-                // Przekierowanie do strony logowania
-                window.location.href = '../html/login.html';
+                window.location.href = 'login.html'; // Przekierowanie do strony logowania
             })
             .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                document.getElementById('message').textContent = `Błąd rejestracji: ${errorMessage}`;
+                console.error(error); // Wyświetla szczegóły błędu w konsoli
+                const errorMessage = error.message; // Pobiera komunikat o błędzie
+                // document.getElementById('message').textContent = `Błąd rejestracji: ${errorMessage}`; // Wyświetla komunikat o błędzie
             });
     });
 
@@ -68,24 +66,47 @@ document.addEventListener('DOMContentLoaded', function() {
         loginForm.addEventListener('submit', function(event) {
             event.preventDefault(); // Zapobiega przeładowaniu strony
 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value; // Pobiera adres e-mail
+            const password = document.getElementById('password').value; // Pobiera hasło
 
             // Logowanie użytkownika w Firebase
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
-                    // Logowanie zakończone sukcesem
-                    const user = userCredential.user;
-                    document.getElementById('message').textContent = 'Zalogowano pomyślnie!';
-
-                    // Przekierowanie do strony głównej
-                    window.location.href = '../index.html';
+                    const user = userCredential.user; // Użytkownik po logowaniu
+                    // document.getElementById('message').textContent = 'Zalogowano pomyślnie!'; // Komunikat o sukcesie
+                    window.location.href = 'index.html'; // Przekierowanie do strony głównej
                 })
                 .catch((error) => {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
-                    document.getElementById('message').textContent = `Błąd logowania: ${errorMessage}`;
+                    console.error(error); // Wyświetla szczegóły błędu w konsoli
+                    const errorMessage = error.message; // Pobiera komunikat o błędzie
+                    // document.getElementById('message').textContent // = `Błąd logowania: ${errorMessage}`; // Wyświetla komunikat o błędzie
                 });
         });
     }
+
+    // Monitorowanie stanu logowania użytkownika
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // Użytkownik jest zalogowany
+            console.log('Użytkownik zalogowany:', user.email);
+            // document.getElementById('message').textContent = `Witaj, ${user.email}!`; // Powitanie użytkownika
+        } else {
+            // Użytkownik nie jest zalogowany
+            console.log('Użytkownik nie jest zalogowany');
+            // document.getElementById('message').textContent = 'Nie jesteś zalogowany.'; // Informacja o braku logowania
+        }
+    });
+
+    // Zarządzanie sesją użytkownika
+    document.getElementById('logoutLink').addEventListener('click', function() {
+        signOut(auth).then(() => {
+            // Użytkownik wylogowany
+            // document.getElementById('message').textContent = 'Wylogowano pomyślnie!'; // Komunikat o wylogowaniu
+            window.location.href = 'login.html'; // Przekierowanie do strony logowania
+        }).catch((error) => {
+            console.error(error); // Wyświetla szczegóły błędu w konsoli
+            const errorMessage = error.message; // Pobiera komunikat o błędzie
+            // document.getElementById('message').textContent = `Błąd wylogowania: ${errorMessage}`; // Wyświetla komunikat o błędzie
+        });
+    });
 });

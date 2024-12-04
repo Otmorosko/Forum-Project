@@ -1,41 +1,69 @@
 header {
-    display: flex;
-    align-items: center; /* Wyśrodkowanie elementów w pionie */
-    justify-content: center; /* Wyśrodkowanie elementów w poziomie */
-    background-color: #333; /* Kolor tła nawigacji */
-    padding: 10px; /* Odstęp wewnętrzny dla headera */
+    display: flex; /* Ustawia elastyczny układ dla nagłówka */
+    align-items: center; /* Wyśrodkowuje elementy w pionie */
+    justify-content: center; /* Wyśrodkowuje elementy w poziomie */
+    background-color: #333; /* Ustawia kolor tła nagłówka */
+    padding: 10px; /* Ustawia wewnętrzny odstęp dla nagłówka */
 }
 
 nav {
-    display: flex;
-    flex-wrap: wrap; /* Pozwolenie na przenoszenie elementów */
-    justify-content: center; /* Wyśrodkowanie elementów nawigacji */
+    display: flex; /* Ustawia elastyczny układ dla nawigacji */
+    flex-wrap: wrap; /* Pozwala na przenoszenie elementów */
+    justify-content: center; /* Wyśrodkowuje elementy nawigacji */
 }
 
 nav .logo {
-    height: 50px; /* Ustal wysokość logo */
-    margin-right: 20px; /* Odstęp od tytułu */
+    height: 50px; /* Ustawia wysokość logo */
+    margin-right: 20px; /* Ustawia odstęp od tytułu */
 }
 
 nav a {
-    flex: 1; /* Równomierne rozłożenie linków w nawigacji */
-    text-align: center; /* Wyśrodkowanie tekstu */
-    padding: 10px; /* Dodanie paddingu do linków */
-    color: white; /* Kolor tekstu */
-    text-decoration: none; /* Usunięcie podkreślenia z linków */
+    flex: 1; /* Równomiernie rozkłada linki w nawigacji */
+    text-align: center; /* Wyśrodkowuje tekst w linkach */
+    padding: 10px; /* Ustawia padding dla linków */
+    color: white; /* Ustawia kolor tekstu */
+    text-decoration: none; /* Usuwa podkreślenie z linków */
 }
 
 nav a:hover {
-    background-color: #575757; /* Zmiana koloru tła linków po najechaniu */
+    background-color: #575757; /* Ustawia kolor tła linków po najechaniu */
 }
 
 nav .user-icon {
-    height: 30px; /* Ustal wysokość ikony użytkownika */
-    margin-left: 10px; /* Odstęp od linku */
+    height: 30px; /* Ustawia wysokość ikony użytkownika */
+    margin-left: 10px; /* Ustawia odstęp od linku */
+}
+
+.user-menu {
+    position: relative; /* Umożliwia pozycjonowanie rozwijanego menu */
+}
+
+.dropdown-content {
+    display: none; /* Ukrywa menu domyślnie */
+    position: absolute; /* Pozycjonuje menu względem rodzica */
+    background-color: #f9f9f9; /* Ustawia tło menu */
+    min-width: 160px; /* Ustawia minimalną szerokość menu */
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); /* Ustawia cień dla menu */
+    z-index: 1; /* Ustawia z-index dla menu */
+}
+
+.user-menu:hover .dropdown-content {
+    display: block; /* Pokazuje menu po najechaniu */
+}
+
+.dropdown-content a {
+    color: black; /* Ustawia kolor tekstu w menu */
+    padding: 12px 16px; /* Ustawia padding dla linków w menu */
+    text-decoration: none; /* Usuwa podkreślenie z linków w menu */
+    display: block; /* Ustawia wyświetlanie jako blok */
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1; /* Ustawia kolor tła po najechaniu na link w menu */
 }
 
 @media (max-width: 600px) {
     nav a {
-        padding: 10px; /* Zwiększenie paddingu dla linków na małych ekranach */
+        padding: 10px; /* Ustawia padding dla linków na małych ekranach */
     }
 }
