@@ -1,50 +1,78 @@
 header {
-    display: flex; /* Ustawia elastyczny układ dla nagłówka */
-    align-items: center; /* Wyśrodkowuje elementy w pionie */
-    justify-content: center; /* Wyśrodkowuje elementy w poziomie */
-    background-color: #333; /* Ustawia kolor tła nagłówka */
-    padding: 10px; /* Ustawia wewnętrzny odstęp dla nagłówka */
+    display: flex; /* Elastyczny układ */
+    align-items: center; /* Wyśrodkowanie elementów w pionie */
+    justify-content: center; /* Wyśrodkowanie elementów w poziomie */
+    background-color: #333; /* Kolor tła */
+    padding: 1vh; /* Wewnętrzne odstępy */
+    box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.5);
+    border-radius: 0.2vw; /* Zaokrąglenie */
+    position: fixed; /* Ustawienie pozycji */
+    top: 0; /* Przyklejenie do góry */
+    left: 50%; /* Przesunięcie w prawo o 50% szerokości okna */
+    transform: translateX(-50%); /* Wyrównanie względem środka */
+    z-index: 1000; /* Na wierzchu */
+    max-width: 1200px; /* Maksymalna szerokość */
+    width: 100%; /* Szerokość dopasowana do ekranu */
 }
 
 nav {
-    display: flex; /* Ustawia elastyczny układ dla nawigacji */
-    flex-wrap: wrap; /* Pozwala na przenoszenie elementów */
-    justify-content: center; /* Wyśrodkowuje elementy nawigacji */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; 
+    align-items: center;
 }
 
+
 nav .logo {
-    height: 50px; /* Ustawia wysokość logo */
-    margin-right: 20px; /* Ustawia odstęp od tytułu */
+    height: 2.5vh; /* Ustawia wysokość logo w vh (zmniejszone o połowę) */
+    margin-right: 2vw; /* Ustawia odstęp od tytułu w vw */
 }
 
 nav a {
-    flex: 1; /* Równomiernie rozkłada linki w nawigacji */
+    display: inline-block; /* Zmiana z flex na inline-block */
     text-align: center; /* Wyśrodkowuje tekst w linkach */
-    padding: 10px; /* Ustawia padding dla linków */
+    padding: 1vh; /* Ustawia padding dla linków w vh */
+    margin-right: 1vw; /* Dodaje odstęp między linkami */
     color: white; /* Ustawia kolor tekstu */
     text-decoration: none; /* Usuwa podkreślenie z linków */
+    z-index: 1; /* Zapewnia właściwą kolejność w warstwach */
+    box-sizing: border-box; /* Ustawia stałe wymiary elementu */
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Dodaje efekt przejścia */
 }
 
 nav a:hover {
-    background-color: #575757; /* Ustawia kolor tła linków po najechaniu */
+    background-color: #575757; /* Zmieniamy tylko tło */
+    transform: scale(1.05); /* Powiększa element bez przesunięcia sąsiadów */
 }
 
 nav .user-icon {
-    height: 30px; /* Ustawia wysokość ikony użytkownika */
-    margin-left: 10px; /* Ustawia odstęp od linku */
+    width: 40px; /* Ustawia szerokość ikony */
+    height: 40px; /* Ustawia wysokość ikony */
+    object-fit: cover; /* Wypełnia pojemnik, zachowując proporcje */
+    margin: 0; /* Usuwa marginesy, aby uniknąć przesunięć */
 }
 
 .user-menu {
+    display: flex; /* Ustawia elastyczny układ */
+    align-items: center; /* Wyśrodkowanie ikony w pionie */
+    justify-content: center; /* Wyśrodkowanie w poziomie */
     position: relative; /* Umożliwia pozycjonowanie rozwijanego menu */
+    margin-left: 1vw; /* Dodaje odstęp od poprzedniego elementu */
+    z-index: 10; /* Wyższa wartość, aby menu było na wierzchu */
+    width: 50px; /* Ustaw szerokość kontenera */
+    height: 50px; /* Ustaw wysokość kontenera */
 }
 
 .dropdown-content {
     display: none; /* Ukrywa menu domyślnie */
     position: absolute; /* Pozycjonuje menu względem rodzica */
     background-color: #f9f9f9; /* Ustawia tło menu */
-    min-width: 160px; /* Ustawia minimalną szerokość menu */
+    min-width: 10vw; /* Ustawia minimalną szerokość menu w vw */
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); /* Ustawia cień dla menu */
     z-index: 1; /* Ustawia z-index dla menu */
+    top: 100%; /* Przesunięcie menu pod ikonę */
+    left: 0; /* Dopasowanie pozycji względem lewej krawędzi */
+    transform: translateY(5px); /* Delikatne przesunięcie w dół */
 }
 
 .user-menu:hover .dropdown-content {
@@ -53,7 +81,7 @@ nav .user-icon {
 
 .dropdown-content a {
     color: black; /* Ustawia kolor tekstu w menu */
-    padding: 12px 16px; /* Ustawia padding dla linków w menu */
+    padding: 1vh 3vw; /* Ustawia padding dla linków w menu w vh i vw (zmniejszone o połowę) */
     text-decoration: none; /* Usuwa podkreślenie z linków w menu */
     display: block; /* Ustawia wyświetlanie jako blok */
 }
@@ -64,6 +92,6 @@ nav .user-icon {
 
 @media (max-width: 600px) {
     nav a {
-        padding: 10px; /* Ustawia padding dla linków na małych ekranach */
+        padding: 1vh; /* Ustawia padding dla linków na małych ekranach w vh (zmniejszone o połowę) */
     }
 }

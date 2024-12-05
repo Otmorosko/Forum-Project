@@ -1,0 +1,106 @@
+/* Ustawienia dla stopki */
+footer {
+    background-color: #333; /* Ciemny kolor na górze */
+    position: relative; /* Ustawia stopkę jako względną */
+    width: 100%; /* Ustawia szerokość na 100% */
+    z-index: 1000; /* Ustawia z-index, aby stopka była na wierzchu */
+}
+
+/* Kontener stopki */
+.footer-container {
+    background-color: #ccc; /* Jasnoszary kolor dla głównego obszaru stopki */
+    padding: 3vw 0; /* Wewnętrzny odstęp w pionie */
+    display: flex;
+    justify-content: space-between; /* Rozkłada elementy równomiernie */
+    flex-wrap: wrap; /* Pozwala elementom zawijać się w przypadku braku miejsca */
+    width: 100%; /* Ustawia szerokość na 100% */
+    margin: 0 auto; /* Wyrównanie do środka */
+}
+
+/* Branding */
+.footer-brand {
+    flex: 1; /* Umożliwia rozszerzenie na całą szerokość na małych ekranach */
+    margin-bottom: 2vw; /* Odstęp dolny między sekcją a resztą */
+    padding: 0 5vw; /* Dodanie odstępu poziomego */
+}
+
+.footer-brand h2 {
+    font-size: 2rem; /* Wielkość czcionki dla nagłówka */
+    color: #000; /* Czarny kolor tekstu */
+}
+
+.footer-brand p {
+    margin: 1vw 0; /* Odstęp między tekstem a innymi elementami */
+    color: #555; /* Stonowany kolor tekstu */
+    font-size: 1rem; /* Standardowy rozmiar tekstu */
+}
+
+.footer-socials {
+    display: flex;
+    gap: 1vw; /* Odstęp między ikonami społecznościowymi */
+}
+
+.social-icon {
+    font-size: 1.2rem; /* Rozmiar ikony */
+    color: #000; /* Czarny kolor tekstu */
+    text-decoration: none; /* Usuwa podkreślenie */
+}
+
+.social-icon:hover {
+    color: #888; /* Kolor podczas najechania */
+}
+
+/* Linki w stopce */
+.footer-links {
+    display: flex;
+    flex: 3; /* Kolumny zajmują większą część szerokości */
+    justify-content: space-between; /* Równy odstęp między kolumnami */
+    flex-wrap: wrap; /* Zawijanie w przypadku mniejszego ekranu */
+    gap: 2vw; /* Odstęp między kolumnami */
+    padding: 0 5vw; /* Dodanie odstępu poziomego */
+}
+
+.footer-column {
+    flex: 1; /* Każda kolumna ma równy rozmiar */
+    min-width: 150px; /* Minimalna szerokość kolumny */
+}
+
+.footer-column h3 {
+    font-size: 1.5rem; /* Nagłówek kolumny */
+    color: #000; /* Czarny kolor tekstu */
+    margin-bottom: 1vw; /* Odstęp od listy linków */
+}
+
+.footer-column ul {
+    list-style: none; /* Usuwa punkty z listy */
+    padding: 0; /* Usuwa odstępy wewnętrzne */
+    margin: 0; /* Usuwa odstępy zewnętrzne */
+}
+
+.footer-column li {
+    margin-bottom: 0.5vw; /* Odstęp między elementami listy */
+}
+
+.footer-column a {
+    color: #000; /* Czarny kolor linków */
+    text-decoration: none; /* Usuwa podkreślenie */
+}
+
+.footer-column a:hover {
+    color: #888; /* Kolor linków podczas najechania */
+}
+
+/* Styl dla urządzeń mobilnych */
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column; /* Ustawia elementy w kolumnie na wąskich ekranach */
+        align-items: flex-start; /* Wyrównuje elementy do lewej */
+    }
+    .footer-links {
+        flex-direction: column; /* Linki w jednej kolumnie na wąskich ekranach */
+        padding: 0; /* Usuwa dodatkowy padding na małych ekranach */
+    }
+    .footer-column {
+        margin-bottom: 2vw; /* Większe odstępy między kolumnami */
+    }
+}

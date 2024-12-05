@@ -92,23 +92,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const loginLink = document.getElementById('loginLink');
         const registerLink = document.getElementById('registerLink');
         const logoutLink = document.getElementById('logoutLink');
+        const profileLink = document.getElementById('profileLink'); // Nowy link do profilu
     
         if (user) {
             console.log('Użytkownik zalogowany');
             console.log('Zalogowany użytkownik: ', user);
             
-            // Użytkownik jest zalogowany, ukryj linki logowania i rejestracji, pokaż link wylogowania
+            // Użytkownik jest zalogowany, ukryj linki logowania i rejestracji, pokaż link wylogowania i profil
             loginLink.style.display = 'none';
             registerLink.style.display = 'none';
             logoutLink.style.display = 'block'; // Pokaż link wylogowania
+            profileLink.style.display = 'block'; // Pokaż link do profilu
         } else {
             // Użytkownik nie jest zalogowany
             console.log('Brak zalogowanego użytkownika');
             
-            // Użytkownik nie jest zalogowany, pokaż linki logowania i rejestracji, ukryj link wylogowania
+            // Użytkownik nie jest zalogowany, pokaż linki logowania i rejestracji, ukryj link wylogowania i profil
             loginLink.style.display = 'block';
             registerLink.style.display = 'block';
             logoutLink.style.display = 'none'; // Ukryj link wylogowania
+            profileLink.style.display = 'none'; // Ukryj link do profilu
         }
     });
 
