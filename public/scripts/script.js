@@ -1,6 +1,7 @@
 // Importowanie Firebase z CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { monitorAuthState } from './auth.js'; // Upewnij się, że monitorAuthState jest zaimportowane z auth.js
 
 // Konfiguracja Firebase
 const firebaseConfig = {
@@ -56,11 +57,13 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch((error) => {
                 console.error(error); // Wyświetla szczegóły błędu w konsoli
                 const errorMessage = error.message; // Pobiera komunikat o błędzie
+                const messageElement = document.getElementById('message');
                 if (error.code === 'auth/email-already-in-use') {
-                    document.getElementById('message').textContent = 'Ten adres e-mail jest już używany. Proszę spróbować innego.';
+                    messageElement.textContent = 'Ten adres e-mail jest już używany. Proszę spróbować innego.';
                 } else {
-                    document.getElementById('message').textContent = `Błąd rejestracji: ${errorMessage}`; // Wyświetla komunikat o błędzie
+                    messageElement.textContent = `Błąd rejestracji: ${errorMessage}`; // Wyświetla komunikat o błędzie
                 }
+                messageElement.style.color = 'red'; // Ustawia kolor komunikatu na czerwony
             });
     });
 
@@ -68,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', function(event) {
-            event.preventDefault(); // Zapobiega przeładowaniu strony
+            event.preventDefault(); // Zapobiega przeładow aniu strony
 
             const email = document.getElementById('email').value; // Pobiera adres e-mail
             const password = document.getElementById('password').value; // Pobiera hasło
@@ -82,18 +85,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 .catch((error) => {
                     console.error(error); // Wyświetla szczegóły błędu w konsoli
                     const errorMessage = error.message; // Pobiera komunikat o błędzie
-                    document.getElementById('message').textContent = `Błąd logowania: ${errorMessage}`; // Wyświetla komunikat o błędzie
+                    const messageElement = document.getElementById('message');
+                    if (error.code === 'auth/wrong-password') {
+                        messageElement.textContent = 'Nieprawidłowe hasło. Proszę spróbować ponownie.';
+                    } else if (error.code === 'auth/user-not-found') {
+                        messageElement.textContent = 'Nie znaleziono użytkownika z tym adresem e-mail. Proszę sprawdzić i spróbować ponownie.';
+                    } else {
+                        messageElement.textContent = `Błąd logowania: ${errorMessage}`; // Wyświetla komunikat o błędzie
+                    }
+                    messageElement.style.color = 'red'; // Ustawia kolor komunikatu na czerwony
                 });
         });
     }
 
     // Monitorowanie stanu logowania użytkownika
-    onAuthStateChanged(auth, (user) => {
+    monitorAuthState((user) => {
         const loginLink = document.getElementById('loginLink');
         const registerLink = document.getElementById('registerLink');
         const logoutLink = document.getElementById('logoutLink');
         const profileLink = document.getElementById('profileLink'); // Nowy link do profilu
-    
+
         if (user) {
             console.log('Użytkownik zalogowany');
             console.log('Zalogowany użytkownik: ', user);

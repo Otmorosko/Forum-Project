@@ -1,10 +1,13 @@
+// Importowanie funkcji z auth.js
+import { monitorAuthState, getCurrentUser  } from './auth.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     const existingNicknames = new Set(); // Przechowuje istniejące nicki
 
     // Funkcja do generowania tymczasowego nicku
     function generateTemporaryNickname() {
         const randomSuffix = Math.random().toString(36).substring(2, 7); // Losowy ciąg znaków
-        return `User  ${randomSuffix}`;
+        return `User   ${randomSuffix}`;
     }
 
     // Ustawienie domyślnego nicku
@@ -25,6 +28,15 @@ document.addEventListener('DOMContentLoaded', function() {
             existingNicknames.add(newNickname);
             userNickname = newNickname;
             document.getElementById('message').textContent = `Nick został zmieniony na: ${userNickname}`;
+        }
+    });
+
+    // Monitorowanie stanu logowania użytkownika
+    monitorAuthState((user) => {
+        if (user) {
+            document.getElementById('emailDisplay').textContent = `E-mail: ${user.email}`;
+        } else {
+            document.getElementById('emailDisplay').textContent = 'Nie jesteś zalogowany.';
         }
     });
 });

@@ -14,14 +14,13 @@ const navbarHTML = `
             <div class="dropdown-content" id="dropdownMenu">
                 <a href="login.html" id="loginLink">Logowanie</a> 
                 <a href="register.html" id="registerLink">Zarejestruj się</a> 
-                <a href="user-panel.html" id="profileLink" style="display: none;">Profil</a>
+                <a href="user-panel.html" id="profileLink" style="display: none;">Profil</a> 
                 <a href="#" id="logoutLink" style="display: none;">Wyloguj się</a>
             </div>
         </div>
     </nav>
 </header>
 `;
-
 // Dodanie navbarHTML do DOM
 document.addEventListener('DOMContentLoaded', function() {
     // Wstawienie navbaru na początku body

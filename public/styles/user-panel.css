@@ -8,6 +8,7 @@ body {
 main {
     max-width: 600px;
     margin: auto;
+    margin-top: 15vh; 
     background: white;
     padding: 20px;
     border-radius: 8px;
