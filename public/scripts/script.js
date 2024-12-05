@@ -7,7 +7,7 @@ const firebaseConfig = {
     apiKey: "AIzaSyBPfqFhhCv09KnFAhvURHQMeEjxKxqv00A",
     authDomain: "forum-project-20acc.firebaseapp.com",
     projectId: "forum-project-20acc",
-    storageBucket: "forum-project-20acc.firebasestorage.app",
+    storageBucket: "forum-project-20acc.appspot.com",
     messagingSenderId: "941755754883",
     appId: "1:941755754883:web:14a587a2e956c25602eeb6",
     measurementId: "G-WCCBFDS86P"
@@ -48,15 +48,19 @@ document.addEventListener('DOMContentLoaded', function() {
         // Rejestracja użytkownika w Firebase
         createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
-                const user = userCredential.user; // Użytkownik po rejestracji
-                // document.getElementById('message').textContent = 'Rejestracja zakończona sukcesem!'; // Komunikat o sukcesie
+                // Użytkownik po rejestracji
+                const user = userCredential.user;
                 document.getElementById('registrationForm').reset(); // Resetuje formularz
                 window.location.href = 'login.html'; // Przekierowanie do strony logowania
             })
             .catch((error) => {
                 console.error(error); // Wyświetla szczegóły błędu w konsoli
                 const errorMessage = error.message; // Pobiera komunikat o błędzie
-                // document.getElementById('message').textContent = `Błąd rejestracji: ${errorMessage}`; // Wyświetla komunikat o błędzie
+                if (error.code === 'auth/email-already-in-use') {
+                    document.getElementById('message').textContent = 'Ten adres e-mail jest już używany. Proszę spróbować innego.';
+                } else {
+                    document.getElementById('message').textContent = `Błąd rejestracji: ${errorMessage}`; // Wyświetla komunikat o błędzie
+                }
             });
     });
 
@@ -73,40 +77,49 @@ document.addEventListener('DOMContentLoaded', function() {
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
                     const user = userCredential.user; // Użytkownik po logowaniu
-                    // document.getElementById('message').textContent = 'Zalogowano pomyślnie!'; // Komunikat o sukcesie
                     window.location.href = 'index.html'; // Przekierowanie do strony głównej
                 })
                 .catch((error) => {
                     console.error(error); // Wyświetla szczegóły błędu w konsoli
                     const errorMessage = error.message; // Pobiera komunikat o błędzie
-                    // document.getElementById('message').textContent // = `Błąd logowania: ${errorMessage}`; // Wyświetla komunikat o błędzie
+                    document.getElementById('message').textContent = `Błąd logowania: ${errorMessage}`; // Wyświetla komunikat o błędzie
                 });
         });
     }
 
     // Monitorowanie stanu logowania użytkownika
     onAuthStateChanged(auth, (user) => {
+        const loginLink = document.getElementById('loginLink');
+        const registerLink = document.getElementById('registerLink');
+        const logoutLink = document.getElementById('logoutLink');
+    
         if (user) {
-            // Użytkownik jest zalogowany
-            console.log('Użytkownik zalogowany:', user.email);
-            // document.getElementById('message').textContent = `Witaj, ${user.email}!`; // Powitanie użytkownika
+            console.log('Użytkownik zalogowany');
+            console.log('Zalogowany użytkownik: ', user);
+            
+            // Użytkownik jest zalogowany, ukryj linki logowania i rejestracji, pokaż link wylogowania
+            loginLink.style.display = 'none';
+            registerLink.style.display = 'none';
+            logoutLink.style.display = 'block'; // Pokaż link wylogowania
         } else {
             // Użytkownik nie jest zalogowany
-            console.log('Użytkownik nie jest zalogowany');
-            // document.getElementById('message').textContent = 'Nie jesteś zalogowany.'; // Informacja o braku logowania
+            console.log('Brak zalogowanego użytkownika');
+            
+            // Użytkownik nie jest zalogowany, pokaż linki logowania i rejestracji, ukryj link wylogowania
+            loginLink.style.display = 'block';
+            registerLink.style.display = 'block';
+            logoutLink.style.display = 'none'; // Ukryj link wylogowania
         }
     });
 
-    // Zarządzanie sesją użytkownika
-    document.getElementById('logoutLink').addEventListener('click', function() {
+    document.getElementById('logoutLink')?.addEventListener('click', function(event) {
+        event.preventDefault(); // Zapobiega przeładowaniu strony
         signOut(auth).then(() => {
-            // Użytkownik wylogowany
-            // document.getElementById('message').textContent = 'Wylogowano pomyślnie!'; // Komunikat o wylogowaniu
+            console.log('Użytkownik wylogowany');
+            // Możesz dodać przekierowanie lub inne działania po wylogowaniu
             window.location.href = 'login.html'; // Przekierowanie do strony logowania
         }).catch((error) => {
-            console.error(error); // Wyświetla szczegóły błędu w konsoli
-            const errorMessage = error.message; // Pobiera komunikat o błędzie
-            // document.getElementById('message').textContent = `Błąd wylogowania: ${errorMessage}`; // Wyświetla komunikat o błędzie
+            console.error('Błąd wylogowania: ', error);
         });
     });
 });
