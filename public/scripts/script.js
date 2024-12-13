@@ -1,5 +1,5 @@
 import { renderNavbar } from './navbar.js';
-import { updateNavLinks, monitorAuthState, logoutUser } from './auth.js';
+import { updateNavLinks, loginUser, logoutUser, registerUser } from './auth.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Wstawienie nawigacji
@@ -11,47 +11,52 @@ document.addEventListener('DOMContentLoaded', () => {
     // Obsługa rejestracji
     const registrationForm = document.getElementById('registrationForm');
     if (registrationForm) {
-        registrationForm.addEventListener('submit', (event) => {
+        registrationForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const nickname = document.getElementById('nickname').value;
 
-            // Funkcja rejestracji użytkownika
-            import('./auth.js').then(({ registerUser }) => {
-                registerUser(email, password)
-                    .then((user) => console.log('Użytkownik zarejestrowany:', user))
-                    .catch((error) => console.error('Błąd rejestracji:', error));
-            });
+            try {
+                const user = await registerUser(email, password, nickname);
+                console.log('Użytkownik zarejestrowany:', user);
+                window.location.href = 'index.html'; // Przekierowanie po rejestracji
+            } catch (error) {
+                console.error('Błąd rejestracji:', error);
+            }
         });
     }
 
     // Obsługa logowania
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
-        loginForm.addEventListener('submit', (event) => {
+        loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            // Funkcja logowania użytkownika
-            import('./auth.js').then(({ loginUser }) => {
-                loginUser(email, password)
-                    .then((user) => {
-                        console.log('Zalogowano:', user);
-                        window.location.href = 'index.html';
-                    })
-                    .catch((error) => console.error('Błąd logowania:', error));
-            });
+            try {
+                const user = await loginUser(email, password);
+                console.log('Zalogowano użytkownika:', user);
+                window.location.href = 'index.html'; // Przekierowanie po zalogowaniu
+            } catch (error) {
+                console.error('Błąd podczas logowania:', error);
+            }
         });
     }
 
     // Obsługa wylogowania
     const logoutLink = document.getElementById('logoutLink');
     if (logoutLink) {
-        logoutLink.addEventListener('click', (event) => {
+        logoutLink.addEventListener('click', async (event) => {
             event.preventDefault();
-            logoutUser()
-                .catch((error) => console.error('Błąd podczas wylogowania:', error));
+            console.log('Kliknięto logoutLink');
+            try {
+                await logoutUser();
+                console.log('Wylogowanie zakończone sukcesem');
+            } catch (error) {
+                console.error('Błąd przy wylogowaniu:', error);
+            }
         });
     }
 });

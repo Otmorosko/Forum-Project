@@ -1,5 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { 
+    getAuth, 
+    onAuthStateChanged, 
+    signOut, 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
+    updateProfile 
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
 // Konfiguracja Firebase
 const firebaseConfig = {
@@ -18,7 +25,10 @@ const auth = getAuth(app);
 
 // Funkcja monitorująca stan logowania
 export function monitorAuthState(callback) {
-    onAuthStateChanged(auth, callback);
+    onAuthStateChanged(auth, (user) => {
+        console.log('Stan logowania:', user);
+        callback(user);
+    });
 }
 
 // Funkcja do ukrywania i wyświetlania linków w nawigacji
@@ -49,8 +59,40 @@ export function updateNavLinks() {
     });
 }
 
+// Funkcja do rejestracji użytkownika
+export async function registerUser(email, password, nickname) {
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Ustawienie nazwy użytkownika
+        await updateProfile(user, {
+            displayName: nickname,
+        });
+
+        console.log('Rejestracja zakończona sukcesem:', user);
+        return user;
+    } catch (error) {
+        console.error('Błąd podczas rejestracji:', error);
+        throw error;
+    }
+}
+
+// Funkcja do logowania użytkownika
+export async function loginUser(email, password) {
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        console.log('Logowanie zakończone sukcesem:', userCredential.user);
+        return userCredential.user;
+    } catch (error) {
+        console.error('Błąd podczas logowania:', error);
+        throw error;
+    }
+}
+
 // Funkcja do wylogowania użytkownika
 export function logoutUser() {
+    console.log('Wywołanie logoutUser()');
     return signOut(auth)
         .then(() => {
             console.log('Użytkownik wylogowany');
@@ -58,5 +100,6 @@ export function logoutUser() {
         })
         .catch((error) => {
             console.error('Błąd podczas wylogowania:', error);
+            alert('Wylogowanie nie powiodło się. Spróbuj ponownie później.');
         });
 }
