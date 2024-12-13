@@ -103,3 +103,18 @@ export function logoutUser() {
             alert('Wylogowanie nie powiodło się. Spróbuj ponownie później.');
         });
 }
+
+// Funkcja do wyświetlania profilu użytkownika
+export function getUserProfile(callback) {
+    monitorAuthState((user) => {
+        if (user) {
+            const profile = {
+                displayName: user.displayName || 'Nieznany użytkownik',
+                email: user.email || 'Brak adresu e-mail',
+            };
+            callback(profile);
+        } else {
+            callback(null);
+        }
+    });
+}

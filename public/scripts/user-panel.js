@@ -1,5 +1,21 @@
 import { renderNavbar } from './navbar.js';
-import { monitorAuthState, updateNavLinks } from './auth.js';
+import { monitorAuthState, updateNavLinks, getUserProfile } from './auth.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Wyświetlenie nazwy użytkownika i adresu e-mail
+    const userNameElement = document.querySelector('.user-profile h2'); // Element, gdzie wyświetlamy nazwę
+    const userEmailElement = document.querySelector('.user-profile p'); // Element na e-mail
+
+    getUserProfile((profile) => {
+        if (profile) {
+            userNameElement.textContent = profile.displayName; // Ustawienie nazwy użytkownika
+            userEmailElement.textContent = `Zalogowany jako: ${profile.email}`; // Ustawienie e-maila
+        } else {
+            userNameElement.textContent = 'Niezalogowany użytkownik';
+            userEmailElement.textContent = '';
+        }
+    });
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     // Wstawienie paska nawigacyjnego
