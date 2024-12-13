@@ -1,55 +1,159 @@
+/* Globalne ustawienia */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: #121212;
+    color: #fff;
     margin: 0;
-    padding: 20px;
-}
-
-main {
-    max-width: 600px;
-    margin: auto;
-    margin-top: 15vh; 
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-    text-align: center;
-}
-
-form {
     display: flex;
     flex-direction: column;
+    min-height: 100vh; /* Cała wysokość widoku */
 }
 
-label {
-    margin-bottom: 5px;
+
+
+
+/* Główna zawartość */
+main {
+    margin-top: 10vh; /* Odstęp równy wysokości navbaru */
+    flex-grow: 1; /* Wypełnia dostępną przestrzeń */
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    width: 90%;
+    max-width: 1200px;
+    background-color: #1e1e1e;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.5);
+    margin-left: auto;
+    margin-right: auto;
 }
 
-input[type="text"] {
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
 
-button {
-    padding: 10px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #218838;
-}
-
-#message {
-    margin-top: 10px;
+/* Sekcja profilu użytkownika */
+.user-profile {
+    background-color: #2c2c2c;
+    padding: 2rem;
+    border-radius: 0.5rem;
     text-align: center;
-    color: red;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+}
+
+.profile-pic {
+    width: 8rem;
+    height: 8rem;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+}
+
+/* Przyciski */
+.btn {
+    background-color: #007bff;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    margin-top: 1rem;
+    font-size: 1rem;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+/* Aktywności */
+.recent-activity {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.stats, .recent-threads {
+    background-color: #2c2c2c;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+}
+
+.stats-numbers {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    font-size: 1rem;
+}
+
+/* Karty wątków */
+.thread-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1rem;
+}
+
+.thread-card {
+    background-color: #2c2c2c;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+}
+
+/* Stopka */
+footer {
+    background-color: #2c2c2c;
+    color: #fff;
+    text-align: center;
+    padding: 2rem;
+    margin-top: auto;
+    box-shadow: 0 -0.5rem 1rem rgba(0, 0, 0, 0.5);
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+    main {
+        grid-template-columns: 1fr;
+        margin-top: 12vh;
+    }
+
+    .stats-numbers {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .thread-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .stats, .recent-threads, .thread-card {
+        padding: 1rem;
+    }
+
+    .profile-pic {
+        width: 6rem;
+        height: 6rem;
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column; /* Elementy w navbarze w pionie */
+        height: auto; /* Dopasowanie wysokości do zawartości */
+        padding: 1rem;
+    }
+
+    nav a {
+        margin: 0.5rem 0; /* Odstępy między linkami */
+        font-size: 1rem; /* Zmniejszony rozmiar tekstu */
+    }
+
+    .user-icon {
+        width: 2rem; /* Dostosowanie rozmiaru ikony */
+        height: 2rem;
+    }
 }

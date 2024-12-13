@@ -3,25 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles/user-panel.css"> 
-    <link rel="stylesheet" href="styles/navbar.css"> 
-    <link rel="stylesheet" href="styles/footer.css">
-
     <title>Panel Użytkownika - ModHub</title>
+    <!-- Linki do plików CSS -->
+    <link rel="stylesheet" href="styles/navbar.css">
+    <link rel="stylesheet" href="styles/user-panel.css">
+    <link rel="stylesheet" href="styles/footer.css">
 </head>
 <body>
-    <main>
-        <h2>Panel Użytkownika</h2>
-        <div id="emailDisplay"></div>
-        <form id="nicknameForm">
-            <label for="nickname">Nowy Nick:</label>
-            <input type="text" id="nickname" name="nickname" required>
-            <button type="submit">Zmień Nick</button>
-        </form>
-        <div id="message"></div>
+    <main class="user-panel">
+        <section class="user-profile">
+            <img src="path/to/profile-pic.jpg" alt="Zdjęcie Profilowe" class="profile-pic">
+            <h2 id="userName">Nazwa Użytkownika</h2>
+            <p id="emailDisplay">Tutaj pojawi się Twój e-mail</p>
+            <button class="btn edit-profile">Edytuj Profil</button>
+        </section>
+        
+
+        <section class="recent-activity">
+            <div class="stats">
+                <h3>Statystyki</h3>
+                <div class="stats-numbers">
+                    <p><strong>120</strong> Wątki</p>
+                    <p><strong>450</strong> Odpowiedzi</p>
+                    <p><strong>30</strong> Mody</p>
+                </div>
+            </div>
+
+            <div class="recent-threads">
+                <h3>Ostatnie Wątki</h3>
+                <ul>
+                    <li>Wątek 1</li>
+                    <li>Wątek 2</li>
+                    <li>Wątek 3</li>
+                    <li>Wątek 4</li>
+                </ul>
+            </div>
+
+            <div class="thread-cards">
+                <div class="thread-card">Wątek 1<br>Opis wątku...</div>
+                <div class="thread-card">Wątek 2<br>Opis wątku...</div>
+                <div class="thread-card">Wątek 3<br>Opis wątku...</div>
+                <div class="thread-card">Wątek 4<br>Opis wątku...</div>
+            </div>
+        </section>
     </main>
-    <script type="module" src="scripts/navbar.js" defer></script>
-    <script type="module" src="scripts/user-panel.js" defer></script>
+
+    <!-- Linki do plików skryptowych -->
+    <script type="module" src="scripts/navbar.js"></script>
+    <script type="module" src="scripts/script.js"></script> 
+    <script type="module" src="scripts/user-panel.js"></script>
     <script type="module" src="scripts/footer.js" defer></script>
 </body>
 </html>

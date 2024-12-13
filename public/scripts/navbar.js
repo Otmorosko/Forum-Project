@@ -1,6 +1,5 @@
 export const navbarHTML = `
 <header>
-    <img src="icons/logo.png" alt="Logo ModHub" class="logo"> 
     <h1>ModHub</h1>
     <nav>
         <a href="index.html">Strona Główna</a> 
