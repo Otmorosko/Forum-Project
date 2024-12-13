@@ -1,11 +1,9 @@
-const navbarHTML = `
+export const navbarHTML = `
 <header>
     <img src="icons/logo.png" alt="Logo ModHub" class="logo"> 
     <h1>ModHub</h1>
     <nav>
         <a href="index.html">Strona Główna</a> 
-        <a href="login.html">Logowanie</a> 
-        <a href="register.html">Zarejestruj się</a> 
         <a href="post.html">Dodaj Post</a>
         <div class="user-menu">
             <a href="#" id="userPanelLink">
@@ -21,8 +19,11 @@ const navbarHTML = `
     </nav>
 </header>
 `;
-// Dodanie navbarHTML do DOM
-document.addEventListener('DOMContentLoaded', function() {
-    // Wstawienie navbaru na początku body
-    document.body.insertAdjacentHTML('afterbegin', navbarHTML);
-});
+
+// Funkcja do wstawienia paska nawigacyjnego do DOM
+export function renderNavbar() {
+    const existingNavbar = document.querySelector('header');
+    if (!existingNavbar) {
+        document.body.insertAdjacentHTML('afterbegin', navbarHTML);
+    }
+}

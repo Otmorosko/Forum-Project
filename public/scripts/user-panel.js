@@ -1,42 +1,30 @@
-// Importowanie funkcji z auth.js
-import { monitorAuthState, getCurrentUser  } from './auth.js';
+import { renderNavbar } from './navbar.js';
+import { monitorAuthState, updateNavLinks } from './auth.js';
 
-document.addEventListener('DOMContentLoaded', function() {
-    const existingNicknames = new Set(); // Przechowuje istniejące nicki
+document.addEventListener('DOMContentLoaded', () => {
+    // Wstawienie paska nawigacyjnego
+    renderNavbar();
 
-    // Funkcja do generowania tymczasowego nicku
-    function generateTemporaryNickname() {
-        const randomSuffix = Math.random().toString(36).substring(2, 7); // Losowy ciąg znaków
-        return `User   ${randomSuffix}`;
-    }
+    // Aktualizacja linków nawigacyjnych w zależności od stanu logowania
+    updateNavLinks();
 
-    // Ustawienie domyślnego nicku
-    let userNickname = generateTemporaryNickname();
-    existingNicknames.add(userNickname);
-    document.getElementById('nickname').value = userNickname;
-
-    // Obsługa formularza zmiany nicku
-    document.getElementById('nicknameForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Zapobiega przeładowaniu strony
-
-        const newNickname = document.getElementById('nickname').value;
-
-        // Sprawdzenie, czy nowy nick jest już zajęty
-        if (existingNicknames.has(newNickname)) {
-            document.getElementById('message').textContent = 'Ten nick jest już zajęty. Wybierz inny.';
-        } else {
-            existingNicknames.add(newNickname);
-            userNickname = newNickname;
-            document.getElementById('message').textContent = `Nick został zmieniony na: ${userNickname}`;
-        }
-    });
-
-    // Monitorowanie stanu logowania użytkownika
+    // Wyświetlenie informacji o użytkowniku
+    const emailDisplay = document.getElementById('emailDisplay');
     monitorAuthState((user) => {
         if (user) {
-            document.getElementById('emailDisplay').textContent = `E-mail: ${user.email}`;
+            emailDisplay.textContent = `Zalogowany jako: ${user.email}`;
         } else {
-            document.getElementById('emailDisplay').textContent = 'Nie jesteś zalogowany.';
+            emailDisplay.textContent = 'Brak zalogowanego użytkownika.';
         }
     });
+
+    // Obsługa zmiany nicku
+    const nicknameForm = document.getElementById('nicknameForm');
+    if (nicknameForm) {
+        nicknameForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const nickname = document.getElementById('nickname').value;
+            document.getElementById('message').textContent = `Nick został zmieniony na: ${nickname}`;
+        });
+    }
 });

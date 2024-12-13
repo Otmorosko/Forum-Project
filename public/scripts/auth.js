@@ -1,6 +1,5 @@
-// auth.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
 // Konfiguracja Firebase
 const firebaseConfig = {
@@ -17,14 +16,47 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// Funkcja do monitorowania stanu logowania
+// Funkcja monitorująca stan logowania
 export function monitorAuthState(callback) {
-    onAuthStateChanged(auth, (user) => {
-        callback(user);
+    onAuthStateChanged(auth, callback);
+}
+
+// Funkcja do ukrywania i wyświetlania linków w nawigacji
+export function updateNavLinks() {
+    const loginLink = document.getElementById('loginLink');
+    const registerLink = document.getElementById('registerLink');
+    const logoutLink = document.getElementById('logoutLink');
+    const profileLink = document.getElementById('profileLink');
+
+    monitorAuthState((user) => {
+        if (user) {
+            // Ukrycie linków logowania i rejestracji
+            if (loginLink) loginLink.style.display = 'none';
+            if (registerLink) registerLink.style.display = 'none';
+
+            // Wyświetlenie linków wylogowania i profilu
+            if (logoutLink) logoutLink.style.display = 'block';
+            if (profileLink) profileLink.style.display = 'block';
+        } else {
+            // Wyświetlenie linków logowania i rejestracji
+            if (loginLink) loginLink.style.display = 'block';
+            if (registerLink) registerLink.style.display = 'block';
+
+            // Ukrycie linków wylogowania i profilu
+            if (logoutLink) logoutLink.style.display = 'none';
+            if (profileLink) profileLink.style.display = 'none';
+        }
     });
 }
 
-// Funkcja do uzyskania aktualnego użytkownika
-export function getCurrentUser () {
-    return auth.currentUser ;
+// Funkcja do wylogowania użytkownika
+export function logoutUser() {
+    return signOut(auth)
+        .then(() => {
+            console.log('Użytkownik wylogowany');
+            window.location.href = 'login.html';
+        })
+        .catch((error) => {
+            console.error('Błąd podczas wylogowania:', error);
+        });
 }
