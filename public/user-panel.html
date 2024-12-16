@@ -11,14 +11,21 @@
 </head>
 <body>
     <main class="user-panel">
+        <!-- Sekcja profilu użytkownika -->
         <section class="user-profile">
-            <img src="path/to/profile-pic.jpg" alt="Zdjęcie Profilowe" class="profile-pic">
+            <img src="public/icons/user_icon.png" alt="Zdjęcie Profilowe" class="profile-pic" id="profilePic">
             <h2 id="userName">Nazwa Użytkownika</h2>
             <p id="emailDisplay">Tutaj pojawi się Twój e-mail</p>
-            <button class="btn edit-profile">Edytuj Profil</button>
+
+            <!-- Input do przesyłania nowego zdjęcia profilowego -->
+            <input type="file" id="photoInput" accept="image/*" style="margin-top: 10px;">
+            <button id="updatePhotoBtn" class="btn">Zaktualizuj Zdjęcie</button>
+
+            <!-- Przycisk edycji nazwy użytkownika -->
+            <button class="btn edit-profile">Edytuj Nazwę Użytkownika</button>
         </section>
         
-
+        <!-- Sekcja aktywności użytkownika -->
         <section class="recent-activity">
             <div class="stats">
                 <h3>Statystyki</h3>

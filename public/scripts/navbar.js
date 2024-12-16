@@ -5,8 +5,8 @@ export const navbarHTML = `
         <a href="index.html">Strona Główna</a> 
         <a href="post.html">Dodaj Post</a>
         <div class="user-menu">
-            <a href="#" id="userPanelLink">
-                <img src="icons/user_icon.png" alt="Użytkownik" class="user-icon"> 
+            <a href="user-panel.html" id="userPanelLink">
+                <img id="navProfilePic" src="public/icons/user_icon.png" alt="Użytkownik" class="user-icon"> 
             </a>
             <div class="dropdown-content" id="dropdownMenu">
                 <a href="login.html" id="loginLink">Logowanie</a> 

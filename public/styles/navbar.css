@@ -45,12 +45,14 @@ nav a:hover {
     transform: scale(1.05); /* Powiększa element bez przesunięcia sąsiadów */
 }
 
-nav .user-icon {
-    width: 40px; /* Ustawia szerokość ikony */
-    height: 40px; /* Ustawia wysokość ikony */
-    object-fit: cover; /* Wypełnia pojemnik, zachowując proporcje */
-    margin: 0; /* Usuwa marginesy, aby uniknąć przesunięć */
+.user-icon, .profile-pic {
+    width: 50px; /* Rozmiar obrazka */
+    height: 50px; /* Zachowanie proporcji */
+    object-fit: cover; /* Dopasowanie obrazu bez zniekształceń */
+    border-radius: 50%; /* Zaokrąglenie obrazka */
+    border: 2px solid #ccc; /* Opcjonalnie: obramowanie dla estetyki */
 }
+
 
 .user-menu {
     display: flex; /* Ustawia elastyczny układ */
