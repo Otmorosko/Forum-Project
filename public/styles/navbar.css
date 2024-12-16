@@ -1,99 +1,109 @@
 header {
-    display: flex; /* Elastyczny układ */
-    align-items: center; /* Wyśrodkowanie elementów w pionie */
-    justify-content: center; /* Wyśrodkowanie elementów w poziomie */
-    background-color: #333; /* Kolor tła */
-    padding: 1vh; /* Wewnętrzne odstępy */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #333;
+    padding: 1vh;
     box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.5);
-    border-radius: 0.2vw; /* Zaokrąglenie */
-    position: fixed; /* Ustawienie pozycji */
-    top: 0; /* Przyklejenie do góry */
-    left: 50%; /* Przesunięcie w prawo o 50% szerokości okna */
-    transform: translateX(-50%); /* Wyrównanie względem środka */
-    z-index: 1000; /* Na wierzchu */
-    max-width: 1200px; /* Maksymalna szerokość */
-    width: 100%; /* Szerokość dopasowana do ekranu */
+    border-radius: 0.2vw;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    max-width: 1200px;
+    width: 100%;
 }
 
 nav {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center; 
+    justify-content: center;
     align-items: center;
 }
 
-
 nav .logo {
-    height: 2.5vh; /* Ustawia wysokość logo w vh (zmniejszone o połowę) */
-    margin-right: 2vw; /* Ustawia odstęp od tytułu w vw */
+    height: 2.5vh;
+    margin-right: 2vw;
 }
 
 nav a {
-    display: inline-block; /* Zmiana z flex na inline-block */
-    text-align: center; /* Wyśrodkowuje tekst w linkach */
-    padding: 1vh; /* Ustawia padding dla linków w vh */
-    margin-right: 1vw; /* Dodaje odstęp między linkami */
-    color: white; /* Ustawia kolor tekstu */
-    text-decoration: none; /* Usuwa podkreślenie z linków */
-    z-index: 1; /* Zapewnia właściwą kolejność w warstwach */
-    box-sizing: border-box; /* Ustawia stałe wymiary elementu */
-    transition: transform 0.3s ease, background-color 0.3s ease; /* Dodaje efekt przejścia */
+    display: inline-block;
+    text-align: center;
+    padding: 1vh;
+    margin-right: 1vw;
+    color: white;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
 }
 
 nav a:hover {
-    background-color: #575757; /* Zmieniamy tylko tło */
-    transform: scale(1.05); /* Powiększa element bez przesunięcia sąsiadów */
+    background-color: #444;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    color: #e6b800;
+    border-radius: 0.2rem;
+    transform: translateY(-2px); /* Lekko unosi link */
 }
 
-.user-icon, .profile-pic {
-    width: 50px; /* Rozmiar obrazka */
-    height: 50px; /* Zachowanie proporcji */
-    object-fit: cover; /* Dopasowanie obrazu bez zniekształceń */
-    border-radius: 50%; /* Zaokrąglenie obrazka */
-    border: 2px solid #ccc; /* Opcjonalnie: obramowanie dla estetyki */
+.user-icon {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    transition: all 0.3s ease;
 }
 
+.user-icon:hover {
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
 
 .user-menu {
-    display: flex; /* Ustawia elastyczny układ */
-    align-items: center; /* Wyśrodkowanie ikony w pionie */
-    justify-content: center; /* Wyśrodkowanie w poziomie */
-    position: relative; /* Umożliwia pozycjonowanie rozwijanego menu */
-    margin-left: 1vw; /* Dodaje odstęp od poprzedniego elementu */
-    z-index: 10; /* Wyższa wartość, aby menu było na wierzchu */
-    width: 50px; /* Ustaw szerokość kontenera */
-    height: 50px; /* Ustaw wysokość kontenera */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-left: 1vw;
+    z-index: 10;
+    width: 50px;
+    height: 50px;
 }
 
 .dropdown-content {
-    display: none; /* Ukrywa menu domyślnie */
-    position: absolute; /* Pozycjonuje menu względem rodzica */
-    background-color: #f9f9f9; /* Ustawia tło menu */
-    min-width: 10vw; /* Ustawia minimalną szerokość menu w vw */
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); /* Ustawia cień dla menu */
-    z-index: 1; /* Ustawia z-index dla menu */
-    top: 100%; /* Przesunięcie menu pod ikonę */
-    left: 0; /* Dopasowanie pozycji względem lewej krawędzi */
-    transform: translateY(5px); /* Delikatne przesunięcie w dół */
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 10vw;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    top: 100%;
+    left: 0;
+    transform: translateY(5px);
+    border-radius: 0.5rem;
+    overflow: hidden;
 }
 
 .user-menu:hover .dropdown-content {
-    display: block; /* Pokazuje menu po najechaniu */
+    display: block;
 }
 
 .dropdown-content a {
-    color: black; /* Ustawia kolor tekstu w menu */
-    padding: 1vh 3vw; /* Ustawia padding dla linków w menu w vh i vw (zmniejszone o połowę) */
-    text-decoration: none; /* Usuwa podkreślenie z linków w menu */
-    display: block; /* Ustawia wyświetlanie jako blok */
+    color: #333;
+    padding: 1vh 3vw;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .dropdown-content a:hover {
-    background-color: #f1f1f1; /* Ustawia kolor tła po najechaniu na link w menu */
+    background-color: #007bff;
+    color: white;
 }
 
 @media (max-width: 600px) {
     nav a {
-        padding: 1vh; /* Ustawia padding dla linków na małych ekranach w vh (zmniejszone o połowę) */
+        padding: 1vh;
     }
 }
