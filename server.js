@@ -17,21 +17,21 @@ if (!fs.existsSync(uploadDir)) {
 // Middleware CORS
 app.use(cors());
 
+// Middleware do parsowania JSON
+app.use(express.json());
+
 // Konfiguracja Multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
-        // Usuwanie znaków specjalnych z nazwy pliku
         const sanitizedFileName = file.originalname
-            .replace(/[^a-z0-9.]/gi, '_') // Zamienia wszystkie znaki inne niż alfanumeryczne i kropki na '_'
+            .replace(/[^a-z0-9.]/gi, '_') // Zamienia znaki specjalne na '_'
             .toLowerCase();
         cb(null, `${Date.now()}-${sanitizedFileName}`);
     }
 });
-
-
 const upload = multer({ storage });
 
 // Endpoint do przesyłania plików
@@ -53,9 +53,31 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
 // Middleware do serwowania plików statycznych
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
+// Endpoint do obsługi kategorii
+app.get('/api/categories', (req, res) => {
+    const filePath = path.join(__dirname, 'data', 'categories.json');
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Błąd odczytu pliku categories.json:', err);
+            return res.status(500).json({ error: 'Błąd pobierania danych kategorii.' });
+        }
+        res.json(JSON.parse(data));
+    });
+});
 
+// Middleware do obsługi plików w folderze publicznym
+app.use(express.static('public'));
+
+// Ustawienie głównej strony
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Start serwera
 app.listen(port, () => {
     console.log(`Serwer działa na http://localhost:${port}`);
-    console.log(`Statyczny katalog uploads: ${path.join(__dirname, 'uploads')}`);
+    console.log(`Katalog uploads dostępny pod http://localhost:${port}/uploads`);
+    console.log(`Katalog public dostępny pod http://localhost:${port}/public`);
 });
