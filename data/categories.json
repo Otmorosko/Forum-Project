@@ -1,0 +1,29 @@
+[
+    {
+      "name": "Skyrim: Special Edition",
+      "subcategories": [
+        {
+          "name": "Ukończone Modyfikacje",
+          "threads": ["Dawnguard Expansion", "Skyrim Unbound", "Legacy of the Dragonborn"]
+        },
+        {
+          "name": "Zapowiedzi Modyfikacji",
+          "threads": ["Skywind", "Beyond Skyrim", "Skyblivion"]
+        }
+      ]
+    },
+    {
+      "name": "Fallout 4",
+      "subcategories": [
+        {
+          "name": "Pytania Techniczne",
+          "threads": ["Crash w Bostonie", "Jak zainstalować ENB?", "Problemy z modami"]
+        },
+        {
+          "name": "Mody w Produkcji",
+          "threads": ["Fallout London", "Fallout Miami", "Project Arroyo"]
+        }
+      ]
+    }
+  ]
+  

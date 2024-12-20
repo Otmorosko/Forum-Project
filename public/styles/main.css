@@ -13,4 +13,8 @@ body {
 main {
     flex-grow: 1;
     padding-top: 60px; 
+    margin-top: 70px; 
+    text-align: center;
+    padding: 1rem;
+    box-sizing: border-box;
 }

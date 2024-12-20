@@ -5,6 +5,7 @@ export const navbarHTML = `
     <h1>ModHub</h1>
     <nav>
         <a href="index.html">Strona Główna</a>
+        <a href="posts.html">Lista Postów</a> <!-- Link do strony z listą postów -->
         <a href="post.html">Dodaj Post</a>
         <div class="user-menu">
             <a href="#" id="userPanelLink">
@@ -22,11 +23,12 @@ export const navbarHTML = `
 `;
 
 export function renderNavbar() {
+    // Sprawdzanie, czy navbar już istnieje
     const existingNavbar = document.querySelector('header');
     if (!existingNavbar) {
         document.body.insertAdjacentHTML('afterbegin', navbarHTML);
 
-        // Monitorowanie stanu logowania po wstawieniu navbaru
+        // Ustawienia dla zdjęcia i opcji użytkownika
         monitorAuthState((user) => {
             const loginLink = document.getElementById('loginLink');
             const registerLink = document.getElementById('registerLink');
@@ -35,24 +37,24 @@ export function renderNavbar() {
             const navProfilePic = document.getElementById('navProfilePic');
 
             if (user) {
-                // Ustawianie widoczności linków
+                // Ustawienia widoczności linków
                 if (loginLink) loginLink.style.display = 'none';
                 if (registerLink) registerLink.style.display = 'none';
                 if (logoutLink) logoutLink.style.display = 'block';
                 if (profileLink) profileLink.style.display = 'block';
 
-                // Ustawianie zdjęcia profilowego
+                // Ustawienia zdjęcia profilowego
                 if (navProfilePic) {
                     navProfilePic.src = user.photoURL || 'public/icons/user_icon.png';
                 }
             } else {
-                // Przywracanie domyślnej widoczności linków
+                // Przywracanie domyślnej widoczności
                 if (loginLink) loginLink.style.display = 'block';
                 if (registerLink) registerLink.style.display = 'block';
                 if (logoutLink) logoutLink.style.display = 'none';
                 if (profileLink) profileLink.style.display = 'none';
 
-                // Ustawianie domyślnego zdjęcia profilowego
+                // Ustawienie domyślnego zdjęcia
                 if (navProfilePic) {
                     navProfilePic.src = 'public/icons/user_icon.png';
                 }
@@ -60,3 +62,8 @@ export function renderNavbar() {
         });
     }
 }
+
+// Wywołanie renderowania navbaru na każdej stronie
+document.addEventListener('DOMContentLoaded', () => {
+    renderNavbar();
+});
