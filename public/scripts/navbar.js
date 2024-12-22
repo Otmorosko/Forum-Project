@@ -9,7 +9,7 @@ export const navbarHTML = `
         <a href="post.html">Dodaj Post</a>
         <div class="user-menu">
             <a href="#" id="userPanelLink">
-                <img id="navProfilePic" src="public/icons/user_icon.png" alt="Użytkownik" class="user-icon">
+                <img id="navProfilePic" src="icons/user_icon.png" alt="Użytkownik" class="user-icon">
             </a>
             <div class="dropdown-content" id="dropdownMenu">
                 <a href="login.html" id="loginLink">Logowanie</a>
@@ -45,7 +45,7 @@ export function renderNavbar() {
 
                 // Ustawienia zdjęcia profilowego
                 if (navProfilePic) {
-                    navProfilePic.src = user.photoURL || 'public/icons/user_icon.png';
+                    navProfilePic.src = user.photoURL || 'icons/user_icon.png';
                 }
             } else {
                 // Przywracanie domyślnej widoczności
@@ -56,7 +56,7 @@ export function renderNavbar() {
 
                 // Ustawienie domyślnego zdjęcia
                 if (navProfilePic) {
-                    navProfilePic.src = 'public/icons/user_icon.png';
+                    navProfilePic.src = 'icons/user_icon.png';
                 }
             }
         });

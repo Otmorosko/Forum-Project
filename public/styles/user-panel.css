@@ -9,6 +9,12 @@ body {
     min-height: 100vh;
 }
 
+:root {
+    --ui-orange: #ccaa00;
+    --ui-orange-hover: #b38f00; /* Subtelnie ciemniejszy kolor */
+    --ui-text-shadow: rgba(0, 0, 0, 0.7); /* Cień tekstu */
+}
+
 /* Główna zawartość */
 main {
     margin-top: 12vh; /* Odstęp od navbar */
@@ -40,7 +46,7 @@ main {
     height: 8rem;
     border-radius: 50%;
     margin-bottom: 1rem;
-    border: 3px solid #007bff; /* Obwódka */
+    border: 3px solid var(--ui-orange); /* Obwódka */
     transition: transform 0.3s ease;
 }
 
@@ -63,7 +69,7 @@ input[type="file"] {
 }
 
 input[type="file"]::file-selector-button {
-    background-color: #007bff;
+    background-color: var(--ui-orange);
     color: white;
     border: none;
     padding: 0.5rem 1rem;
@@ -71,15 +77,16 @@ input[type="file"]::file-selector-button {
     border-radius: 0.5rem;
     cursor: pointer;
     font-weight: bold;
+    text-shadow: 1px 1px var(--ui-text-shadow);
 }
 
 input[type="file"]::file-selector-button:hover {
-    background-color: #0056b3;
+    background-color: var(--ui-orange-hover);
 }
 
 /* Przyciski */
 .btn {
-    background-color: #007bff;
+    background-color: var(--ui-orange);
     color: white;
     padding: 0.75rem 1.5rem;
     border: none;
@@ -88,10 +95,12 @@ input[type="file"]::file-selector-button:hover {
     margin-top: 1rem;
     font-size: 1rem;
     transition: background-color 0.3s ease, transform 0.3s ease;
+    text-shadow: 1px 1px var(--ui-text-shadow);
+    font-weight: bold;
 }
 
 .btn:hover {
-    background-color: #0056b3;
+    background-color: var(--ui-orange-hover);
     transform: translateY(-3px); /* Delikatne przesunięcie */
 }
 
@@ -142,7 +151,7 @@ input[type="file"]::file-selector-button:hover {
 }
 
 .recent-threads li:hover {
-    background-color: #007bff; /* Efekt po najechaniu */
+    background-color: var(--ui-orange-hover); /* Efekt po najechaniu */
     color: white;
     cursor: pointer;
 }
@@ -167,7 +176,7 @@ input[type="file"]::file-selector-button:hover {
 }
 
 .thread-card:hover {
-    background-color: #007bff; /* Efekt najechania */
+    background-color: var(--ui-orange); /* Efekt najechania */
     color: #fff;
     transform: translateY(-5px); /* Efekt unoszenia */
     cursor: pointer;

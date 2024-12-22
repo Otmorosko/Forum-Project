@@ -3,7 +3,7 @@ const footerHTML = `
     <div class="footer-container">
         <div class="footer-brand">
             <h2>MODHUB</h2>
-            <p>Empower your gaming journey with mods.</p>
+            <p>Wzbogacaj swoją rozgrywkę dzięki modom.</p>
             <div class="footer-socials">
                 <a href="#" class="social-icon">Instagram</a>
                 <a href="#" class="social-icon">Twitter</a>
@@ -12,42 +12,42 @@ const footerHTML = `
         </div>
         <div class="footer-links">
             <div class="footer-column">
-                <h3>Mods</h3>
+                <h3>Modyfikacje</h3>
                 <ul>
-                    <li><a href="#">Discussions</a></li>
-                    <li><a href="#">Collaborations</a></li>
+                    <li><a href="#">Dyskusje</a></li>
+                    <li><a href="#">Współprace</a></li>
                     <li><a href="#">Premium</a></li>
                 </ul>
             </div>
             <div class="footer-column">
-                <h3>Sharing</h3>
+                <h3>Udostępnianie</h3>
                 <ul>
-                    <li><a href="#">Join now</a></li>
-                    <li><a href="#">Comparison</a></li>
+                    <li><a href="#">Dołącz teraz</a></li>
+                    <li><a href="#">Porównanie</a></li>
                 </ul>
             </div>
             <div class="footer-column">
-                <h3>About us</h3>
+                <h3>O nas</h3>
                 <ul>
-                    <li><a href="#">Community</a></li>
-                    <li><a href="#">Opportunities</a></li>
-                    <li><a href="#">Updates</a></li>
+                    <li><a href="#">Społeczność</a></li>
+                    <li><a href="#">Możliwości</a></li>
+                    <li><a href="#">Aktualizacje</a></li>
                 </ul>
             </div>
             <div class="footer-column">
-                <h3>Resources</h3>
+                <h3>Zasoby</h3>
                 <ul>
                     <li><a href="#">Blog</a></li>
-                    <li><a href="#">Knowledge base</a></li>
-                    <li><a href="#">Customer service</a></li>
+                    <li><a href="#">Baza wiedzy</a></li>
+                    <li><a href="#">Obsługa klienta</a></li>
                 </ul>
             </div>
             <div class="footer-column">
-                <h3>Support</h3>
+                <h3>Wsparcie</h3>
                 <ul>
-                    <li><a href="#">Chat</a></li>
-                    <li><a href="#">Suggestions</a></li>
-                    <li><a href="#">Contact us</a></li>
+                    <li><a href="#">Czat</a></li>
+                    <li><a href="#">Sugestie</a></li>
+                    <li><a href="#">Kontakt</a></li>
                 </ul>
             </div>
         </div>

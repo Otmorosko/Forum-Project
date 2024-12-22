@@ -105,6 +105,8 @@ nav a:hover {
     transform: translateY(5px);
     border-radius: 0.5rem;
     overflow: hidden;
+    text-align: left; 
+    padding: 0; 
 }
 
 .user-menu:hover .dropdown-content {
@@ -113,14 +115,16 @@ nav a:hover {
 
 .dropdown-content a {
     color: #333;
-    padding: 1vh 3vw;
+    padding: 1rem; 
     text-decoration: none;
     display: block;
+    font-size: 1rem;
     transition: background-color 0.2s ease, color 0.2s ease;
+    box-sizing: border-box;
 }
 
 .dropdown-content a:hover {
-    background-color: #007bff;
+    background-color: #e6b800;
     color: white;
 }
 
