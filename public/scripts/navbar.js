@@ -45,7 +45,7 @@ export function renderNavbar() {
 
                 // Ustawienia zdjęcia profilowego
                 if (navProfilePic) {
-                    navProfilePic.src = user.photoURL || 'icons/user_icon.png';
+                    navProfilePic.src = user.photoURL || 'public/icons/user_icon.png'; // Użycie domyślnego zdjęcia
                 }
             } else {
                 // Przywracanie domyślnej widoczności
@@ -56,7 +56,7 @@ export function renderNavbar() {
 
                 // Ustawienie domyślnego zdjęcia
                 if (navProfilePic) {
-                    navProfilePic.src = 'icons/user_icon.png';
+                    navProfilePic.src = 'icons/user_icon.png'; // Domyślne zdjęcie
                 }
             }
         });
