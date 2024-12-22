@@ -1,4 +1,4 @@
-import { monitorAuthState } from './auth.js';
+import { monitorAuthState, logoutUser  } from './auth.js';
 
 export const navbarHTML = `
 <header>
@@ -60,6 +60,21 @@ export function renderNavbar() {
                 }
             }
         });
+
+        // Obsługa wylogowania
+        const logoutLink = document.getElementById('logoutLink');
+        if (logoutLink) {
+            logoutLink.addEventListener('click', async (event) => {
+                event.preventDefault(); // Zapobiega domyślnemu działaniu linku
+                console.log('Kliknięto logoutLink');
+                try {
+                    await logoutUser (); // Wywołanie funkcji wylogowania
+                    console.log('Wylogowanie zakończone sukcesem');
+                } catch (error) {
+                    console.error('Błąd przy wylogowaniu:', error);
+                }
+            });
+        }
     }
 }
 
