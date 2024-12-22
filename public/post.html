@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dodaj Post - ModHub</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/navbar.css">
+    <link rel="stylesheet" href="styles/footer.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <script type="module" src="scripts/navbar.js" defer></script>
+
+    <!-- Formularz dodawania posta -->
+    <main>
+        <div class="form-container">
+            <h1>Dodaj Nowy Post</h1>
+            <form id="addPostForm">
+                <label for="title">Tytuł:</label>
+                <input type="text" id="title" name="title" required>
+
+                <label for="author">Autor:</label>
+                <input type="text" id="author" name="author" required>
+
+                <label for="category">Kategoria:</label>
+                <select id="category" name="category" required>
+                    <!-- Kategorie zostaną załadowane dynamicznie -->
+                </select>
+
+                <label for="subcategory">Podkategoria:</label>
+                <select id="subcategory" name="subcategory" required>
+                    <!-- Podkategorie zostaną załadowane dynamicznie -->
+                </select>
+
+                <button type="submit">Dodaj Post</button>
+            </form>
+            <div id="message" style="margin-top: 1rem;"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <script type="module" src="scripts/footer.js" defer></script>
+
+    <!-- Skrypt obsługujący dodawanie posta -->
+    <script type="module" src="scripts/addPost.js" defer></script>
+</body>
+</html>

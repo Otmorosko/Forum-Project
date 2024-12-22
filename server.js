@@ -100,6 +100,36 @@ app.get('/api/categories', (req, res) => {
     });
 });
 
+// Endpoint do dodawania nowego posta
+app.post('/api/posts', (req, res) => {
+    const newPost = req.body;
+
+    // Walidacja danych
+    if (!newPost.title || !newPost.author || !newPost.subcategory || !newPost.category) {
+        return res.status(400).json({ error: "Wszystkie pola są wymagane: title, author, subcategory, category." });
+    }
+
+    // Dodanie posta do istniejących danych
+    fs.readFile(POSTS_FILE, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Błąd odczytu pliku posts.json:', err);
+            return res.status(500).json({ error: 'Błąd podczas zapisu nowego posta.' });
+        }
+
+        const posts = JSON.parse(data || '[]'); // Jeśli plik jest pusty, inicjalizujemy pustą tablicę
+        posts.push(newPost);
+
+        // Zapis zaktualizowanych danych do pliku
+        fs.writeFile(POSTS_FILE, JSON.stringify(posts, null, 2), (writeErr) => {
+            if (writeErr) {
+                console.error('Błąd zapisu do pliku posts.json:', writeErr);
+                return res.status(500).json({ error: 'Błąd podczas zapisu nowego posta.' });
+            }
+
+            res.status(201).json({ message: 'Post został pomyślnie dodany!', post: newPost });
+        });
+    });
+});
 
 // Endpoint do pobierania wszystkich postów
 app.get('/api/posts', (req, res) => {
