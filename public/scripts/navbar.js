@@ -35,7 +35,7 @@ export function renderNavbar() {
             const profileLink = document.getElementById('profileLink');
             const navProfilePic = document.getElementById('navProfilePic');
         
-            const defaultProfilePic = 'icons/user_icon.png'; // Użyj względnej ścieżki
+            const defaultProfilePic = 'public/icons/user_icon.png'; // Użyj względnej ścieżki
         
             if (user) {
                 // Użytkownik jest zalogowany
