@@ -20,75 +20,42 @@ const firebaseConfig = {
 };
 
 // Inicjalizacja Firebase
+console.log('Inicjalizacja Firebase...');
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+console.log('Firebase zainicjalizowany:', app);
 
 // Monitorowanie stanu logowania
 export function monitorAuthState(callback) {
     onAuthStateChanged(auth, (user) => {
         console.log('Stan logowania użytkownika:', user);
 
-        // Aktualizacja widoczności elementów w menu nawigacji
-        const loginLink = document.getElementById('loginLink');
-        const registerLink = document.getElementById('registerLink');
-        const logoutLink = document.getElementById('logoutLink');
-        const profileLink = document.getElementById('profileLink');
-        const navProfilePic = document.getElementById('navProfilePic'); // Ikona profilu w navbarze
-
-        if (user) {
-            // Ukrywanie przycisków logowania/rejestracji
-            if (loginLink) loginLink.style.display = 'none';
-            if (registerLink) registerLink.style.display = 'none';
-
-            // Pokazywanie przycisków profilu/wylogowania
-            if (logoutLink) logoutLink.style.display = 'block';
-            if (profileLink) profileLink.style.display = 'block';
-
-            // Ustawianie zdjęcia profilowego w navbarze
-            if (navProfilePic) {
-                navProfilePic.src = user.photoURL || 'public/icons/user_icon.png';
-            }
-
-            // Wywołanie callbacka
-            callback({
-                displayName: user.displayName || 'Nieznany użytkownik',
-                email: user.email || 'Brak adresu e-mail',
-                photoURL: user.photoURL || 'public/icons/user_icon.png',
-            });
-        } else {
-            // Pokazywanie przycisków logowania/rejestracji
-            if (loginLink) loginLink.style.display = 'block';
-            if (registerLink) registerLink.style.display = 'block';
-
-            // Ukrywanie przycisków profilu/wylogowania
-            if (logoutLink) logoutLink.style.display = 'none';
-            if (profileLink) profileLink.style.display = 'none';
-
-            // Resetowanie zdjęcia profilowego w navbarze
-            if (navProfilePic) {
-                navProfilePic.src = 'public/icons/user_icon.png';
-            }
-
-            // Wywołanie callbacka
-            callback(null);
-        }
+        // Wywołanie callbacka z danymi użytkownika
+        callback({
+            displayName: user ? user.displayName || 'Nieznany użytkownik' : null,
+            email: user ? user.email || 'Brak adresu e-mail' : null,
+            photoURL: user ? user.photoURL || 'icons/user_icon.png' : 'icons/user_icon.png', // Użycie domyślnego zdjęcia
+        });
     });
 }
 
 // Funkcja do logowania użytkownika
-export async function loginUser(email, password) {
+export async function loginUser (email, password) {
+    console.log('Próba logowania z e-mailem:', email);
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         console.log('Użytkownik zalogowany:', userCredential.user);
         return userCredential.user;
     } catch (error) {
         console.error('Błąd podczas logowania:', error);
+        alert('Błąd logowania: ' + error.message); // Wyświetlenie komunikatu o błędzie
         throw error;
     }
 }
 
 // Funkcja do rejestracji użytkownika
-export async function registerUser(email, password, nickname) {
+export async function registerUser (email, password, nickname) {
+    console.log('Próba rejestracji z e-mailem:', email);
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
@@ -104,7 +71,7 @@ export async function registerUser(email, password, nickname) {
 }
 
 // Funkcja do wylogowania użytkownika
-export async function logoutUser() {
+export async function logoutUser () {
     try {
         await signOut(auth);
         console.log('Użytkownik został wylogowany.');
@@ -116,7 +83,7 @@ export async function logoutUser() {
 
 // Funkcja do aktualizacji zdjęcia profilowego
 export async function updateUserPhoto(photoURL) {
-    const user = auth.currentUser;
+    const user = auth.currentUser ;
 
     if (!user) {
         throw new Error('Brak zalogowanego użytkownika.');
@@ -133,7 +100,7 @@ export async function updateUserPhoto(photoURL) {
 
 // Funkcja do aktualizacji nazwy użytkownika
 export async function updateUserName(newName) {
-    const user = auth.currentUser;
+    const user = auth.currentUser ;
 
     if (!user) {
         throw new Error('Brak zalogowanego użytkownika.');
@@ -152,10 +119,11 @@ export async function updateUserName(newName) {
 export function getUserProfile(callback) {
     monitorAuthState((user) => {
         if (user) {
+            const profilePhotoURL = user.photoURL || 'icons/user_icon.png'; // Ustawienie domyślnego zdjęcia
             callback({
                 displayName: user.displayName || 'Nieznany użytkownik',
                 email: user.email || 'Brak adresu e-mail',
-                photoURL: user.photoURL || 'public/icons/user_icon.png',
+                photoURL: profilePhotoURL, // Użycie domyślnego zdjęcia, jeśli nie ma ustawionego
             });
         } else {
             callback(null);

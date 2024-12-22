@@ -2,27 +2,49 @@ import { renderNavbar } from './navbar.js';
 import { loginUser, logoutUser, registerUser } from './auth.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Wstawienie nawigacji
+    console.log('DOM załadowany, inicjalizacja navbaru...');
     renderNavbar();
 
-    // Obsługa rejestracji
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            console.log('Próba logowania z e-mailem:', email);
+            try {
+                const user = await loginUser (email, password);
+                console.log('Zalogowano użytkownika:', user);
+                window.location.href = 'index.html'; // Przekierowanie po zalogowaniu
+            } catch (error) {
+                console.error('Błąd podczas logowania:', error);
+            }
+        });
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
     const registrationForm = document.getElementById('registrationForm');
     if (registrationForm) {
         registrationForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
+            event.preventDefault(); // Zapobiega domyślnemu działaniu formularza
+
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const nickname = document.getElementById('nickname').value;
 
+            console.log('Próba rejestracji z e-mailem:', email);
             try {
-                const user = await registerUser(email, password, nickname);
+                const user = await registerUser (email, password, nickname);
                 console.log('Użytkownik zarejestrowany:', user);
-                window.location.href = 'index.html'; // Przekierowanie po rejestracji
+                // Możesz przekierować użytkownika lub wyświetlić komunikat
             } catch (error) {
-                console.error('Błąd rejestracji:', error);
+                console.error('Błąd podczas rejestracji:', error);
             }
         });
     }
+});
 
     // Obsługa logowania
     const loginForm = document.getElementById('loginForm');
@@ -56,4 +78,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-});
+
