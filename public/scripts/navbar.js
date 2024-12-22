@@ -5,7 +5,7 @@ export const navbarHTML = `
     <h1>ModHub</h1>
     <nav>
         <a href="index.html">Strona Główna</a>
-        <a href="posts.html">Lista Postów</a> <!-- Link do strony z listą postów -->
+        <a href="posts.html">Lista Postów</a>
         <a href="post.html">Dodaj Post</a>
         <div class="user-menu">
             <a href="#" id="userPanelLink">
@@ -23,7 +23,6 @@ export const navbarHTML = `
 `;
 
 export function renderNavbar() {
-    // Sprawdzanie, czy navbar już istnieje
     const existingNavbar = document.querySelector('header');
     if (!existingNavbar) {
         document.body.insertAdjacentHTML('afterbegin', navbarHTML);
@@ -35,28 +34,30 @@ export function renderNavbar() {
             const logoutLink = document.getElementById('logoutLink');
             const profileLink = document.getElementById('profileLink');
             const navProfilePic = document.getElementById('navProfilePic');
-
+        
+            const defaultProfilePic = 'icons/user_icon.png'; // Użyj względnej ścieżki
+        
             if (user) {
-                // Ustawienia widoczności linków
-                if (loginLink) loginLink.style.display = 'none';
-                if (registerLink) registerLink.style.display = 'none';
-                if (logoutLink) logoutLink.style.display = 'block';
-                if (profileLink) profileLink.style.display = 'block';
-
+                // Użytkownik jest zalogowany
+                loginLink.style.display = 'none';
+                registerLink.style.display = 'none';
+                profileLink.style.display = 'block';
+                logoutLink.style.display = 'block';
+        
                 // Ustawienia zdjęcia profilowego
                 if (navProfilePic) {
-                    navProfilePic.src = user.photoURL || 'public/icons/user_icon.png'; // Użycie domyślnego zdjęcia
+                    navProfilePic.src = user.photoURL || defaultProfilePic; // Użyj zdjęcia użytkownika lub domyślnego
                 }
             } else {
-                // Przywracanie domyślnej widoczności
-                if (loginLink) loginLink.style.display = 'block';
-                if (registerLink) registerLink.style.display = 'block';
-                if (logoutLink) logoutLink.style.display = 'none';
-                if (profileLink) profileLink.style.display = 'none';
-
+                // Użytkownik nie jest zalogowany
+                loginLink.style.display = 'block';
+                registerLink.style.display = 'block';
+                profileLink.style.display = 'none';
+                logoutLink.style.display = 'none';
+        
                 // Ustawienie domyślnego zdjęcia
                 if (navProfilePic) {
-                    navProfilePic.src = 'icons/user_icon.png'; // Domyślne zdjęcie
+                    navProfilePic.src = defaultProfilePic; // Użyj domyślnego zdjęcia
                 }
             }
         });
@@ -65,11 +66,9 @@ export function renderNavbar() {
         const logoutLink = document.getElementById('logoutLink');
         if (logoutLink) {
             logoutLink.addEventListener('click', async (event) => {
-                event.preventDefault(); // Zapobiega domyślnemu działaniu linku
-                console.log('Kliknięto logoutLink');
+                event.preventDefault();
                 try {
-                    await logoutUser (); // Wywołanie funkcji wylogowania
-                    console.log('Wylogowanie zakończone sukcesem');
+                    await logoutUser ();
                 } catch (error) {
                     console.error('Błąd przy wylogowaniu:', error);
                 }
@@ -79,6 +78,6 @@ export function renderNavbar() {
 }
 
 // Wywołanie renderowania navbaru na każdej stronie
-document.addEventListener('DOMContentLoaded', () => {
+ document.addEventListener('DOMContentLoaded', () => {
     renderNavbar();
 });

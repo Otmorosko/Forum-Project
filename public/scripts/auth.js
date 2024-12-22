@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { initializeApp,} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import {
     getAuth,
     onAuthStateChanged,
@@ -28,14 +28,7 @@ console.log('Firebase zainicjalizowany:', app);
 // Monitorowanie stanu logowania
 export function monitorAuthState(callback) {
     onAuthStateChanged(auth, (user) => {
-        console.log('Stan logowania użytkownika:', user);
-
-        // Wywołanie callbacka z danymi użytkownika
-        callback({
-            displayName: user ? user.displayName || 'Nieznany użytkownik' : null,
-            email: user ? user.email || 'Brak adresu e-mail' : null,
-            photoURL: user ? user.photoURL || 'icons/user_icon.png' : 'icons/user_icon.png', // Użycie domyślnego zdjęcia
-        });
+        callback(user); // Przekazanie obiektu użytkownika do callbacka
     });
 }
 
