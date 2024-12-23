@@ -1,14 +1,25 @@
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
+const Database = require('better-sqlite3');
+const async = require('async');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 const port = 3000;
 
+// Konfiguracja SQLite
+const db = new Database('database.db');
+db.pragma('journal_mode = WAL');
+db.pragma('busy_timeout = 5000');
+
 // Tworzenie katalogu uploads, jeśli nie istnieje
-const uploadDir = 'uploads/';
+const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
     console.log(`Katalog ${uploadDir} został utworzony.`);
@@ -16,22 +27,7 @@ if (!fs.existsSync(uploadDir)) {
 
 // Middleware CORS
 app.use(cors());
-
-// Middleware do parsowania JSON
 app.use(express.json());
-
-// Pliki danych
-const POSTS_FILE = path.join(__dirname, 'data', 'posts.json');
-const CATEGORIES_FILE = path.join(__dirname, 'data', 'categories.json');
-
-// Inicjalizacja plików z danymi, jeśli nie istnieją
-if (!fs.existsSync(POSTS_FILE)) {
-    fs.writeFileSync(POSTS_FILE, JSON.stringify([]));
-}
-
-if (!fs.existsSync(CATEGORIES_FILE)) {
-    fs.writeFileSync(CATEGORIES_FILE, JSON.stringify([]));
-}
 
 // Konfiguracja Multer do przesyłania plików
 const storage = multer.diskStorage({
@@ -47,6 +43,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// Endpoint do przesyłania plików
 app.post('/upload', upload.single('file'), (req, res) => {
     if (!req.file) {
         console.error('Brak pliku w żądaniu.');
@@ -54,15 +51,58 @@ app.post('/upload', upload.single('file'), (req, res) => {
     }
 
     const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    console.log('Przesłano plik:', fileUrl);
     res.json({ url: fileUrl });
 });
 
 // Middleware do serwowania plików statycznych
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', (req, res, next) => {
+    console.log(`Żądanie pliku: ${req.url}`); // Logowanie żądań do /uploads
+    next();
+}, express.static(uploadDir));
+
+// Middleware do serwowania plików publicznych
 app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Obsługa Socket.IO
+io.on('connection', (socket) => {
+    console.log('Użytkownik połączony:', socket.id);
+
+    // Pobierz historię wiadomości z bazy danych
+    const messages = db.prepare('SELECT * FROM messages ORDER BY timestamp ASC').all();
+    console.log(`Wysłano historię wiadomości do ${socket.id}, liczba wiadomości: ${messages.length}`);
+    socket.emit('chat history', messages);
+
+    // Obsługa nowej wiadomości
+    socket.on('chat message', ({ text, author }) => {
+        if (!text || !author) {
+            console.error('Nieprawidłowe dane wiadomości: brak tekstu lub autora.');
+            return;
+        }
+
+        try {
+            const stmt = db.prepare('INSERT INTO messages (text, author) VALUES (?, ?)');
+            const info = stmt.run(text, author);
+            const newMessage = db.prepare('SELECT * FROM messages WHERE id = ?').get(info.lastInsertRowid);
+
+            console.log('Dodano nową wiadomość:', newMessage);
+            io.emit('chat message', newMessage); // Wyślij do wszystkich klientów
+        } catch (err) {
+            console.error('Błąd podczas dodawania wiadomości do bazy danych:', err.message);
+        }
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Użytkownik rozłączony:', socket.id);
+    });
+});
 
 // Endpoint do pobierania kategorii z podkategoriami i wątkami
 app.get('/api/categories', (req, res) => {
+    const CATEGORIES_FILE = path.join(__dirname, 'data', 'categories.json');
+    const POSTS_FILE = path.join(__dirname, 'data', 'posts.json');
+
     fs.readFile(CATEGORIES_FILE, 'utf8', (err, data) => {
         if (err) {
             console.error('Błąd odczytu pliku categories.json:', err);
@@ -70,8 +110,6 @@ app.get('/api/categories', (req, res) => {
         }
         try {
             const categories = JSON.parse(data);
-
-            // Pobranie postów dla podkategorii
             fs.readFile(POSTS_FILE, 'utf8', (err, postsData) => {
                 if (err) {
                     console.error('Błąd odczytu pliku posts.json:', err);
@@ -80,7 +118,6 @@ app.get('/api/categories', (req, res) => {
 
                 const posts = JSON.parse(postsData);
 
-                // Walidacja i dodanie postów do odpowiednich podkategorii
                 categories.forEach(category => {
                     if (!category.subcategories) category.subcategories = [];
                     category.subcategories.forEach(subcategory => {
@@ -91,6 +128,7 @@ app.get('/api/categories', (req, res) => {
                     });
                 });
 
+                console.log('Wysłano kategorie:', categories);
                 res.json(categories);
             });
         } catch (parseError) {
@@ -100,64 +138,14 @@ app.get('/api/categories', (req, res) => {
     });
 });
 
-// Endpoint do dodawania nowego posta
-app.post('/api/posts', (req, res) => {
-    const newPost = req.body;
-
-    // Walidacja danych
-    if (!newPost.title || !newPost.author || !newPost.subcategory || !newPost.category) {
-        return res.status(400).json({ error: "Wszystkie pola są wymagane: title, author, subcategory, category." });
-    }
-
-    // Dodanie posta do istniejących danych
-    fs.readFile(POSTS_FILE, 'utf8', (err, data) => {
-        if (err) {
-            console.error('Błąd odczytu pliku posts.json:', err);
-            return res.status(500).json({ error: 'Błąd podczas zapisu nowego posta.' });
-        }
-
-        const posts = JSON.parse(data || '[]'); // Jeśli plik jest pusty, inicjalizujemy pustą tablicę
-        posts.push(newPost);
-
-        // Zapis zaktualizowanych danych do pliku
-        fs.writeFile(POSTS_FILE, JSON.stringify(posts, null, 2), (writeErr) => {
-            if (writeErr) {
-                console.error('Błąd zapisu do pliku posts.json:', writeErr);
-                return res.status(500).json({ error: 'Błąd podczas zapisu nowego posta.' });
-            }
-
-            res.status(201).json({ message: 'Post został pomyślnie dodany!', post: newPost });
-        });
-    });
-});
-
-// Endpoint do pobierania wszystkich postów
-app.get('/api/posts', (req, res) => {
-    fs.readFile(POSTS_FILE, 'utf8', (err, data) => {
-        if (err) {
-            console.error('Błąd odczytu pliku posts.json:', err);
-            return res.status(500).json({ error: 'Błąd pobierania postów.' });
-        }
-        try {
-            const posts = JSON.parse(data);
-            res.json(posts);
-        } catch (parseError) {
-            console.error('Błąd parsowania danych postów:', parseError);
-            res.status(500).json({ error: 'Błąd parsowania danych postów.' });
-        }
-    });
-});
-
-// Middleware do obsługi plików w folderze publicznym
-app.use(express.static('public'));
-
-// Ustawienie głównej strony
+// Serwowanie głównej strony
 app.get('/', (req, res) => {
+    console.log('Żądanie głównej strony');
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Start serwera
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Serwer działa na http://localhost:${port}`);
-    console.log(`Statyczny katalog uploads: ${path.join(__dirname, 'uploads')}`);
+    console.log(`Socket.IO dostępny pod /socket.io/socket.io.js`);
 });
