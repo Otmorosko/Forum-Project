@@ -7,42 +7,48 @@
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/navbar.css">
     <link rel="stylesheet" href="styles/footer.css">
+    <link rel="stylesheet" href="styles/post.css">
 </head>
 <body>
     <!-- Navbar -->
     <script type="module" src="scripts/navbar.js" defer></script>
 
-    <!-- Formularz dodawania posta -->
-    <main>
-        <div class="form-container">
-            <h1>Dodaj Nowy Post</h1>
-            <form id="addPostForm">
-                <label for="title">Tytuł:</label>
-                <input type="text" id="title" name="title" required>
+    <div class="content-wrapper">
+        <main>
+            <div class="form-container">
+                <h1>Dodaj Nowy Post</h1>
+                <form id="addPostForm">
+                    <label for="title">Tytuł:</label>
+                    <input type="text" id="title" name="title" required>
 
-                <label for="author">Autor:</label>
-                <input type="text" id="author" name="author" required>
+                    <label for="category">Kategoria:</label>
+                    <select id="category" name="category" required>
+                        <!-- Kategorie zostaną załadowane dynamicznie -->
+                    </select>
 
-                <label for="category">Kategoria:</label>
-                <select id="category" name="category" required>
-                    <!-- Kategorie zostaną załadowane dynamicznie -->
-                </select>
+                    <label for="subcategory">Podkategoria:</label>
+                    <select id="subcategory" name="subcategory" required>
+                        <!-- Podkategorie zostaną załadowane dynamicznie -->
+                    </select>
 
-                <label for="subcategory">Podkategoria:</label>
-                <select id="subcategory" name="subcategory" required>
-                    <!-- Podkategorie zostaną załadowane dynamicznie -->
-                </select>
+                    <label for="content">Treść:</label>
+                    <div class="toolbar">
+                        <button type="button" onclick="formatText('bold')" title="Pogrubienie"><b>B</b></button>
+                        <button type="button" onclick="formatText('italic')" title="Kursywa"><i>I</i></button>
+                        <button type="button" onclick="formatText('underline')" title="Podkreślenie"><u>U</u></button>
+                        <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="insertImage(event)">
+                        <button type="button" onclick="document.getElementById('imageInput').click()" title="Dodaj zdjęcie">Dodaj zdjęcie</button>
+                    </div>
+                    <div id="editor" contenteditable="true" class="editor" required></div>
 
-                <button type="submit">Dodaj Post</button>
-            </form>
-            <div id="message" style="margin-top: 1rem;"></div>
-        </div>
-    </main>
+                    <button type="submit">Dodaj Post</button>
+                </form>
+                <div id="message" style="margin-top: 1rem;"></div>
+            </div>
+        </main>
+    </div>
 
-    <!-- Footer -->
     <script type="module" src="scripts/footer.js" defer></script>
-
-    <!-- Skrypt obsługujący dodawanie posta -->
     <script type="module" src="scripts/addPost.js" defer></script>
 </body>
 </html>
