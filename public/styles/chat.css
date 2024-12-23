@@ -1,0 +1,88 @@
+:root {
+    --chat-bg: #2c2c2c;
+    --chat-border: #444;
+    --chat-shadow: rgba(0, 0, 0, 0.3);
+    --chat-btn-bg: var(--ui-orange);
+    --chat-btn-hover: var(--ui-orange-hover);
+    --chat-text: #fff;
+}
+
+#chat {
+    position: absolute; /* Ustawienie statyczne w stosunku do strony */
+    right: 20px; /* Odstęp od prawej krawędzi */
+    top: 50%; /* Wyśrodkowanie w pionie */
+    transform: translateY(-50%); /* Korekta wyśrodkowania */
+    width: 320px; /* Szerokość okna */
+    background-color: var(--chat-bg); /* Tło */
+    border: 1px solid var(--chat-border); /* Obramowanie */
+    border-radius: 0.5rem; /* Zaokrąglone rogi */
+    box-shadow: 0 0.5rem 1rem var(--chat-shadow); /* Cień */
+    z-index: 1000; /* Wyższy priorytet */
+    display: flex;
+    flex-direction: column; /* Ustawienie układu pionowego */
+    overflow: hidden; /* Ukrycie nadmiaru */
+}
+
+#messages li {
+    background-color: #333;
+    color: var(--chat-text);
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    word-wrap: break-word;
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column; /* Układ w kolumnie */
+}
+
+#messages li span.author {
+    font-weight: bold;
+    color: var(--chat-btn-bg); /* Kolor autora */
+    margin-bottom: 5px;
+}
+
+
+#form {
+    display: flex;
+    padding: 10px;
+    gap: 10px; /* Odstęp między polem tekstowym a przyciskiem */
+    background: var(--chat-bg); /* Tło */
+}
+
+#input {
+    flex: 1; /* Dopasowanie do dostępnej przestrzeni */
+    padding: 10px;
+    border: 1px solid var(--chat-border);
+    border-radius: 5px;
+    background: #1e1e1e;
+    color: var(--chat-text);
+    font-size: 1rem;
+}
+
+#input:focus {
+    outline: none;
+    border-color: var(--ui-orange);
+    box-shadow: 0 0 5px var(--ui-orange);
+}
+
+button {
+    padding: 10px 15px;
+    background-color: var(--chat-btn-bg);
+    color: var(--chat-text);
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-shadow: 1px 1px var(--ui-text-shadow);
+}
+
+button:hover {
+    background-color: var(--chat-btn-hover);
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(1px);
+}

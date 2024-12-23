@@ -6,14 +6,15 @@
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/navbar.css">
     <link rel="stylesheet" href="styles/footer.css">
+    <link rel="stylesheet" href="styles/chat.css"> <!-- Dodano link do stylów czatu -->
     <title>ModHub - Strona Główna</title>
 </head>
 <body>
-        <!-- Skrypty -->
-        <script type="module" src="scripts/auth.js"></script>
-        <script type="module" src="scripts/navbar.js" defer></script>
-        <script type="module" src="scripts/script.js" defer></script>
-        <script type="module" src="scripts/footer.js" defer></script>
+    <!-- Skrypty -->
+    <script type="module" src="scripts/auth.js"></script>
+    <script type="module" src="scripts/navbar.js" defer></script>
+    <script type="module" src="scripts/script.js" defer></script>
+    <script type="module" src="scripts/footer.js" defer></script>
 
     <main class="main-container">
         <!-- Sekcja kategorii: Gothic -->
@@ -23,7 +24,7 @@
                 <!-- Zapowiedzi modyfikacji -->
                 <div class="subcategory">
                     <div class="subcategory-header">
-                        <img src="icons\icons8-announcement-50.png" alt="Ikona kategorii" class="subcategory-icon">
+                        <img src="icons/icons8-announcement-50.png" alt="Ikona kategorii" class="subcategory-icon">
                         <div class="subcategory-info">
                             <h3>Zapowiedzi modyfikacji</h3>
                             <p>Nowe projekty i prace w toku</p>
@@ -38,11 +39,10 @@
                         <p><strong>2024-12-15</strong> • GothicFan</p>
                     </div>
                 </div>
-
                 <!-- Ukończone modyfikacje -->
                 <div class="subcategory">
                     <div class="subcategory-header">
-                        <img src="icons\icons8-check-50.png" alt="Ikona kategorii" class="subcategory-icon">
+                        <img src="icons/icons8-check-50.png" alt="Ikona kategorii" class="subcategory-icon">
                         <div class="subcategory-info">
                             <h3>Ukończone modyfikacje</h3>
                             <p>Gotowe do pobrania i grania</p>
@@ -57,11 +57,10 @@
                         <p><strong>2024-12-10</strong> • ModCreator</p>
                     </div>
                 </div>
-
                 <!-- Dyskusje techniczne -->
                 <div class="subcategory">
                     <div class="subcategory-header">
-                        <img src="icons\icons8-automation-64.png" alt="Ikona kategorii" class="subcategory-icon">
+                        <img src="icons/icons8-automation-64.png" alt="Ikona kategorii" class="subcategory-icon">
                         <div class="subcategory-info">
                             <h3>Dyskusje techniczne</h3>
                             <p>Pomoc i pytania o Gothic</p>
@@ -76,11 +75,10 @@
                         <p><strong>2024-12-20</strong> • ModHelper</p>
                     </div>
                 </div>
-
                 <!-- Poradniki -->
                 <div class="subcategory">
                     <div class="subcategory-header">
-                        <img src="icons\icons8-books-50.png" alt="Ikona kategorii" class="subcategory-icon">
+                        <img src="icons/icons8-books-50.png" alt="Ikona kategorii" class="subcategory-icon">
                         <div class="subcategory-info">
                             <h3>Poradniki</h3>
                             <p>Krok po kroku: jak modować Gothic</p>
@@ -105,7 +103,7 @@
                 <!-- Zapowiedzi modyfikacji -->
                 <div class="subcategory">
                     <div class="subcategory-header">
-                        <img src="icons\icons8-announcement-50.png" alt="Ikona kategorii" class="subcategory-icon">
+                        <img src="icons/icons8-announcement-50.png" alt="Ikona kategorii" class="subcategory-icon">
                         <div class="subcategory-info">
                             <h3>Zapowiedzi modyfikacji</h3>
                             <p>Nowe projekty w świecie Skyrim</p>
@@ -120,11 +118,10 @@
                         <p><strong>2024-12-19</strong> • SkyrimModder</p>
                     </div>
                 </div>
-
                 <!-- Ukończone modyfikacje -->
                 <div class="subcategory">
                     <div class="subcategory-header">
-                        <img src="icons\icons8-check-50.png" alt="Ikona kategorii" class="subcategory-icon">
+                        <img src="icons/icons8-check-50.png" alt="Ikona kategorii" class="subcategory-icon">
                         <div class="subcategory-info">
                             <h3>Ukończone modyfikacje</h3>
                             <p>Gotowe do pobrania i instalacji</p>
@@ -139,11 +136,10 @@
                         <p><strong>2024-12-17</strong> • RealismFan</p>
                     </div>
                 </div>
-
                 <!-- Pomoc techniczna -->
                 <div class="subcategory">
                     <div class="subcategory-header">
-                        <img src="icons\icons8-automation-64.png" alt="Ikona kategorii" class="subcategory-icon">
+                        <img src="icons/icons8-automation-64.png" alt="Ikona kategorii" class="subcategory-icon">
                         <div class="subcategory-info">
                             <h3>Pomoc techniczna</h3>
                             <p>Rozwiązywanie problemów w Skyrim</p>
@@ -158,11 +154,10 @@
                         <p><strong>2024-12-18</strong> • FixerExpert</p>
                     </div>
                 </div>
-
                 <!-- Poradniki -->
                 <div class="subcategory">
                     <div class="subcategory-header">
-                        <img src="icons\icons8-books-50.png" alt="Ikona kategorii" class="subcategory-icon">
+                        <img src="icons/icons8-books-50.png" alt="Ikona kategorii" class="subcategory-icon">
                         <div class="subcategory-info">
                             <h3>Poradniki</h3>
                             <p>Instrukcje dla modderów Skyrim</p>
@@ -181,6 +176,15 @@
         </section>
     </main>
 
+    <div id="chat" class="chat-box">
+        <ul id="messages"></ul>
+        <form id="form" action="">
+            <input id="input" autocomplete="off" placeholder="Wpisz wiadomość..." />
+            <button type="submit">Wyślij</button>
+        </form>
+    </div>
 
+    <script type="module" src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script type="module" src="scripts/chat.js" defer></script>
 </body>
 </html>
