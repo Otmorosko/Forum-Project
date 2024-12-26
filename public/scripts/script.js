@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const user = await loginUser (email, password);
                 console.log('Zalogowano użytkownika:', user);
-                window.location.href = 'index.html'; // Przekierowanie po zalogowaniu
+                window.location.href = 'index.html'; 
             } catch (error) {
                 console.error('Błąd podczas logowania:', error);
             }
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const registrationForm = document.getElementById('registrationForm');
     if (registrationForm) {
         registrationForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); // Zapobiega domyślnemu działaniu formularza
+            event.preventDefault(); 
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const user = await registerUser (email, password, nickname);
                 console.log('Użytkownik zarejestrowany:', user);
-                window.location.href = 'login.html'; // Przekierowanie do strony logowania po rejestracji
+                window.location.href = 'login.html'; 
             } catch (error) {
                 console.error('Błąd podczas rejestracji:', error);
             }

@@ -35,7 +35,7 @@ export function renderNavbar() {
             const profileLink = document.getElementById('profileLink');
             const navProfilePic = document.getElementById('navProfilePic');
         
-            const defaultProfilePic = 'public/icons/user_icon.png'; // Użyj względnej ścieżki
+            const defaultProfilePic = 'public/icons/user_icon.png';
         
             if (user) {
                 // Użytkownik jest zalogowany
@@ -46,7 +46,7 @@ export function renderNavbar() {
         
                 // Ustawienia zdjęcia profilowego
                 if (navProfilePic) {
-                    navProfilePic.src = user.photoURL || defaultProfilePic; // Użyj zdjęcia użytkownika lub domyślnego
+                    navProfilePic.src = user.photoURL || defaultProfilePic;
                 }
             } else {
                 // Użytkownik nie jest zalogowany
@@ -57,7 +57,7 @@ export function renderNavbar() {
         
                 // Ustawienie domyślnego zdjęcia
                 if (navProfilePic) {
-                    navProfilePic.src = defaultProfilePic; // Użyj domyślnego zdjęcia
+                    navProfilePic.src = defaultProfilePic;
                 }
             }
         });

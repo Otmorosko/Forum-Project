@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const photoInput = document.getElementById('photoInput');
     const updatePhotoBtn = document.getElementById('updatePhotoBtn');
 
-    const navProfilePicElement = document.getElementById('navProfilePic'); // Ikona w navbarze
+    const navProfilePicElement = document.getElementById('navProfilePic'); 
 
     // Pobranie i wyświetlenie danych użytkownika
     getUserProfile((profile) => {
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Ustawienie nowego zdjęcia profilowego na stronie
                 profilePicElement.src = `${data.url}?t=${Date.now()}`;
                 if (navProfilePicElement) {
-                    navProfilePicElement.src = `${data.url}?t=${Date.now()}`; // Aktualizacja w navbarze
+                    navProfilePicElement.src = `${data.url}?t=${Date.now()}`;
                 }
 
                 alert('Zdjęcie profilowe zostało zaktualizowane.');
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const newName = prompt('Podaj nową nazwę użytkownika:');
         if (newName) {
             try {
-                await updateUserName(newName); // Aktualizacja nazwy użytkownika
+                await updateUserName(newName); 
                 userNameElement.textContent = newName;
                 alert('Nazwa użytkownika została zaktualizowana.');
             } catch (error) {

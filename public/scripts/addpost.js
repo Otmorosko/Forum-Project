@@ -15,14 +15,14 @@ async function loadCategories() {
         // Wypełnianie selecta kategoriami
         categories.forEach(category => {
             const option = document.createElement('option');
-            option.value = category.id; // Użyj id jako wartości
+            option.value = category.id; 
             option.textContent = category.name;
             categorySelect.appendChild(option);
         });
 
         // Obsługa zmiany kategorii, by załadować odpowiednie podkategorie
         categorySelect.addEventListener('change', async () => {
-            subcategorySelect.innerHTML = ''; // Resetuj podkategorie
+            subcategorySelect.innerHTML = ''; 
             const selectedCategoryId = parseInt(categorySelect.value);
             try {
                 const subResponse = await fetch(`/api/subcategories?categoryId=${selectedCategoryId}`);
@@ -33,7 +33,7 @@ async function loadCategories() {
 
                 subcategories.forEach(sub => {
                     const option = document.createElement('option');
-                    option.value = sub.id; // Użyj id jako wartości
+                    option.value = sub.id; 
                     option.textContent = sub.name;
                     subcategorySelect.appendChild(option);
                 });
@@ -51,7 +51,7 @@ async function loadCategories() {
 // Funkcje do formatowania tekstu i dodawania obrazów
 window.formatText = function(command) {
     document.execCommand(command, false, null);
-    document.getElementById('editor').focus(); // Utrzymanie fokusu na edytorze
+    document.getElementById('editor').focus();
 };
 
 window.insertImage = function(event) {
@@ -99,8 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 document.getElementById('message').textContent = 'Post został dodany pomyślnie!';
                 form.reset();
-                document.getElementById('editor').innerHTML = ''; // Resetuj edytor
-            } else {
+                document.getElementById('editor').innerHTML = '';
                 throw new Error('Błąd podczas dodawania posta: ' + response.statusText);
             }
         } catch (error) {
