@@ -118,3 +118,79 @@ body {
         text-align: left;
     }
 }
+
+
+/* Styl burgerowego menu */
+.mobile-menu {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #333;
+    z-index: 1000;
+    padding: 1rem 0;
+    text-align: center;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.mobile-menu-toggle {
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.menu-icon {
+    width: 30px;
+    height: 3px;
+    background-color: #fff;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.menu-icon::before,
+.menu-icon::after {
+    content: '';
+    position: absolute;
+    width: 30px;
+    height: 3px;
+    background-color: #fff;
+    transition: transform 0.3s ease;
+}
+
+.menu-icon::before {
+    top: -10px;
+}
+
+.menu-icon::after {
+    top: 10px;
+}
+
+.mobile-menu-content {
+    display: none;
+    background-color: #444;
+    padding: 1rem;
+    text-align: center;
+}
+
+.mobile-menu-content.active {
+    display: flex;
+    flex-direction: column;
+}
+
+.mobile-menu-content nav a {
+    color: #fff;
+    text-decoration: none;
+    padding: 0.5rem 0;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .desktop-navbar {
+        display: none;
+    }
+
+    .mobile-menu {
+        display: block;
+    }
+}

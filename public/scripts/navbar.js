@@ -86,6 +86,18 @@ export function renderNavbar() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const mobileMenuContent = document.getElementById('mobileMenuContent');
+
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenuContent.classList.toggle('active');
+        });
+    }
+});
+
+
+document.addEventListener('DOMContentLoaded', () => {
     console.log('DOMContentLoaded triggered');
     renderNavbar();
 });
