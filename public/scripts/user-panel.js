@@ -7,20 +7,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const profilePicElement = document.getElementById('profilePic');
     const photoInput = document.getElementById('photoInput');
     const updatePhotoBtn = document.getElementById('updatePhotoBtn');
+    const navProfilePicElement = document.getElementById('navProfilePic');
 
-    const navProfilePicElement = document.getElementById('navProfilePic'); 
+    const defaultProfilePic = './icons/user_icon.png';
 
     // Pobranie i wyświetlenie danych użytkownika
     getUserProfile((profile) => {
+        console.log('Pobieranie profilu użytkownika:', profile);
+
         if (profile) {
             userNameElement.textContent = profile.displayName || 'Nieznany użytkownik';
             emailDisplayElement.textContent = `Zalogowany jako: ${profile.email}`;
 
-            const profilePhotoURL = profile.photoURL || 'public/icons/user_icon.png';
+            const profilePhotoURL = profile.photoURL || defaultProfilePic;
             profilePicElement.src = `${profilePhotoURL}?t=${Date.now()}`;
-
             if (navProfilePicElement) {
                 navProfilePicElement.src = `${profilePhotoURL}?t=${Date.now()}`;
+            }
+        } else {
+            userNameElement.textContent = 'Niezalogowany użytkownik';
+            emailDisplayElement.textContent = '';
+            profilePicElement.src = defaultProfilePic;
+            if (navProfilePicElement) {
+                navProfilePicElement.src = defaultProfilePic;
             }
         }
     });
@@ -33,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const formData = new FormData();
                 formData.append('file', file);
 
-                const response = await fetch('http://localhost:3000/upload', {
+                const response = await fetch('/upload', { // Użyj relatywnej ścieżki
                     method: 'POST',
                     body: formData,
                 });
@@ -64,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const newName = prompt('Nowa nazwa:');
         if (newName) {
             try {
-                await updateUserName(newName); 
+                await updateUserName(newName);
                 userNameElement.textContent = newName;
                 alert('Nazwa zaktualizowana.');
             } catch (error) {
@@ -87,11 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const currentPassword = prompt('Podaj obecne hasło:');
                 if (!currentPassword) throw new Error('Musisz podać obecne hasło.');
 
-                // Ponowne uwierzytelnienie
                 const credential = EmailAuthProvider.credential(email, currentPassword);
                 await reauthenticateWithCredential(user, credential);
 
-                // Aktualizacja hasła
                 await updatePassword(user, newPassword);
                 alert('Hasło zostało zaktualizowane.');
             } catch (error) {

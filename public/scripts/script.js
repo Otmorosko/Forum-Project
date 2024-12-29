@@ -1,5 +1,5 @@
 import { renderNavbar } from './navbar.js';
-import { loginUser , logoutUser , registerUser  } from './auth.js';
+import { loginUser, logoutUser, registerUser } from './auth.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM załadowany, inicjalizacja navbaru...');
@@ -15,9 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             console.log('Próba logowania z e-mailem:', email);
             try {
-                const user = await loginUser (email, password);
+                const user = await loginUser(email, password);
                 console.log('Zalogowano użytkownika:', user);
-                window.location.href = 'index.html'; 
+                window.location.href = 'index.html'; // Przekierowanie po zalogowaniu
             } catch (error) {
                 console.error('Błąd podczas logowania:', error);
             }
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const registrationForm = document.getElementById('registrationForm');
     if (registrationForm) {
         registrationForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); 
+            event.preventDefault();
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
@@ -36,9 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             console.log('Próba rejestracji z e-mailem:', email);
             try {
-                const user = await registerUser (email, password, nickname);
+                const user = await registerUser(email, password, nickname);
                 console.log('Użytkownik zarejestrowany:', user);
-                window.location.href = 'login.html'; 
+                window.location.href = 'login.html'; // Przekierowanie do strony logowania po rejestracji
             } catch (error) {
                 console.error('Błąd podczas rejestracji:', error);
             }
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
             console.log('Kliknięto logoutLink');
             try {
-                await logoutUser ();
+                await logoutUser();
                 console.log('Wylogowanie zakończone sukcesem');
             } catch (error) {
                 console.error('Błąd przy wylogowaniu:', error);

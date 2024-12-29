@@ -6,11 +6,17 @@ const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
 const Database = require('better-sqlite3');
-const async = require('async');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+    cors: {
+        origin: ['https://forum-project-20acc.web.app'], // Domena Firebase
+        methods: ['GET', 'POST', 'OPTIONS'],
+        credentials: true
+    }
+});
+
 const port = 3000;
 
 // Konfiguracja SQLite
@@ -25,8 +31,12 @@ if (!fs.existsSync(uploadDir)) {
     console.log(`Katalog ${uploadDir} został utworzony.`);
 }
 
-// Middleware CORS
-app.use(cors());
+app.use(cors({
+    origin: ['https://forum-project-20acc.web.app'], // Domena Firebase
+    methods: ['GET', 'POST', 'OPTIONS'],
+    credentials: true
+}));
+
 app.use(express.json());
 
 // Konfiguracja Multer do przesyłania plików
@@ -56,12 +66,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
 });
 
 // Middleware do serwowania plików statycznych
-app.use('/uploads', (req, res, next) => {
-    console.log(`Żądanie pliku: ${req.url}`); // Logowanie żądań do /uploads
-    next();
-}, express.static(uploadDir));
-
-// Middleware do serwowania plików publicznych
+app.use('/uploads', express.static(uploadDir));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -69,12 +74,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 io.on('connection', (socket) => {
     console.log('Użytkownik połączony:', socket.id);
 
-    // Pobierz historię wiadomości z bazy danych
-    const messages = db.prepare('SELECT * FROM messages ORDER BY timestamp ASC').all();
-    console.log(`Wysłano historię wiadomości do ${socket.id}, liczba wiadomości: ${messages.length}`);
-    socket.emit('chat history', messages);
+    try {
+        const messages = db.prepare('SELECT * FROM messages ORDER BY timestamp ASC').all();
+        console.log(`Wysłano historię wiadomości do ${socket.id}, liczba wiadomości: ${messages.length}`);
+        socket.emit('chat history', messages);
+    } catch (err) {
+        console.error('Błąd podczas pobierania wiadomości:', err.message);
+    }
 
-    // Obsługa nowej wiadomości
     socket.on('chat message', ({ text, author }) => {
         if (!text || !author) {
             console.error('Nieprawidłowe dane wiadomości: brak tekstu lub autora.');
@@ -87,7 +94,7 @@ io.on('connection', (socket) => {
             const newMessage = db.prepare('SELECT * FROM messages WHERE id = ?').get(info.lastInsertRowid);
 
             console.log('Dodano nową wiadomość:', newMessage);
-            io.emit('chat message', newMessage); // Wyślij do wszystkich klientów
+            io.emit('chat message', newMessage);
         } catch (err) {
             console.error('Błąd podczas dodawania wiadomości do bazy danych:', err.message);
         }

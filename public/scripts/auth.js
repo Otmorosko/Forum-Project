@@ -1,4 +1,4 @@
-import { initializeApp,} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import {
     getAuth,
     onAuthStateChanged,
@@ -33,7 +33,7 @@ export function monitorAuthState(callback) {
 }
 
 // Funkcja do logowania użytkownika
-export async function loginUser (email, password) {
+export async function loginUser(email, password) {
     console.log('Próba logowania z e-mailem:', email);
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -41,13 +41,13 @@ export async function loginUser (email, password) {
         return userCredential.user;
     } catch (error) {
         console.error('Błąd podczas logowania:', error);
-        alert('Błąd logowania: ' + error.message); // Wyświetlenie komunikatu o błędzie
+        alert('Błąd logowania: ' + error.message);
         throw error;
     }
 }
 
 // Funkcja do rejestracji użytkownika
-export async function registerUser (email, password, nickname) {
+export async function registerUser(email, password, nickname) {
     console.log('Próba rejestracji z e-mailem:', email);
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -64,7 +64,7 @@ export async function registerUser (email, password, nickname) {
 }
 
 // Funkcja do wylogowania użytkownika
-export async function logoutUser () {
+export async function logoutUser() {
     try {
         await signOut(auth);
         console.log('Użytkownik został wylogowany.');
@@ -76,7 +76,7 @@ export async function logoutUser () {
 
 // Funkcja do aktualizacji zdjęcia profilowego
 export async function updateUserPhoto(photoURL) {
-    const user = auth.currentUser ;
+    const user = auth.currentUser;
 
     if (!user) {
         throw new Error('Brak zalogowanego użytkownika.');
@@ -93,7 +93,7 @@ export async function updateUserPhoto(photoURL) {
 
 // Funkcja do aktualizacji nazwy użytkownika
 export async function updateUserName(newName) {
-    const user = auth.currentUser ;
+    const user = auth.currentUser;
 
     if (!user) {
         throw new Error('Brak zalogowanego użytkownika.');
@@ -112,7 +112,7 @@ export async function updateUserName(newName) {
 export function getUserProfile(callback) {
     monitorAuthState((user) => {
         if (user) {
-            const profilePhotoURL = user.photoURL || 'icons/user_icon.png'; // Ustawienie domyślnego zdjęcia
+            const profilePhotoURL = user.photoURL || '/icons/user_icon.png'; // Ustawienie domyślnego zdjęcia
             callback({
                 displayName: user.displayName || 'Nieznany użytkownik',
                 email: user.email || 'Brak adresu e-mail',

@@ -1,6 +1,6 @@
 import { monitorAuthState } from './auth.js';
 
-const socket = io('http://localhost:3000');
+const socket = io('https://chubby-mirrors-matter.loca.lt');
 
 const messagesDiv = document.getElementById('messages');
 const form = document.getElementById('form');
