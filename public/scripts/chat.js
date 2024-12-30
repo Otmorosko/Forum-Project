@@ -40,6 +40,7 @@ function setupChat() {
 
   // Funkcja do przełączania widoczności czatu
   function toggleChat() {
+    console.log("toggleChat wywołane");
     chat.classList.toggle("hidden");
     chatIcon.classList.toggle("active");
   }
