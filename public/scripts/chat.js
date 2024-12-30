@@ -38,6 +38,12 @@ function setupChat() {
   const chat = document.getElementById("chat");
   const chatIcon = document.getElementById("chat-icon");
 
+  // Sprawdzenie dostępności elementów
+  if (!chat || !chatIcon) {
+    console.error("Nie znaleziono elementów czatu.");
+    return;
+  }
+
   // Funkcja do przełączania widoczności czatu
   function toggleChat() {
     console.log("toggleChat wywołane");
@@ -47,7 +53,14 @@ function setupChat() {
 
   chatIcon.addEventListener("click", toggleChat);
 
+  // Inicjalizacja Socket.IO
   const socket = io("https://forum-project-rncg.onrender.com/");
+  socket.on("connect", () => console.log("Połączono z serwerem Socket.IO"));
+
+  // Obsługa błędów połączenia
+  socket.on("connect_error", (err) => {
+    console.error("Błąd połączenia z serwerem Socket.IO:", err.message);
+  });
 
   // Funkcja do renderowania wiadomości
   function renderMessage(msg) {
@@ -76,8 +89,7 @@ function setupChat() {
     const messagesList = document.getElementById("messages");
     messagesList.innerHTML = ""; // Wyczyść listę wiadomości
 
-    // Renderuj każdą wiadomość z historii
-    messages.forEach((msg) => renderMessage(msg));
+    messages.forEach((msg) => renderMessage(msg)); // Renderuj każdą wiadomość
   });
 
   // Obsługa odebrania nowej wiadomości
@@ -87,34 +99,38 @@ function setupChat() {
   });
 
   // Obsługa przesyłania wiadomości
-  document.getElementById("form").addEventListener("submit", (e) => {
-    e.preventDefault();
+  const form = document.getElementById("form");
+  if (form) {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
 
-    if (!currentUser) {
-      alert("Musisz być zalogowany, aby wysyłać wiadomości.");
-      return;
-    }
+      if (!currentUser) {
+        alert("Musisz być zalogowany, aby wysyłać wiadomości.");
+        return;
+      }
 
-    const input = document.getElementById("input");
-    const messageText = input.value.trim();
+      const input = document.getElementById("input");
+      const messageText = input.value.trim();
 
-    if (!messageText) {
-      alert("Wiadomość nie może być pusta.");
-      return;
-    }
+      if (!messageText) {
+        alert("Wiadomość nie może być pusta.");
+        return;
+      }
 
-    const message = {
-      text: messageText,
-      author: currentUser.displayName || currentUser.email || "Nieznany użytkownik",
-    };
+      const message = {
+        text: messageText,
+        author: currentUser.displayName || currentUser.email || "Nieznany użytkownik",
+      };
 
-    // Wysłanie wiadomości na serwer
-    socket.emit("chat message", message);
-    console.log("Wysłano wiadomość:", message);
+      // Wysłanie wiadomości na serwer
+      socket.emit("chat message", message);
+      console.log("Wysłano wiadomość:", message);
 
-    // Wyczyszczenie pola wejściowego
-    input.value = "";
-  });
+      input.value = ""; // Wyczyszczenie pola wejściowego
+    });
+  } else {
+    console.error("Nie znaleziono formularza czatu.");
+  }
 }
 
 // Ładuj czat po załadowaniu DOM
