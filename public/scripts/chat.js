@@ -17,8 +17,8 @@ monitorAuthState((user) => {
 function loadChat() {
   const chatHTML = `
     <div id="chat-container">
-      <div id="chat-icon" onclick="toggleChat()">💬</div>
-      <div id="chat" class="hidden">
+      <div id="chat-icon" class="chat-icon">💬</div>
+      <div id="chat" class="chat-box hidden">
         <ul id="messages"></ul>
         <form id="form">
           <input id="input" autocomplete="off" placeholder="Wpisz wiadomość..." />
@@ -39,16 +39,12 @@ function setupChat() {
   const chatIcon = document.getElementById("chat-icon");
 
   // Funkcja do przełączania widoczności czatu
-  window.toggleChat = function () {
+  function toggleChat() {
     chat.classList.toggle("hidden");
     chatIcon.classList.toggle("active");
-  };
-
-  // Upewnij się, że `io` jest dostępne
-  if (typeof io === "undefined") {
-    console.error("Biblioteka Socket.IO nie została załadowana.");
-    return;
   }
+
+  chatIcon.addEventListener("click", toggleChat);
 
   const socket = io("https://forum-project-rncg.onrender.com/");
 
