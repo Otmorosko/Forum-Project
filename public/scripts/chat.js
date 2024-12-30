@@ -8,6 +8,8 @@ socket.on("chat message", (msg) => {
 document.getElementById("form").addEventListener("submit", (e) => {
   e.preventDefault();
   const input = document.getElementById("input");
-  socket.emit("chat message", input.value);
+  const author = "Anonymous"; 
+  socket.emit("chat message", { text: input.value, author });
   input.value = ""; 
 });
+
