@@ -21,17 +21,16 @@ function renderMessage(msg) {
   const messagesList = document.getElementById("messages");
   const li = document.createElement("li");
 
-  // Sprawdź, czy `timestamp` istnieje, i sformatuj datę
-  const timestamp = msg.timestamp
-      ? new Date(msg.timestamp._seconds * 1000).toLocaleString("pl-PL") // Formatowanie daty dla polskiego języka
-      : "Nieznany czas";
+  // Formatowanie daty
+  const timestamp = msg.timestamp?.seconds
+      ? new Date(msg.timestamp.seconds * 1000).toLocaleString("pl-PL")
+      : "Brak daty";
 
   li.textContent = `[${timestamp}] ${msg.author}: ${msg.text}`;
   messagesList.appendChild(li);
-
-  // Automatyczne przewijanie w dół
-  messagesList.scrollTop = messagesList.scrollHeight;
+  messagesList.scrollTop = messagesList.scrollHeight; // Automatyczne przewijanie
 }
+
 
 
 
