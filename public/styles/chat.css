@@ -7,42 +7,68 @@
     --chat-text: #fff;
 }
 
-#chat {
-    position: absolute; /* Ustawienie statyczne w stosunku do strony */
-    right: 20px; /* Odstęp od prawej krawędzi */
-    top: 50%; /* Wyśrodkowanie w pionie */
-    transform: translateY(-50%); /* Korekta wyśrodkowania */
-    width: 320px; /* Szerokość okna */
-    max-height: 500px; /* Maksymalna wysokość okna */
-    background-color: var(--chat-bg); /* Tło */
-    border: 1px solid var(--chat-border); /* Obramowanie */
-    border-radius: 0.5rem; /* Zaokrąglone rogi */
-    box-shadow: 0 0.5rem 1rem var(--chat-shadow); /* Cień */
-    z-index: 1000; /* Wyższy priorytet */
+/* Kontener czatu */
+#chat-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+/* Przycisk do otwierania/zamykania czatu */
+#chat-icon {
+    background-color: var(--chat-btn-bg);
+    color: var(--chat-text);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
     display: flex;
-    flex-direction: column; /* Ustawienie układu pionowego */
-    overflow: hidden; /* Ukrycie nadmiaru */
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px var(--chat-shadow);
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
+#chat-icon:hover {
+    background-color: var(--chat-btn-hover);
+    transform: scale(1.1);
+}
+
+#chat-icon.active {
+    background-color: var(--chat-btn-hover);
+}
+
+#chat-icon:active {
+    transform: scale(0.95);
+}
+
+/* Ukrywanie okna czatu */
+.hidden {
+    display: none;
+}
+
+/* Okno czatu */
+#chat {
+    position: absolute;
+    right: 0;
+    bottom: 70px; /* Odstęp od przycisku */
+    width: 320px;
+    max-height: 500px;
+    background-color: var(--chat-bg);
+    border: 1px solid var(--chat-border);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem var(--chat-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Lista wiadomości */
 #messages {
-    flex: 1; /* Dopasowanie wysokości do dostępnej przestrzeni */
+    flex: 1;
     padding: 10px;
-    overflow-y: auto; /* Włączenie przewijania pionowego */
-    scrollbar-width: thin; /* Cienki pasek przewijania (dla Firefox) */
-    scrollbar-color: var(--chat-border) var(--chat-bg); /* Kolory paska przewijania (dla Firefox) */
-}
-
-#messages::-webkit-scrollbar {
-    width: 8px; /* Szerokość paska przewijania */
-}
-
-#messages::-webkit-scrollbar-thumb {
-    background-color: var(--chat-border); /* Kolor uchwytu przewijania */
-    border-radius: 5px; /* Zaokrąglenie uchwytu */
-}
-
-#messages::-webkit-scrollbar-track {
-    background-color: var(--chat-bg); /* Tło paska przewijania */
+    overflow-y: auto;
 }
 
 #messages li {
@@ -51,59 +77,30 @@
     padding: 8px;
     margin-bottom: 8px;
     border-radius: 5px;
-    word-wrap: break-word;
-    font-size: 0.9rem;
-    display: flex;
-    flex-direction: column; /* Układ w kolumnie */
 }
 
-#messages li span.author {
-    font-weight: bold;
-    color: var(--chat-btn-bg); /* Kolor autora */
-    margin-bottom: 5px;
-}
-
+/* Formularz */
 #form {
     display: flex;
     padding: 10px;
-    gap: 10px; /* Odstęp między polem tekstowym a przyciskiem */
-    background: var(--chat-bg); /* Tło */
+    gap: 10px;
+    background: var(--chat-bg);
 }
 
 #input {
-    flex: 1; /* Dopasowanie do dostępnej przestrzeni */
+    flex: 1;
     padding: 10px;
     border: 1px solid var(--chat-border);
     border-radius: 5px;
     background: #1e1e1e;
     color: var(--chat-text);
-    font-size: 1rem;
-}
-
-#input:focus {
-    outline: none;
-    border-color: var(--ui-orange);
-    box-shadow: 0 0 5px var(--ui-orange);
 }
 
 button {
-    padding: 10px 15px;
+    padding: 10px;
     background-color: var(--chat-btn-bg);
     color: var(--chat-text);
     border: none;
     border-radius: 5px;
-    font-size: 1rem;
-    font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    text-shadow: 1px 1px var(--ui-text-shadow);
-}
-
-button:hover {
-    background-color: var(--chat-btn-hover);
-    transform: translateY(-2px);
-}
-
-button:active {
-    transform: translateY(1px);
 }

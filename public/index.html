@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/navbar.css">
     <link rel="stylesheet" href="styles/footer.css">
-    <link rel="stylesheet" href="styles/chat.css"> <!-- Dodano link do stylów czatu -->
+    <link rel="stylesheet" href="styles/chat.css">
     <title>ModHub - Strona Główna</title>
 </head>
 <body>
@@ -15,28 +15,23 @@
     <script type="module" src="scripts/navbar.js" defer></script>
     <script type="module" src="scripts/script.js" defer></script>
     <script type="module" src="scripts/footer.js" defer></script>
-    <script type="module" src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-    <script type="module">
-    
-</script>
-
+    <script type="module" src="scripts/chat.js" defer></script>
 
     <!-- burgerowe menu -->
-<div class="mobile-menu">
-    <div class="mobile-menu-toggle" id="mobileMenuToggle">
-        <span class="menu-icon"></span>
+    <div class="mobile-menu">
+        <div class="mobile-menu-toggle" id="mobileMenuToggle">
+            <span class="menu-icon"></span>
+        </div>
+        <div class="mobile-menu-content" id="mobileMenuContent">
+            <nav>
+                <a href="index.html">Strona Główna</a>
+                <a href="posts.html">Lista Postów</a>
+                <a href="post.html">Dodaj Post</a>
+                <a href="login.html">Logowanie</a>
+                <a href="register.html">Zarejestruj się</a>
+            </nav>
+        </div>
     </div>
-    <div class="mobile-menu-content" id="mobileMenuContent">
-        <nav>
-            <a href="index.html">Strona Główna</a>
-            <a href="posts.html">Lista Postów</a>
-            <a href="post.html">Dodaj Post</a>
-            <a href="login.html">Logowanie</a>
-            <a href="register.html">Zarejestruj się</a>
-        </nav>
-    </div>
-</div>
-
 
     <main class="main-container">
         <!-- Sekcja kategorii: Gothic -->
@@ -197,16 +192,5 @@
             </div>
         </section>
     </main>
-
-    <div id="chat" class="chat-box">
-        <ul id="messages"></ul>
-        <form id="form" action="">
-            <input id="input" autocomplete="off" placeholder="Wpisz wiadomość..." />
-            <button type="submit">Wyślij</button>
-        </form>
-    </div>
-
-    <script type="module" src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-    <script type="module" src="scripts/chat.js" defer></script>
 </body>
 </html>
