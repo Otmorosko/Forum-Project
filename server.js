@@ -28,10 +28,11 @@ const server = http.createServer(app);
 // Inicjalizacja Socket.IO
 const io = new Server(server, {
     cors: {
-        origin: 'https://forum-project-20acc.web.app',
+        origin: 'https://forum-project-rncg.onrender.com',
         methods: ['GET', 'POST', 'OPTIONS'],
     },
 });
+
 
 // Konfiguracja Firebase Firestore
 const db = getFirestore();
