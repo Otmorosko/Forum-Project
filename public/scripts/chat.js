@@ -21,9 +21,9 @@ function renderMessage(msg) {
   const messagesList = document.getElementById("messages");
   const li = document.createElement("li");
 
-  // Sprawdź, czy timestamp istnieje i sformatuj go
+  // Sprawdź, czy `timestamp` istnieje, i sformatuj datę
   const timestamp = msg.timestamp
-      ? new Date(msg.timestamp._seconds * 1000).toLocaleString() // Konwersja na datę
+      ? new Date(msg.timestamp._seconds * 1000).toLocaleString("pl-PL") // Formatowanie daty dla polskiego języka
       : "Nieznany czas";
 
   li.textContent = `[${timestamp}] ${msg.author}: ${msg.text}`;
@@ -32,6 +32,8 @@ function renderMessage(msg) {
   // Automatyczne przewijanie w dół
   messagesList.scrollTop = messagesList.scrollHeight;
 }
+
+
 
 
 // Pobieranie historii wiadomości z serwera

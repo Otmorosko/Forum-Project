@@ -13,6 +13,7 @@
     top: 50%; /* Wyśrodkowanie w pionie */
     transform: translateY(-50%); /* Korekta wyśrodkowania */
     width: 320px; /* Szerokość okna */
+    max-height: 500px; /* Maksymalna wysokość okna */
     background-color: var(--chat-bg); /* Tło */
     border: 1px solid var(--chat-border); /* Obramowanie */
     border-radius: 0.5rem; /* Zaokrąglone rogi */
@@ -21,6 +22,27 @@
     display: flex;
     flex-direction: column; /* Ustawienie układu pionowego */
     overflow: hidden; /* Ukrycie nadmiaru */
+}
+
+#messages {
+    flex: 1; /* Dopasowanie wysokości do dostępnej przestrzeni */
+    padding: 10px;
+    overflow-y: auto; /* Włączenie przewijania pionowego */
+    scrollbar-width: thin; /* Cienki pasek przewijania (dla Firefox) */
+    scrollbar-color: var(--chat-border) var(--chat-bg); /* Kolory paska przewijania (dla Firefox) */
+}
+
+#messages::-webkit-scrollbar {
+    width: 8px; /* Szerokość paska przewijania */
+}
+
+#messages::-webkit-scrollbar-thumb {
+    background-color: var(--chat-border); /* Kolor uchwytu przewijania */
+    border-radius: 5px; /* Zaokrąglenie uchwytu */
+}
+
+#messages::-webkit-scrollbar-track {
+    background-color: var(--chat-bg); /* Tło paska przewijania */
 }
 
 #messages li {
@@ -40,7 +62,6 @@
     color: var(--chat-btn-bg); /* Kolor autora */
     margin-bottom: 5px;
 }
-
 
 #form {
     display: flex;
