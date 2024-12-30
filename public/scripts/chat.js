@@ -1,4 +1,4 @@
-const socket = io("https://forum-project-rncg.onrender.com");
+const socket = io("https://forum-project-rncg.onrender.com/");
 
 socket.on("chat message", (msg) => {
   console.log("Nowa wiadomość:", msg);

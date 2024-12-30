@@ -43,6 +43,8 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 // Konfiguracja Multer do lokalnego przesyłania plików
 const uploadDir = path.join(__dirname, 'uploads');
@@ -119,6 +121,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
 // Middleware do serwowania przesłanych plików
 app.use('/uploads', express.static(uploadDir));
 
+
 // Endpoint do pobierania kategorii z podkategoriami i wątkami
 app.get('/api/categories', async (req, res) => {
     try {
@@ -135,4 +138,8 @@ app.get('/api/categories', async (req, res) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Serwer działa na porcie ${PORT}`);
+});
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
