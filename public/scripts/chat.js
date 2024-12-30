@@ -41,7 +41,14 @@ function setupChat() {
   // Funkcja do przełączania widoczności czatu
   window.toggleChat = function () {
     chat.classList.toggle("hidden");
+    chatIcon.classList.toggle("active");
   };
+
+  // Upewnij się, że `io` jest dostępne
+  if (typeof io === "undefined") {
+    console.error("Biblioteka Socket.IO nie została załadowana.");
+    return;
+  }
 
   const socket = io("https://forum-project-rncg.onrender.com/");
 
