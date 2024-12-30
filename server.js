@@ -5,7 +5,7 @@ const cors = require('cors');
 const admin = require('firebase-admin');
 const { getFirestore } = require('firebase-admin/firestore');
 const multer = require('multer');
-const path = require('path'); // Usunięto nadmiarową deklarację
+const path = require('path');
 const fs = require('fs');
 
 // Inicjalizacja Firebase Admin SDK z użyciem pliku JSON
@@ -25,27 +25,29 @@ admin.initializeApp({
 const app = express();
 const server = http.createServer(app);
 
+// Adres dozwolony dla CORS
+const allowedOrigin = 'https://forum-project-rncg.onrender.com';
+
+// Konfiguracja CORS
+app.use(cors({
+    origin: allowedOrigin,
+    methods: ['GET', 'POST', 'OPTIONS'],
+}));
+
 // Inicjalizacja Socket.IO
 const io = new Server(server, {
     cors: {
-        origin: 'https://forum-project-rncg.onrender.com',
+        origin: allowedOrigin,
         methods: ['GET', 'POST', 'OPTIONS'],
     },
 });
 
-
 // Konfiguracja Firebase Firestore
 const db = getFirestore();
 
-// Middleware do obsługi CORS
-app.use(cors({
-    origin: 'https://forum-project-20acc.web.app',
-    methods: ['GET', 'POST', 'OPTIONS'],
-}));
-
+// Middleware do obsługi JSON i plików statycznych
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-
 
 // Konfiguracja Multer do lokalnego przesyłania plików
 const uploadDir = path.join(__dirname, 'uploads');
@@ -122,7 +124,6 @@ app.post('/upload', upload.single('file'), (req, res) => {
 // Middleware do serwowania przesłanych plików
 app.use('/uploads', express.static(uploadDir));
 
-
 // Endpoint do pobierania kategorii z podkategoriami i wątkami
 app.get('/api/categories', async (req, res) => {
     try {
@@ -135,12 +136,13 @@ app.get('/api/categories', async (req, res) => {
     }
 });
 
+// Endpoint domyślny dla aplikacji (SPA)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Start serwera
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Serwer działa na porcie ${PORT}`);
-});
-
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
