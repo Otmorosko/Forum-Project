@@ -75,12 +75,19 @@ io.on('connection', (socket) => {
     console.log('Użytkownik połączony:', socket.id);
 
     // Pobieranie historii wiadomości
-    db.collection('messages').orderBy('timestamp', 'asc').get()
+    db.collection('messages')
+        .orderBy('timestamp', 'asc')
+        .get()
         .then((snapshot) => {
-            const messages = snapshot.docs.map((doc) => doc.data());
-            socket.emit('chat history', messages);
+            const messages = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            socket.emit('chat history', messages); // Wysyłanie historii wiadomości do klienta
         })
-        .catch((error) => console.error('Błąd pobierania wiadomości:', error));
+        .catch((error) => {
+            console.error('Błąd pobierania wiadomości:', error);
+        });
 
     // Obsługa nowych wiadomości
     socket.on('chat message', async ({ text, author }) => {
@@ -98,7 +105,7 @@ io.on('connection', (socket) => {
         try {
             const docRef = await db.collection('messages').add(newMessage);
             const savedMessage = (await docRef.get()).data();
-            io.emit('chat message', savedMessage);
+            io.emit('chat message', { id: docRef.id, ...savedMessage }); // Wysyłanie nowej wiadomości do wszystkich klientów
         } catch (error) {
             console.error('Błąd podczas dodawania wiadomości:', error);
         }

@@ -15,18 +15,27 @@ monitorAuthState((user) => {
 
 const socket = io("https://forum-project-rncg.onrender.com/");
 
-// Obsługa odebrania wiadomości
+// Pobieranie historii wiadomości z serwera
+socket.on("chat history", (messages) => {
+  console.log("Odebrano historię wiadomości:", messages);
+
+  const messagesList = document.getElementById("messages");
+  messagesList.innerHTML = ""; // Wyczyść listę wiadomości
+
+  messages.forEach((msg) => {
+    const li = document.createElement("li");
+    li.textContent = `${msg.author}: ${msg.text}`;
+    messagesList.appendChild(li);
+  });
+});
+
+// Obsługa odebrania nowej wiadomości
 socket.on("chat message", (msg) => {
   console.log("Nowa wiadomość odebrana:", msg);
 
-  // Dodanie wiadomości do listy w HTML
   const messages = document.getElementById("messages");
   const li = document.createElement("li");
-
-  // Formatowanie wiadomości
   li.textContent = `${msg.author}: ${msg.text}`;
-
-  // Dodanie elementu do listy
   messages.appendChild(li);
 });
 
