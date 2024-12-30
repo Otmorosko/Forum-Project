@@ -1,31 +1,55 @@
-const socket = io("https://forum-project-rncg.onrender.com", {
-  path: "/socket.io", // Dodajemy ścieżkę, jeśli serwer jej wymaga
-  transports: ["websocket"], // Wymuszamy użycie WebSocket
+import { monitorAuthState } from "./auth.js";
+
+let currentUser = null;
+
+// Monitorowanie stanu logowania i ustawienie aktualnego użytkownika
+monitorAuthState((user) => {
+  if (user) {
+    currentUser = user;
+    console.log("Zalogowany użytkownik:", user.displayName || user.email);
+  } else {
+    console.log("Brak zalogowanego użytkownika.");
+    currentUser = null;
+  }
 });
 
-// Nasłuchiwanie na wiadomości
+const socket = io("https://forum-project-rncg.onrender.com/");
+
+// Obsługa odebrania wiadomości
 socket.on("chat message", (msg) => {
   console.log("Nowa wiadomość odebrana:", msg);
-  // Możesz tu dodać logikę do wyświetlania wiadomości na stronie
-});
 
-// Obsługa błędów połączenia
-socket.on("connect_error", (err) => {
-  console.error("Błąd połączenia z Socket.IO:", err);
-});
+  // Dodanie wiadomości do listy w HTML
+  const messages = document.getElementById("messages");
+  const li = document.createElement("li");
 
-socket.on("connect", () => {
-  console.log("Połączono z serwerem Socket.IO:", socket.id);
+  // Formatowanie wiadomości
+  li.textContent = `${msg.author}: ${msg.text}`;
+
+  // Dodanie elementu do listy
+  messages.appendChild(li);
 });
 
 // Przesyłanie wiadomości
 document.getElementById("form").addEventListener("submit", (e) => {
   e.preventDefault();
-  const input = document.getElementById("input");
-  const author = "Anonymous"; // Możesz dodać logikę pobierania autora
-  if (input.value.trim() !== "") {
-    socket.emit("chat message", { text: input.value.trim(), author });
-    console.log("Wysłano wiadomość:", input.value);
-    input.value = ""; // Reset pola wejściowego
+
+  if (!currentUser) {
+    alert("Musisz być zalogowany, aby wysyłać wiadomości.");
+    return;
   }
+
+  const input = document.getElementById("input");
+
+  const message = {
+    text: input.value,
+    author: currentUser.displayName || currentUser.email || "Nieznany użytkownik",
+  };
+
+  // Wysłanie wiadomości na serwer
+  socket.emit("chat message", message);
+  console.log("Wysłano wiadomość:", message);
+
+  // Wyczyszczenie pola wejściowego
+  input.value = "";
 });
