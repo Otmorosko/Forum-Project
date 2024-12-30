@@ -8,11 +8,19 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Inicjalizacja Firebase Admin SDK
-admin.initializeApp();
+// Inicjalizacja Firebase Admin SDK z użyciem pliku JSON
+const serviceAccount = require('./config/forum-project-20acc-firebase-adminsdk-fo2om-75a82d9350.json');
 
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://forum-project-20acc-default-rtdb.firebaseio.com"
+});
+
+// Tworzenie aplikacji Express i serwera HTTP
 const app = express();
 const server = http.createServer(app);
+
+// Inicjalizacja Socket.IO
 const io = new Server(server, {
     cors: {
         origin: 'https://forum-project-20acc.web.app',
