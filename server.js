@@ -5,26 +5,21 @@ const cors = require('cors');
 const admin = require('firebase-admin');
 const { getFirestore } = require('firebase-admin/firestore');
 const multer = require('multer');
-const path = require('path');
+const path = require('path'); // Usunięto nadmiarową deklarację
 const fs = require('fs');
 
 // Inicjalizacja Firebase Admin SDK z użyciem pliku JSON
-const path = require('path');
-
 const serviceAccountPath = process.env.NODE_ENV === 'production'
     ? '/etc/secrets/forum-project-20acc-firebase-adminsdk-fo2om-75a82d9350.json'
     : path.join(__dirname, 'secrets', 'forum-project-20acc-firebase-adminsdk-fo2om-75a82d9350.json');
 
 const serviceAccount = require(serviceAccountPath);
 
-
-
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: "https://forum-project-20acc-default-rtdb.firebaseio.com",
-    projectId: "forum-project-20acc" 
+    projectId: "forum-project-20acc",
 });
-
 
 // Tworzenie aplikacji Express i serwera HTTP
 const app = express();
