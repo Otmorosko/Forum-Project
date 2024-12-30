@@ -10,13 +10,14 @@ import {
 
 // Konfiguracja Firebase
 const firebaseConfig = {
-    apiKey: "AIzaSyBPfqFhhCv09KnFAhvURHQMeEjxKxqv00A",
-    authDomain: "forum-project-20acc.firebaseapp.com",
-    projectId: "forum-project-20acc",
-    storageBucket: "forum-project-20acc.appspot.com",
-    messagingSenderId: "941755754883",
-    appId: "1:941755754883:web:14a587a2e956c25602eeb6",
-    measurementId: "G-WCCBFDS86P"
+  apiKey: "AIzaSyBPfqFhhCv09KnFAhvURHQMeEjxKxqv00A",
+  authDomain: "forum-project-20acc.firebaseapp.com",
+  databaseURL: "https://forum-project-20acc-default-rtdb.firebaseio.com",
+  projectId: "forum-project-20acc",
+  storageBucket: "forum-project-20acc.firebasestorage.app",
+  messagingSenderId: "941755754883",
+  appId: "1:941755754883:web:14a587a2e956c25602eeb6",
+  measurementId: "G-WCCBFDS86P"
 };
 
 // Inicjalizacja Firebase

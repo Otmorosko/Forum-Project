@@ -1,23 +1,36 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: #121212; /* Dopasowanie do motywu głównej strony */
+    color: #fff;
     margin: 0;
-    padding: 20px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Wycentrowanie w poziomie */
+    min-height: 100vh; /* Pełna wysokość widoku */
 }
 
+/* Formularz główny */
 main {
     max-width: 400px;
-    margin: 100px auto;
-    background: white;
+    width: 90%; /* Dopasowanie do mniejszych ekranów */
+    background: #1e1e1e; /* Dopasowane tło */
+    color: #fff;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    margin-top: auto; /* Automatyczne centrowanie w pionie */
+    margin-bottom: auto; /* Automatyczne centrowanie w pionie */
 }
 
+/* Nagłówek formularza */
 h2 {
     text-align: center;
+    margin-bottom: 20px;
+    color: #e6b800;
 }
 
+/* Formularz */
 form {
     display: flex;
     flex-direction: column;
@@ -25,6 +38,8 @@ form {
 
 label {
     margin-bottom: 5px;
+    font-weight: bold;
+    color: #ccc;
 }
 
 input[type="email"],
@@ -32,8 +47,10 @@ input[type="password"],
 input[type="text"] {
     padding: 10px;
     margin-bottom: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #444;
     border-radius: 4px;
+    background-color: #2a2a2a;
+    color: #fff;
 }
 
 button {
@@ -50,8 +67,25 @@ button:hover {
     background-color: #b38f00;
 }
 
+/* Link do logowania */
 #message {
     margin-top: 10px;
     text-align: center;
-    color: red;
+    color: #e6b800;
+}
+
+a {
+    color: #e6b800;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #fff;
+}
+
+/* Poprawki dla responsywności */
+@media (max-width: 768px) {
+    main {
+        width: 95%;
+    }
 }
