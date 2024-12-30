@@ -9,7 +9,8 @@ const path = require('path');
 const fs = require('fs');
 
 // Inicjalizacja Firebase Admin SDK z użyciem pliku JSON
-const serviceAccount = require('/etc/secrets/forum-project-20acc-firebase-adminsdk-fo2om-75a82d9350.json');
+const serviceAccount = require('./secrets/forum-project-20acc-firebase-adminsdk-fo2om-75a82d9350.json');
+
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
