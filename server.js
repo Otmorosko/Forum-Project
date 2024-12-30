@@ -93,26 +93,31 @@ io.on('connection', async (socket) => {
             console.error('Nieprawidłowe dane wiadomości: brak tekstu lub autora.');
             return;
         }
-
+    
         const newMessage = {
             text,
             author,
             timestamp: admin.firestore.FieldValue.serverTimestamp(),
         };
-
+    
         try {
             const docRef = await db.collection('messages').add(newMessage);
-            const savedMessage = { id: docRef.id, ...newMessage };
-
-            io.emit('chat message', savedMessage);
+            const savedMessage = (await docRef.get()).data();
+    
+            // Dodaj poprawny format timestamp do wiadomości
+            const formattedMessage = {
+                id: docRef.id,
+                text: savedMessage.text,
+                author: savedMessage.author,
+                timestamp: savedMessage.timestamp, // Pole timestamp zostaje
+            };
+    
+            io.emit('chat message', formattedMessage);
         } catch (error) {
             console.error('Błąd podczas dodawania wiadomości:', error);
         }
     });
-
-    socket.on('disconnect', () => {
-        console.log('Użytkownik rozłączony:', socket.id);
-    });
+    
 });
 
 

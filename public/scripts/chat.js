@@ -21,15 +21,22 @@ function renderMessage(msg) {
   const messagesList = document.getElementById("messages");
   const li = document.createElement("li");
 
-  // Formatowanie daty
-  const timestamp = msg.timestamp?.seconds
-      ? new Date(msg.timestamp.seconds * 1000).toLocaleString("pl-PL")
-      : "Brak daty";
+  // Obsługa formatu daty Firestore
+  let timestamp = "Brak daty";
+  if (msg.timestamp) {
+      // Sprawdź, czy timestamp zawiera sekundy
+      if (msg.timestamp.seconds) {
+          timestamp = new Date(msg.timestamp.seconds * 1000).toLocaleString("pl-PL");
+      } else if (msg.timestamp._seconds) {
+          timestamp = new Date(msg.timestamp._seconds * 1000).toLocaleString("pl-PL");
+      }
+  }
 
   li.textContent = `[${timestamp}] ${msg.author}: ${msg.text}`;
   messagesList.appendChild(li);
   messagesList.scrollTop = messagesList.scrollHeight; // Automatyczne przewijanie
 }
+
 
 
 
