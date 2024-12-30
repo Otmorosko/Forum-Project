@@ -50,7 +50,11 @@ function setupChat() {
     console.log("toggleChat wywołane");
     chat.classList.toggle("hidden");
     chatIcon.classList.toggle("active");
-  }
+
+    // Sprawdzenie widoczności
+    console.log("Widoczność chat:", window.getComputedStyle(chat).display);
+}
+
 
   chatIcon.addEventListener("click", toggleChat);
 

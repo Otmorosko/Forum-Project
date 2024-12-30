@@ -45,8 +45,10 @@
 
 /* Ukrywanie okna czatu */
 .hidden {
-    display: none;
+    display: none !important; 
+    visibility: hidden;
 }
+
 
 /* Okno czatu */
 #chat {
@@ -62,6 +64,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    visibility: visible; 
 }
 
 /* Lista wiadomości */
