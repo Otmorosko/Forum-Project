@@ -15,6 +15,7 @@ monitorAuthState((user) => {
 
 // Funkcja do renderowania czatu
 function loadChat() {
+  console.log("Ładowanie czatu...");
   const chatHTML = `
     <div id="chat-container">
       <div id="chat-icon" class="chat-icon">💬</div>
@@ -29,12 +30,12 @@ function loadChat() {
   `;
 
   document.body.insertAdjacentHTML("beforeend", chatHTML);
-
   setupChat();
 }
 
 // Funkcja do obsługi czatu
 function setupChat() {
+  console.log("Konfiguracja czatu...");
   const chat = document.getElementById("chat");
   const chatIcon = document.getElementById("chat-icon");
 
