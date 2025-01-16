@@ -99,3 +99,15 @@ footer {
         margin-bottom: 2rem;
     }
 }
+
+.social-icon img {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    transition: transform 0.3s ease;
+}
+
+.social-icon img:hover {
+    transform: scale(1.2); 
+}
+

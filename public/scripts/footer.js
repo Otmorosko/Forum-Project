@@ -7,7 +7,7 @@ const footerHTML = `
             <div class="footer-socials">
                 <a href="#" class="social-icon"><img src="./icons/instagram.png" alt="Instagram"></a>
                 <a href="#" class="social-icon"><img src="./icons/twitter.png" alt="Twitter"></a>
-                <a href="#" class="social-icon"><img src="./icons/linkedin.png" alt="LinkedIn"></a>
+                <a href="#" class="social-icon"><img src="./icons/facebook.png" alt="Facebook"></a>
             </div>
         </div>
         <div class="footer-links">
