@@ -176,6 +176,31 @@ app.post('/api/posts', async (req, res) => {
     }
 });
 
+const categoriesData = require('./data/categories.json');
+
+// GET /api/categories - return list of categories with id and name
+app.get('/api/categories', (req, res) => {
+  const categories = categoriesData.map((cat, index) => ({
+    id: index,
+    name: cat.name,
+  }));
+  res.json(categories);
+});
+
+// GET /api/subcategories?categoryId= - return subcategories for category
+app.get('/api/subcategories', (req, res) => {
+  const categoryId = parseInt(req.query.categoryId);
+  if (isNaN(categoryId) || categoryId < 0 || categoryId >= categoriesData.length) {
+    return res.status(400).json({ error: 'Invalid categoryId' });
+  }
+  const subcategories = categoriesData[categoryId].subcategories.map((subcat, index) => ({
+    id: index,
+    name: subcat.name,
+  }));
+  res.json(subcategories);
+});
+
+
 // Endpoint domyślny dla aplikacji (SPA)
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
