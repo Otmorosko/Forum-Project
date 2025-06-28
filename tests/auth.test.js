@@ -1,13 +1,13 @@
+/* eslint-env mocha */
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 
 chai.use(chaiHttp);
-const { describe, it } = require('mocha');
 const expect = chai.expect;
 
 const serverUrl = 'http://localhost:3000'; // Use running server URL
 
-describe('Authentication', () => {
+describe('Authentication', function() {
   it('should register a new user', function(done) {
     chai.request(serverUrl)
       .post('/register')

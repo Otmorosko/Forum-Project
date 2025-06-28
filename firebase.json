@@ -8,6 +8,10 @@
     ],
     "rewrites": [
       {
+        "source": "/socket/**",
+        "function": "socket"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
