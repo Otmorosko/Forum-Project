@@ -147,7 +147,7 @@ const { sanitizeInput } = require('./functions/utils');
 // Endpoint do dodawania nowego posta
 app.post('/api/posts', async (req, res) => {
     try {
-        const { title, category, subcategory, content } = req.body;
+        const { title, category, subcategory, content, author } = req.body;
 
         if (!title || !category || !content) {
             return res.status(400).json({ error: 'Brak wymaganych pól: tytuł, kategoria lub treść.' });
@@ -158,12 +158,16 @@ app.post('/api/posts', async (req, res) => {
         const sanitizedCategory = sanitizeInput(category);
         const sanitizedSubcategory = subcategory ? sanitizeInput(subcategory) : '';
         const sanitizedContent = sanitizeInput(content);
+        const sanitizedAuthor = author ? sanitizeInput(author) : 'Anonim';
 
         const newPost = {
             title: sanitizedTitle,
             category: sanitizedCategory,
             subcategory: sanitizedSubcategory,
             content: sanitizedContent,
+            author: sanitizedAuthor,
+            replies: 0,
+            likes: 0,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
         };
 
@@ -213,8 +217,8 @@ app.get('/api/posts-structured', async (req, res) => {
         author: data.author || 'Anonim',
         category: data.category,
         subcategory: data.subcategory,
-        replies: data.replies || 0,
-        likes: data.likes || 0,
+        replies: data.replies !== undefined ? data.replies : 0,
+        likes: data.likes !== undefined ? data.likes : 0,
         createdAt: data.createdAt ? data.createdAt.toDate().toISOString() : null,
       };
     });
