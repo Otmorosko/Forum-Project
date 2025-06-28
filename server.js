@@ -223,13 +223,17 @@ app.get('/api/posts-structured', async (req, res) => {
       };
     });
 
+    console.log('Fetched posts from Firestore:', posts);
+
     // Build structured data: categories -> subcategories -> threads(posts)
     const structured = categoriesData.map((cat, catIndex) => {
       const subcats = cat.subcategories.map((subcat, subIndex) => {
         // Filter posts for this category and subcategory
-        const threads = posts.filter(post =>
-          post.category === cat.name && post.subcategory === subcat.name
-        );
+        const threads = posts.filter(post => {
+          const matchCategory = post.category && post.category.trim().toLowerCase() === cat.name.trim().toLowerCase();
+          const matchSubcategory = post.subcategory && post.subcategory.trim().toLowerCase() === subcat.name.trim().toLowerCase();
+          return matchCategory && matchSubcategory;
+        });
         return {
           id: subIndex,
           name: subcat.name,
