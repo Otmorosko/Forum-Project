@@ -200,6 +200,52 @@ app.get('/api/subcategories', (req, res) => {
   res.json(subcategories);
 });
 
+// New endpoint to get categories with subcategories and posts (threads)
+app.get('/api/posts-structured', async (req, res) => {
+  try {
+    // Fetch all posts from Firestore
+    const postsSnapshot = await db.collection('posts').get();
+    const posts = postsSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        title: data.title,
+        author: data.author || 'Anonim',
+        category: data.category,
+        subcategory: data.subcategory,
+        replies: data.replies || 0,
+        likes: data.likes || 0,
+        createdAt: data.createdAt ? data.createdAt.toDate().toISOString() : null,
+      };
+    });
+
+    // Build structured data: categories -> subcategories -> threads(posts)
+    const structured = categoriesData.map((cat, catIndex) => {
+      const subcats = cat.subcategories.map((subcat, subIndex) => {
+        // Filter posts for this category and subcategory
+        const threads = posts.filter(post =>
+          post.category === cat.name && post.subcategory === subcat.name
+        );
+        return {
+          id: subIndex,
+          name: subcat.name,
+          threads: threads,
+        };
+      });
+      return {
+        id: catIndex,
+        name: cat.name,
+        subcategories: subcats,
+      };
+    });
+
+    res.json(structured);
+  } catch (error) {
+    console.error('Error fetching structured posts:', error);
+    res.status(500).json({ error: 'Failed to fetch structured posts' });
+  }
+});
+
 
 // Endpoint domyślny dla aplikacji (SPA)
 app.get('*', (req, res) => {

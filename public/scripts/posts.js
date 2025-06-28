@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const categoriesContainer = document.querySelector(".categories-container");
 
-    fetch("/api/categories")
+    fetch("/api/posts-structured")
         .then((response) => response.json())
         .then((categories) => {
             categories.forEach((category) => {
