@@ -7,9 +7,17 @@ const { sanitizeInput } = require("./utils");
 // Inicjalizacja Express i Socket.IO
 const app = express();
 const server = http.createServer(app);
+const allowedOrigins = ['https://forum-project-rncg.onrender.com', 'http://localhost:3000'];
+
 const io = new Server(server, {
   cors: {
-    origin: true, // Zezwól na wszystkie domeny
+    origin: function(origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ["GET", "POST"],
   },
 });
@@ -20,6 +28,7 @@ io.on("connection", (socket) => {
 
   socket.on("chat message", (message) => {
     console.log("Wiadomość otrzymana:", message);
+    // TODO: Add authentication check here if possible
     // Sanitize message text before broadcasting
     if (message && typeof message.text === "string") {
       message.text = sanitizeInput(message.text);
