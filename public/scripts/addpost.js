@@ -24,12 +24,14 @@ async function loadCategories() {
         categorySelect.addEventListener('change', async () => {
             subcategorySelect.innerHTML = ''; 
             const selectedCategoryId = parseInt(categorySelect.value);
+            console.log('Selected category ID:', selectedCategoryId);
             try {
                 const subResponse = await fetch(`/api/subcategories?categoryId=${selectedCategoryId}`);
                 if (!subResponse.ok) {
                     throw new Error('Błąd podczas ładowania podkategorii: ' + subResponse.statusText);
                 }
                 const subcategories = await subResponse.json();
+                console.log('Fetched subcategories:', subcategories);
 
                 subcategories.forEach(sub => {
                     const option = document.createElement('option');
