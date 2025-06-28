@@ -142,6 +142,40 @@ app.post('/upload', upload.single('file'), (req, res) => {
 // Middleware do serwowania przesłanych plików
 app.use('/uploads', express.static(uploadDir));
 
+const { sanitizeInput } = require('./functions/utils');
+
+// Endpoint do dodawania nowego posta
+app.post('/api/posts', async (req, res) => {
+    try {
+        const { title, category, subcategory, content } = req.body;
+
+        if (!title || !category || !content) {
+            return res.status(400).json({ error: 'Brak wymaganych pól: tytuł, kategoria lub treść.' });
+        }
+
+        // Sanitize inputs
+        const sanitizedTitle = sanitizeInput(title);
+        const sanitizedCategory = sanitizeInput(category);
+        const sanitizedSubcategory = subcategory ? sanitizeInput(subcategory) : '';
+        const sanitizedContent = sanitizeInput(content);
+
+        const newPost = {
+            title: sanitizedTitle,
+            category: sanitizedCategory,
+            subcategory: sanitizedSubcategory,
+            content: sanitizedContent,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
+
+        const docRef = await db.collection('posts').add(newPost);
+
+        res.status(201).json({ message: 'Post został dodany pomyślnie.', id: docRef.id });
+    } catch (error) {
+        console.error('Błąd podczas dodawania posta:', error);
+        res.status(500).json({ error: 'Wystąpił błąd podczas dodawania posta.' });
+    }
+});
+
 // Endpoint domyślny dla aplikacji (SPA)
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));

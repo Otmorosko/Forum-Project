@@ -100,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('message').textContent = 'Post został dodany pomyślnie!';
                 form.reset();
                 document.getElementById('editor').innerHTML = '';
+            } else {
                 throw new Error('Błąd podczas dodawania posta: ' + response.statusText);
             }
         } catch (error) {
