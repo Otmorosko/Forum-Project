@@ -28,19 +28,27 @@ const server = http.createServer(app);
 // Konfiguracja Firebase Firestore
 const db = getFirestore();
 
-// Adres dozwolony dla CORS
-const allowedOrigin = 'https://forum-project-rncg.onrender.com';
+const allowedOrigins = ['https://forum-project-rncg.onrender.com', 'http://localhost:3000'];
 
 // Konfiguracja CORS
 app.use(cors({
-    origin: allowedOrigin,
+    origin: function(origin, callback){
+        // allow requests with no origin 
+        // (like mobile apps or curl requests)
+        if(!origin) return callback(null, true);
+        if(allowedOrigins.indexOf(origin) === -1){
+            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
     methods: ['GET', 'POST', 'OPTIONS'],
 }));
 
 // Inicjalizacja Socket.IO
 const io = new Server(server, {
     cors: {
-        origin: allowedOrigin,
+        origin: allowedOrigins,
         methods: ['GET', 'POST', 'OPTIONS'],
     },
 });
@@ -104,12 +112,12 @@ io.on('connection', async (socket) => {
             const docRef = await db.collection('messages').add(newMessage);
             const savedMessage = (await docRef.get()).data();
     
-            // Dodaj poprawny format timestamp do wiadomości
+            
             const formattedMessage = {
                 id: docRef.id,
                 text: savedMessage.text,
                 author: savedMessage.author,
-                timestamp: savedMessage.timestamp, // Pole timestamp zostaje
+                timestamp: savedMessage.timestamp, 
             };
     
             io.emit('chat message', formattedMessage);
