@@ -27,6 +27,9 @@ admin.initializeApp({
 const app = express();
 const server = http.createServer(app);
 
+
+app.set('trust proxy', true);
+
 // Konfiguracja Firebase Firestore
 const db = getFirestore();
 
@@ -137,7 +140,12 @@ app.post('/upload', upload.single('file'), (req, res) => {
         return res.status(400).json({ error: 'Brak pliku do przesłania.' });
     }
 
-    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    // preferuj jawnie ustawione SITE_URL (np. https://forum-project-rncg.onrender.com),
+    // w przeciwnym razie używaj req.protocol (po trust proxy będzie https) i host
+    const siteBase = (process.env.SITE_URL && process.env.SITE_URL.replace(/\/$/, '')) ||
+                     `${req.protocol}://${req.get('host')}`;
+    const fileUrl = `${siteBase}/uploads/${req.file.filename}`;
+
     res.json({ url: fileUrl });
 });
 
@@ -266,7 +274,7 @@ app.get('*', (req, res) => {
 // Testowe endpointy auth (tylko w non-production)
 // -----------------------
 if (process.env.NODE_ENV !== 'production') {
-  app.use(express.json()); // idempotentne jeśli już jest gdzie indziej
+  app.use(express.json()); 
 
   const _testUsers = new Map();
 
