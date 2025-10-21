@@ -1,3 +1,6 @@
+/* eslint-env browser */
+/* global io, DOMPurify */
+/* eslint-disable no-undef */
 import { monitorAuthState } from "./auth.js";
 
 let currentUser = null;
@@ -58,8 +61,19 @@ function setupChat() {
 
   chatIcon.addEventListener("click", toggleChat);
 
-  // Inicjalizacja Socket.IO
-  const socket = io("https://forum-project-rncg.onrender.com/");
+  // Inicjalizacja Socket.IO (bez fatalnego błędu, jeśli klient nie jest załadowany)
+  const socket = (typeof io !== 'undefined')
+    ? io("https://forum-project-rncg.onrender.com/")
+    : (function missingSocketStub(){
+        console.error("Socket.IO client (io) not found on window; chat disabled.");
+        // prosty stub, aby reszta kodu nie rzucała błędów
+        return {
+          on: () => {},
+          emit: () => {},
+          connected: false
+        };
+      })();
+
   socket.on("connect", () => console.log("Połączono z serwerem Socket.IO"));
 
   // Obsługa błędów połączenia
@@ -67,24 +81,36 @@ function setupChat() {
     console.error("Błąd połączenia z serwerem Socket.IO:", err.message);
   });
 
-  // Funkcja do renderowania wiadomości
+  // Dodaj na górze pliku (lub tuż przed użyciem SafeDOMPurify)
+  const SafeDOMPurify = (typeof DOMPurify !== 'undefined' && DOMPurify)
+  || (typeof window !== 'undefined' && window.DOMPurify)
+  || {
+    sanitize: (s) => String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  };
+
+  // upewnij się, że renderMessage używa SafeDOMPurify.sanitize(...) zamiast bezpośrednio SafeDOMPurify
   function renderMessage(msg) {
     const messagesList = document.getElementById("messages");
+    if (!messagesList) return;
     const li = document.createElement("li");
 
-    // Obsługa formatu daty Firestore
     let timestamp = "Brak daty";
     if (msg.timestamp) {
       if (msg.timestamp.seconds) {
         timestamp = new Date(msg.timestamp.seconds * 1000).toLocaleString("pl-PL");
       } else if (msg.timestamp._seconds) {
         timestamp = new Date(msg.timestamp._seconds * 1000).toLocaleString("pl-PL");
+      } else if (typeof msg.timestamp === 'string' || msg.timestamp instanceof String) {
+        timestamp = new Date(msg.timestamp).toLocaleString("pl-PL");
       }
     }
 
-    li.textContent = `[${timestamp}] ${msg.author}: ${msg.text}`;
+    const safeAuthor = SafeDOMPurify.sanitize(msg.author || 'Anonim', { ALLOWED_TAGS: [] });
+    const safeText = SafeDOMPurify.sanitize(msg.text || '', { ALLOWED_TAGS: [] });
+
+    li.textContent = `[${timestamp}] ${safeAuthor}: ${safeText}`;
     messagesList.appendChild(li);
-    messagesList.scrollTop = messagesList.scrollHeight; // Automatyczne przewijanie
+    messagesList.scrollTop = messagesList.scrollHeight;
   }
 
   // Pobieranie historii wiadomości z serwera

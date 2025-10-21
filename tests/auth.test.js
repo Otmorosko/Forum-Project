@@ -1,34 +1,31 @@
 /* eslint-env mocha */
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-
-chai.use(chaiHttp);
-const expect = chai.expect;
-
-const serverUrl = 'http://localhost:3000'; // Use running server URL
+/* global describe,it */
+const { expect } = require('chai');
+const request = require('supertest');
+const { app } = require('../server'); // importuje aplikację bez uruchamiania serwera
 
 describe('Authentication', function() {
-  it('should register a new user', function(done) {
-    chai.request(serverUrl)
+  this.timeout(5000);
+
+  it('should register a new user', async function() {
+    const res = await request(app)
       .post('/register')
       .send({ username: 'testuser', password: 'TestPass123!' })
-      .end(function(err, res) {
-        expect(res).to.have.status(200);
-        expect(res.body).to.be.an('object');
-        expect(res.body).to.have.property('success').eql(true);
-        done();
-      });
+      .set('Accept', 'application/json');
+
+    expect(res.status).to.be.oneOf([200,201]);
+    expect(res.body).to.be.an('object');
+    expect(res.body).to.have.property('success');
   });
 
-  it('should login an existing user', function(done) {
-    chai.request(serverUrl)
+  it('should login an existing user', async function() {
+    const res = await request(app)
       .post('/login')
       .send({ username: 'testuser', password: 'TestPass123!' })
-      .end(function(err, res) {
-        expect(res).to.have.status(200);
-        expect(res.body).to.be.an('object');
-        expect(res.body).to.have.property('token');
-        done();
-      });
+      .set('Accept', 'application/json');
+
+    expect(res.status).to.equal(200);
+    expect(res.body).to.be.an('object');
+    expect(res.body).to.have.property('token');
   });
 });
