@@ -190,7 +190,7 @@ app.post('/api/posts', async (req, res) => {
     }
 });
 
-const categoriesData = require('./data/categories.json');
+const categoriesData = require('./public/data/categories.json');
 
 // GET /api/categories - return list of categories with id and name
 app.get('/api/categories', (req, res) => {
@@ -233,21 +233,31 @@ app.get('/api/posts-structured', async (req, res) => {
       };
     });
 
-    console.log('Fetched posts from Firestore:', posts);
-
     // Build structured data: categories -> subcategories -> threads(posts)
     const structured = categoriesData.map((cat, catIndex) => {
       const subcats = cat.subcategories.map((subcat, subIndex) => {
-        // Filter posts for this category and subcategory
-        const threads = posts.filter(post => {
-          const matchCategory = post.category && post.category.trim().toLowerCase() === cat.name.trim().toLowerCase();
-          const matchSubcategory = post.subcategory && post.subcategory.trim().toLowerCase() === subcat.name.trim().toLowerCase();
-          return matchCategory && matchSubcategory;
-        });
+        // Filtruj posty do tej podkategorii i kategorii
+        const threads = posts.filter(
+          p =>
+            (p.category === cat.name || p.category === catIndex || String(p.category) === String(catIndex)) &&
+            (p.subcategory === subcat.name || p.subcategory === subIndex || String(p.subcategory) === String(subIndex))
+        );
+        // Najnowszy post
+        const lastThread = threads.length
+          ? threads.reduce((a, b) => (a.createdAt > b.createdAt ? a : b))
+          : null;
         return {
-          id: subIndex,
           name: subcat.name,
-          threads: threads,
+          icon: subcat.icon,
+          threadsCount: threads.length,
+          repliesCount: threads.reduce((sum, t) => sum + (t.replies || 0), 0),
+          lastThread: lastThread
+            ? {
+                title: lastThread.title,
+                author: lastThread.author,
+                timestamp: lastThread.createdAt,
+              }
+            : null,
         };
       });
       return {
@@ -262,6 +272,27 @@ app.get('/api/posts-structured', async (req, res) => {
     console.error('Error fetching structured posts:', error);
     res.status(500).json({ error: 'Failed to fetch structured posts' });
   }
+});
+
+// --- temporary test endpoint: return sample posts ---
+app.get('/api/posts', (req, res) => {
+  const sample = [
+    {
+      id: '1',
+      title: 'Welcome — sample post',
+      author: 'System',
+      timestamp: Date.now(),
+      content: '<p>This is a sample post to verify frontend rendering.</p>'
+    },
+    {
+      id: '2',
+      title: 'Second post',
+      author: 'Mod',
+      timestamp: Date.now(),
+      content: '<p>Another example post with <b>bold</b> text.</p>'
+    }
+  ];
+  res.json(sample);
 });
 
 

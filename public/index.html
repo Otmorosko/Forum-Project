@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles/navbar.css">
     <link rel="stylesheet" href="styles/footer.css">
     <link rel="stylesheet" href="styles/chat.css">
+    <link rel="stylesheet" href="styles/posts.css">
     <title>ModHub - Strona Główna</title>
 </head>
 <body>
@@ -17,8 +18,8 @@
     <script type="module" src="scripts/footer.js" defer></script>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script type="module" src="scripts/chat.js" defer></script>
+    <script type="module" src="scripts/posts.js"></script>
 
-    <!-- burgerowe menu -->
     <div class="mobile-menu">
         <div class="mobile-menu-toggle" id="mobileMenuToggle">
             <span class="menu-icon"></span>
@@ -35,163 +36,7 @@
     </div>
 
     <main class="main-container">
-        <!-- Sekcja kategorii: Gothic -->
-        <section class="game-category">
-            <h2>Gothic</h2>
-            <div class="subcategories-wrapper">
-                <!-- Zapowiedzi modyfikacji -->
-                <div class="subcategory">
-                    <div class="subcategory-header">
-                        <img src="icons/icons8-announcement-50.png" alt="Ikona kategorii" class="subcategory-icon">
-                        <div class="subcategory-info">
-                            <h3>Zapowiedzi modyfikacji</h3>
-                            <p>Nowe projekty i prace w toku</p>
-                        </div>
-                    </div>
-                    <div class="subcategory-stats">
-                        <p><strong>124</strong> Wątki</p>
-                        <p><strong>512</strong> Odpowiedzi</p>
-                    </div>
-                    <div class="subcategory-last-post">
-                        <p>Zapowiedziano Gothic Reborn</p>
-                        <p><strong>2024-12-15</strong> • GothicFan</p>
-                    </div>
-                </div>
-                <!-- Ukończone modyfikacje -->
-                <div class="subcategory">
-                    <div class="subcategory-header">
-                        <img src="icons/icons8-check-50.png" alt="Ikona kategorii" class="subcategory-icon">
-                        <div class="subcategory-info">
-                            <h3>Ukończone modyfikacje</h3>
-                            <p>Gotowe do pobrania i grania</p>
-                        </div>
-                    </div>
-                    <div class="subcategory-stats">
-                        <p><strong>310</strong> Wątki</p>
-                        <p><strong>812</strong> Odpowiedzi</p>
-                    </div>
-                    <div class="subcategory-last-post">
-                        <p>Wydano Gothic Enhanced</p>
-                        <p><strong>2024-12-10</strong> • ModCreator</p>
-                    </div>
-                </div>
-                <!-- Dyskusje techniczne -->
-                <div class="subcategory">
-                    <div class="subcategory-header">
-                        <img src="icons/icons8-automation-64.png" alt="Ikona kategorii" class="subcategory-icon">
-                        <div class="subcategory-info">
-                            <h3>Dyskusje techniczne</h3>
-                            <p>Pomoc i pytania o Gothic</p>
-                        </div>
-                    </div>
-                    <div class="subcategory-stats">
-                        <p><strong>410</strong> Wątki</p>
-                        <p><strong>932</strong> Odpowiedzi</p>
-                    </div>
-                    <div class="subcategory-last-post">
-                        <p>Jak zmodyfikować plik tekstur?</p>
-                        <p><strong>2024-12-20</strong> • ModHelper</p>
-                    </div>
-                </div>
-                <!-- Poradniki -->
-                <div class="subcategory">
-                    <div class="subcategory-header">
-                        <img src="icons/icons8-books-50.png" alt="Ikona kategorii" class="subcategory-icon">
-                        <div class="subcategory-info">
-                            <h3>Poradniki</h3>
-                            <p>Krok po kroku: jak modować Gothic</p>
-                        </div>
-                    </div>
-                    <div class="subcategory-stats">
-                        <p><strong>150</strong> Wątki</p>
-                        <p><strong>320</strong> Odpowiedzi</p>
-                    </div>
-                    <div class="subcategory-last-post">
-                        <p>Tworzenie nowego NPC</p>
-                        <p><strong>2024-12-12</strong> • NPCBuilder</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Sekcja kategorii: Skyrim: Special Edition -->
-        <section class="game-category">
-            <h2>Skyrim: Special Edition</h2>
-            <div class="subcategories-wrapper">
-                <!-- Zapowiedzi modyfikacji -->
-                <div class="subcategory">
-                    <div class="subcategory-header">
-                        <img src="icons/icons8-announcement-50.png" alt="Ikona kategorii" class="subcategory-icon">
-                        <div class="subcategory-info">
-                            <h3>Zapowiedzi modyfikacji</h3>
-                            <p>Nowe projekty w świecie Skyrim</p>
-                        </div>
-                    </div>
-                    <div class="subcategory-stats">
-                        <p><strong>200</strong> Wątki</p>
-                        <p><strong>600</strong> Odpowiedzi</p>
-                    </div>
-                    <div class="subcategory-last-post">
-                        <p>Zapowiedziano Dragonborn Reimagined</p>
-                        <p><strong>2024-12-19</strong> • SkyrimModder</p>
-                    </div>
-                </div>
-                <!-- Ukończone modyfikacje -->
-                <div class="subcategory">
-                    <div class="subcategory-header">
-                        <img src="icons/icons8-check-50.png" alt="Ikona kategorii" class="subcategory-icon">
-                        <div class="subcategory-info">
-                            <h3>Ukończone modyfikacje</h3>
-                            <p>Gotowe do pobrania i instalacji</p>
-                        </div>
-                    </div>
-                    <div class="subcategory-stats">
-                        <p><strong>340</strong> Wątki</p>
-                        <p><strong>900</strong> Odpowiedzi</p>
-                    </div>
-                    <div class="subcategory-last-post">
-                        <p>Nowy mod: Skyrim Realism</p>
-                        <p><strong>2024-12-17</strong> • RealismFan</p>
-                    </div>
-                </div>
-                <!-- Pomoc techniczna -->
-                <div class="subcategory">
-                    <div class="subcategory-header">
-                        <img src="icons/icons8-automation-64.png" alt="Ikona kategorii" class="subcategory-icon">
-                        <div class="subcategory-info">
-                            <h3>Pomoc techniczna</h3>
-                            <p>Rozwiązywanie problemów w Skyrim</p>
-                        </div>
-                    </div>
-                    <div class="subcategory-stats">
-                        <p><strong>250</strong> Wątki</p>
-                        <p><strong>730</strong> Odpowiedzi</p>
-                    </div>
-                    <div class="subcategory-last-post">
-                        <p>Błąd z modami tekstur</p>
-                        <p><strong>2024-12-18</strong> • FixerExpert</p>
-                    </div>
-                </div>
-                <!-- Poradniki -->
-                <div class="subcategory">
-                    <div class="subcategory-header">
-                        <img src="icons/icons8-books-50.png" alt="Ikona kategorii" class="subcategory-icon">
-                        <div class="subcategory-info">
-                            <h3>Poradniki</h3>
-                            <p>Instrukcje dla modderów Skyrim</p>
-                        </div>
-                    </div>
-                    <div class="subcategory-stats">
-                        <p><strong>180</strong> Wątki</p>
-                        <p><strong>410</strong> Odpowiedzi</p>
-                    </div>
-                    <div class="subcategory-last-post">
-                        <p>Tworzenie nowego smoka</p>
-                        <p><strong>2024-12-15</strong> • DragonMaster</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <div id="posts-container"></div>
     </main>
 </body>
 </html>

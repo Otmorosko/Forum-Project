@@ -7,6 +7,16 @@ body {
     line-height: 1.6;
 }
 
+/* Wrapper na całość */
+.categories-wrapper {
+  margin: 32px auto 0 auto;
+  max-width: 950px;
+  width: 85%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
 /* Kontener główny na wszystkie kategorie */
 .categories-container {
     max-width: 1200px;
@@ -15,6 +25,36 @@ body {
     display: flex;
     flex-direction: column;
     gap: 2rem;
+}
+
+/* Nagłówek kategorii */
+.category-header {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  color: #fff;
+  font-size: 1.6rem;
+  margin: 32px auto 8px auto;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  text-align: left;
+  border-bottom: 1px solid #444;
+  padding-bottom: 0.5rem;
+  max-width: 950px;
+  width: 100%;
+}
+
+.category-header .arrow {
+  font-size: 1.1em;
+  margin-left: 12px;
+  transition: transform 0.2s;
+}
+
+.category-header .arrow.collapsed {
+  transform: rotate(-90deg);
 }
 
 /* Styl dla każdej kategorii */
@@ -115,15 +155,175 @@ body {
     border-radius: 50%;
 }
 
-/* Responsywność */
-@media (max-width: 768px) {
-    .category-title {
-        font-size: 1.5rem;
+/* Kontener dla kategorii */
+.categories-wrapper {
+    margin: 32px auto 0 auto;
+    width: 92vw;
+    max-width: 1800px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+/* Kontener dla kart wątków */
+.cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 0;
+  width: 100%;
+  align-items: center;
+  /* Animacja wysokości */
+  max-height: 2000px;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+  opacity: 1;
+}
+
+.cards-container.collapsed {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Usunięcie sztucznych przerw */
+.cards-container::before,
+.cards-container::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Karta forum */
+.forum-card {
+  display: flex;
+  align-items: flex-start;
+  background: #1e1e1e;
+  border-radius: 14px;
+  box-shadow: 0 4px 24px #0008;
+  padding: 24px 32px;
+  min-height: 90px;
+  color: #fff;
+  width: 100%;
+  max-width: 950px;
+  margin: 0 auto;
+  font-size: 1.1rem;
+  transition: box-shadow 0.2s, background 0.2s;
+}
+
+.forum-card:hover {
+  background: #232323;
+  box-shadow: 0 8px 32px #000a;
+}
+
+/* Ikona po lewej */
+.forum-card-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  margin-right: 28px;
+}
+
+.forum-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: none;
+  display: block;
+}
+
+/* Środek karty */
+.forum-card-center {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  min-width: 0;
+  gap: 0;
+}
+
+.forum-card-title {
+  font-weight: bold;
+  font-size: 1.18rem;
+  margin-bottom: 2px;
+  color: #fff;
+}
+
+.forum-card-subtitle {
+  font-size: 0.98rem;
+  color: #bbb;
+  margin-bottom: 8px;
+}
+
+.forum-card-stats {
+  display: flex;
+  gap: 18px;
+  font-size: 1rem;
+  margin-top: 0;
+  margin-bottom: 0;
+  width: auto;
+  justify-content: flex-start;
+}
+
+.stat-count, .stat-replies {
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Ostatni post po prawej */
+.forum-card-right {
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  font-size: 1rem;
+  margin-left: 32px;
+}
+
+.forum-card-lasttitle {
+  font-weight: bold;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.forum-card-lastmeta {
+  color: #ccc;
+  font-size: 0.95rem;
+  margin-top: 2px;
+}
+
+@media (max-width: 1300px) {
+  .categories-wrapper {
+    max-width: 98vw;
+  }
+  .forum-card {
+    padding: 16px 8px;
+  }
+  .forum-card-right {
+    min-width: 120px;
+    margin-left: 12px;
+  }
+}
+
+@media (max-width: 900px) {
+    .forum-card {
+        flex-direction: column;
+        padding: 14px;
+        min-height: 0;
     }
-    .subcategory-title {
-        font-size: 1.3rem;
+    .forum-card-left {
+        margin-right: 0;
+        margin-bottom: 10px;
+        min-width: 0;
+        justify-content: flex-start;
     }
-    .thread-title {
-        font-size: 1rem;
+    .forum-card-right {
+        min-width: 0;
+        align-items: flex-start;
+        margin-left: 0;
+        margin-top: 10px;
     }
 }

@@ -1,6 +1,5 @@
 /* eslint-env browser */
 /* global io, DOMPurify */
-/* eslint-disable no-undef */
 import { monitorAuthState } from "./auth.js";
 
 let currentUser = null;

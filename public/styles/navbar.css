@@ -133,3 +133,23 @@ nav a:hover {
         padding: 1vh;
     }
 }
+
+.mobile-menu,
+.mobile-menu-content {
+    display: none;
+}
+
+@media (max-width: 700px) {
+    .mobile-menu {
+        display: block;
+    }
+    .mobile-menu-content {
+        display: block;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100vw;
+        background: #232323;
+        z-index: 2000;
+    }
+}

@@ -1,0 +1,127 @@
+[
+  {
+    "name": "Skyrim: Special Edition",
+    "subcategories": [
+      {
+        "name": "Zapowiedzi modyfikacji",
+        "icon": "icons8-announcement-50.png",
+        "threads": ["Skywind", "Beyond Skyrim", "Skyblivion"]
+      },
+      {
+        "name": "Ukończone modyfikacje",
+        "icon": "icons8-check-50.png",
+        "threads": ["Dawnguard Expansion", "Skyrim Unbound", "Legacy of the Dragonborn"]
+      },
+      {
+        "name": "Dyskusje techniczne",
+        "icon": "icons8-automation-64.png",
+        "threads": ["Problem z ENB", "Crash przy wejściu do Whiterun", "Jak zainstalować SKSE?"]
+      },
+      {
+        "name": "Poradniki",
+        "icon": "icons8-books-50.png",
+        "threads": ["Jak instalować mody", "Optymalizacja gry", "Tworzenie własnych modów"]
+      }
+    ]
+  },
+  {
+    "name": "Fallout 4",
+    "subcategories": [
+      {
+        "name": "Zapowiedzi modyfikacji",
+        "icon": "icons8-announcement-50.png",
+        "threads": ["Fallout Miami", "Project Arroyo", "Fallout: Cascadia"]
+      },
+      {
+        "name": "Ukończone modyfikacje",
+        "icon": "icons8-check-50.png",
+        "threads": ["Sim Settlements", "FROST Survival Simulator", "Outcasts and Remnants"]
+      },
+      {
+        "name": "Dyskusje techniczne",
+        "icon": "icons8-automation-64.png",
+        "threads": ["Crash w Bostonie", "Jak zainstalować ENB?", "Problemy z modami"]
+      },
+      {
+        "name": "Poradniki",
+        "icon": "icons8-books-50.png",
+        "threads": ["Instalacja modów", "Optymalizacja Fallout 4", "Tworzenie własnych questów"]
+      }
+    ]
+  },
+  {
+    "name": "Gothic",
+    "subcategories": [
+      {
+        "name": "Zapowiedzi modyfikacji",
+        "icon": "icons8-announcement-50.png",
+        "threads": ["Gothic Reborn", "Nowy świat", "Mroczne Tajemnice 2"]
+      },
+      {
+        "name": "Ukończone modyfikacje",
+        "icon": "icons8-check-50.png",
+        "threads": ["Gothic Enhanced", "Mroczne Tajemnice", "Returning"]
+      },
+      {
+        "name": "Dyskusje techniczne",
+        "icon": "icons8-automation-64.png",
+        "threads": ["Jak zmodować plik tekstur?", "Problemy z uruchomieniem", "Patchowanie gry"]
+      },
+      {
+        "name": "Poradniki",
+        "icon": "icons8-books-50.png",
+        "threads": ["Jak instalować mody do Gothic", "Tworzenie nowego NPC", "Edytowanie świata"]
+      }
+    ]
+  },
+  {
+    "name": "Gothic 2",
+    "subcategories": [
+      {
+        "name": "Zapowiedzi modyfikacji",
+        "icon": "icons8-announcement-50.png",
+        "threads": ["Gothic 2: Requiem", "Nowa Era", "Złote Wrota"]
+      },
+      {
+        "name": "Ukończone modyfikacje",
+        "icon": "icons8-check-50.png",
+        "threads": ["Kroniki Myrtany", "Dark Saga", "Returning 2.0"]
+      },
+      {
+        "name": "Dyskusje techniczne",
+        "icon": "icons8-automation-64.png",
+        "threads": ["Problem z DX11", "Jak dodać własny dialog?", "Błędy po instalacji moda"]
+      },
+      {
+        "name": "Poradniki",
+        "icon": "icons8-books-50.png",
+        "threads": ["Tworzenie własnych skryptów", "Import modeli 3D", "Poradnik dla początkujących"]
+      }
+    ]
+  },
+  {
+    "name": "Gothic 3",
+    "subcategories": [
+      {
+        "name": "Zapowiedzi modyfikacji",
+        "icon": "icons8-announcement-50.png",
+        "threads": ["Gothic 3: Odrodzenie", "Nowe Królestwo", "Zmierzch Bogów 2"]
+      },
+      {
+        "name": "Ukończone modyfikacje",
+        "icon": "icons8-check-50.png",
+        "threads": ["Community Patch", "Quest Pack", "Content Mod"]
+      },
+      {
+        "name": "Dyskusje techniczne",
+        "icon": "icons8-automation-64.png",
+        "threads": ["Optymalizacja Gothic 3", "Problemy z patchami", "Jak naprawić crash przy starcie"]
+      },
+      {
+        "name": "Poradniki",
+        "icon": "icons8-books-50.png",
+        "threads": ["Instalacja patchy", "Tworzenie własnych questów", "Poradnik modowania Gothic 3"]
+      }
+    ]
+  }
+]
