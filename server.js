@@ -9,6 +9,11 @@ const { getFirestore } = require('firebase-admin/firestore');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const helmet = require('helmet'); // [SECURITY] headers
+const hpp = require('hpp'); // [SECURITY] HTTP Parameter Pollution
+const rateLimit = require('express-rate-limit'); // [SECURITY] rate limiting
+const { fileTypeFromFile } = require('file-type'); // [SECURITY] magic-bytes check
+const { sanitizeInput } = require('./functions/utils'); // [SECURITY] use sanitization also for sockets
 
 // Inicjalizacja Firebase Admin SDK
 const serviceAccountPath = process.env.NODE_ENV === 'production'
@@ -27,8 +32,10 @@ admin.initializeApp({
 const app = express();
 const server = http.createServer(app);
 
-
-app.set('trust proxy', true);
+// Configure trust proxy safely: production behind proxy, local limited
+const isProd = process.env.NODE_ENV === 'production';
+app.set('trust proxy', isProd ? 1 : ['loopback', 'linklocal', 'uniquelocal']);
+app.disable('x-powered-by'); // [SECURITY] ukryj Express
 
 // Konfiguracja Firebase Firestore
 const db = getFirestore();
@@ -38,8 +45,6 @@ const allowedOrigins = ['https://forum-project-rncg.onrender.com', 'http://local
 // Konfiguracja CORS
 app.use(cors({
     origin: function(origin, callback){
-        // allow requests with no origin 
-        // (like mobile apps or curl requests)
         if(!origin) return callback(null, true);
         if(allowedOrigins.indexOf(origin) === -1){
             const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
@@ -50,6 +55,45 @@ app.use(cors({
     methods: ['GET', 'POST', 'OPTIONS'],
 }));
 
+// [SECURITY] Nagłówki HTTP (CSP, HSTS w produkcji, nosniff itp.)
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'same-origin' },
+  crossOriginOpenerPolicy: { policy: 'same-origin' },
+  crossOriginEmbedderPolicy: false, // wyłącz jeśli używasz zewnętrznych zasobów osadzanych
+}));
+app.use(helmet.contentSecurityPolicy({
+  useDefaults: true,
+  directives: {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'"],
+    styleSrc: ["'self'", "'unsafe-inline'"],
+    imgSrc: ["'self'", "data:"],
+    connectSrc: ["'self'", ...allowedOrigins],
+  }
+}));
+if (process.env.NODE_ENV === 'production') {
+  app.use(helmet.hsts({ maxAge: 15552000 })); // ~180 dni
+}
+
+// [SECURITY] Ochrona przed HPP
+app.use(hpp());
+
+// [SECURITY] Ograniczenia rozmiaru body
+app.use(express.json({ limit: '200kb' }));
+app.use(express.urlencoded({ extended: true, limit: '200kb' }));
+
+// [SECURITY] Rate limiting: global + per-route
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(globalLimiter);
+
+const uploadLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 60 });
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
+
 // Inicjalizacja Socket.IO
 const io = new Server(server, {
     cors: {
@@ -58,8 +102,7 @@ const io = new Server(server, {
     },
 });
 
-// Middleware do obsługi JSON i plików statycznych
-app.use(express.json());
+// Middleware do obsługi plików statycznych
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware do przesyłania plików
@@ -67,6 +110,10 @@ const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
 }
+
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -78,7 +125,19 @@ const storage = multer.diskStorage({
     },
 });
 
-const upload = multer({ storage });
+function fileFilter(req, file, cb) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (!ALLOWED_EXTENSIONS.includes(ext) || !ALLOWED_MIME.includes(file.mimetype)) {
+        return cb(new Error('Niedozwolony typ pliku. Dozwolone są tylko obrazy JPG, PNG, GIF, WEBP.'));
+    }
+    cb(null, true);
+}
+
+const upload = multer({
+    storage,
+    fileFilter,
+    limits: { fileSize: MAX_FILE_SIZE }
+});
 
 // Obsługa Socket.IO
 io.on('connection', async (socket) => {
@@ -106,53 +165,72 @@ io.on('connection', async (socket) => {
             console.error('Nieprawidłowe dane wiadomości: brak tekstu lub autora.');
             return;
         }
-    
+
+        // [SECURITY] prosta sanitizacja i limity długości
+        const safeText = sanitizeInput(String(text).slice(0, 1000));
+        const safeAuthor = sanitizeInput(String(author).slice(0, 60));
+
         const newMessage = {
-            text,
-            author,
+            text: safeText,
+            author: safeAuthor,
             timestamp: admin.firestore.FieldValue.serverTimestamp(),
         };
-    
+
         try {
             const docRef = await db.collection('messages').add(newMessage);
-            const savedMessage = (await docRef.get()).data();
-    
-            
+            const saved = await docRef.get();
+            const data = saved.data();
+
             const formattedMessage = {
                 id: docRef.id,
-                text: savedMessage.text,
-                author: savedMessage.author,
-                timestamp: savedMessage.timestamp, 
+                text: data.text,
+                author: data.author,
+                // [SECURITY/CONSISTENCY] zawsze ISO-8601
+                timestamp: data.timestamp ? data.timestamp.toDate().toISOString() : new Date().toISOString(),
             };
-    
+
             io.emit('chat message', formattedMessage);
         } catch (error) {
             console.error('Błąd podczas dodawania wiadomości:', error);
         }
     });
-    
 });
 
-
 // Endpoint do przesyłania plików
-app.post('/upload', upload.single('file'), (req, res) => {
+app.use('/upload', uploadLimiter); // [SECURITY] limit dla uploadów
+app.post('/upload', upload.single('file'), async (req, res) => {
     if (!req.file) {
-        return res.status(400).json({ error: 'Brak pliku do przesłania.' });
+        return res.status(400).json({ error: 'Brak pliku do przesłania lub niedozwolony typ pliku.' });
     }
 
-    // preferuj jawnie ustawione SITE_URL (np. https://forum-project-rncg.onrender.com),
-    // w przeciwnym razie używaj req.protocol (po trust proxy będzie https) i host
-    const siteBase = (process.env.SITE_URL && process.env.SITE_URL.replace(/\/$/, '')) ||
-                     `${req.protocol}://${req.get('host')}`;
-    const fileUrl = `${siteBase}/uploads/${req.file.filename}`;
+    try {
+        // [SECURITY] Weryfikacja magic bytes pliku po stronie serwera
+        const detected = await fileTypeFromFile(req.file.path);
+        if (!detected || !ALLOWED_MIME.includes(detected.mime)) {
+            fs.unlink(req.file.path, () => {});
+            return res.status(400).json({ error: 'Wykryty typ pliku jest niedozwolony.' });
+        }
 
-    res.json({ url: fileUrl });
+        const siteBase = (process.env.SITE_URL && process.env.SITE_URL.replace(/\/$/, '')) ||
+                         `${req.protocol}://${req.get('host')}`;
+        const fileUrl = `${siteBase}/uploads/${req.file.filename}`;
+
+        res.json({ url: fileUrl });
+    } catch (e) {
+        console.error('Błąd walidacji pliku:', e);
+        if (req.file?.path) fs.unlink(req.file.path, () => {});
+        res.status(500).json({ error: 'Wystąpił błąd podczas przetwarzania pliku.' });
+    }
 });
 
 // Middleware do serwowania przesłanych plików
-app.use('/uploads', express.static(uploadDir));
+app.use('/uploads', express.static(uploadDir, {
+  setHeaders: (res, _filePath) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+  }
+}));
 
-const { sanitizeInput } = require('./functions/utils');
+// Endpointy API
 
 // Endpoint do dodawania nowego posta
 app.post('/api/posts', async (req, res) => {
@@ -163,12 +241,17 @@ app.post('/api/posts', async (req, res) => {
             return res.status(400).json({ error: 'Brak wymaganych pól: tytuł, kategoria lub treść.' });
         }
 
+        // [SECURITY] prosta walidacja długości pól
+        if (String(title).length > 200 || String(category).length > 100 || String(subcategory || '').length > 100) {
+            return res.status(400).json({ error: 'Zbyt długie pola wejściowe.' });
+        }
+
         // Sanitize inputs
         const sanitizedTitle = sanitizeInput(title);
         const sanitizedCategory = sanitizeInput(category);
         const sanitizedSubcategory = subcategory ? sanitizeInput(subcategory) : '';
         const sanitizedContent = sanitizeInput(content);
-        const sanitizedAuthor = author ? sanitizeInput(author) : 'Anonim';
+        const sanitizedAuthor = author ? sanitizeInput(author).slice(0, 60) : 'Anonim';
 
         const newPost = {
             title: sanitizedTitle,
@@ -309,7 +392,7 @@ if (process.env.NODE_ENV !== 'production') {
 
   const _testUsers = new Map();
 
-  app.post('/register', (req, res) => {
+  app.post('/register', authLimiter, (req, res) => {
     const { username, password } = req.body || {};
     if (!username || !password) {
       return res.status(400).json({ success: false, error: 'missing username or password' });
@@ -321,7 +404,7 @@ if (process.env.NODE_ENV !== 'production') {
     return res.status(201).json({ success: true });
   });
 
-  app.post('/login', (req, res) => {
+  app.post('/login', authLimiter, (req, res) => {
     const { username, password } = req.body || {};
     if (!username || !password) {
       return res.status(400).json({ success: false, error: 'missing username or password' });
@@ -334,7 +417,11 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-// Start serwera tylko gdy plik jest uruchamiany bezpośrednio
+// Globalny handler błędów (ostatni middleware)
+app.use((err, req, res, _next) => {
+  console.error('Global error:', err.message);
+  res.status(500).json({ error: 'Internal Server Error' });
+});
 const PORT = process.env.PORT || 3000;
 if (require.main === module) {
   server.listen(PORT, () => {
