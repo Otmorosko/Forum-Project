@@ -5,6 +5,27 @@ async function loadCategories() {
     const categorySelect = document.getElementById('category');
     const subcategorySelect = document.getElementById('subcategory');
 
+    async function loadSubcategories(categoryId) {
+        subcategorySelect.innerHTML = '';
+        if (Number.isNaN(categoryId)) return;
+        try {
+            const subResponse = await fetch(`/api/subcategories?categoryId=${categoryId}`);
+            if (!subResponse.ok) {
+                throw new Error('Błąd podczas ładowania podkategorii: ' + subResponse.statusText);
+            }
+            const subcategories = await subResponse.json();
+            subcategories.forEach(sub => {
+                const option = document.createElement('option');
+                option.value = sub.id;
+                option.textContent = sub.name;
+                subcategorySelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error(error);
+            document.getElementById('message').textContent = error.message;
+        }
+    }
+
     try {
         const response = await fetch('/api/categories');
         if (!response.ok) {
@@ -13,39 +34,28 @@ async function loadCategories() {
         const categories = await response.json();
 
         // Wypełnianie selecta kategoriami
+        categorySelect.innerHTML = '';
         categories.forEach(category => {
             const option = document.createElement('option');
-            option.value = category.id; 
+            option.value = category.id;
             option.textContent = category.name;
             categorySelect.appendChild(option);
         });
 
-        // Obsługa zmiany kategorii, by załadować odpowiednie podkategorie
-        categorySelect.addEventListener('change', async () => {
-            subcategorySelect.innerHTML = ''; 
-            const selectedCategoryId = parseInt(categorySelect.value);
-            console.log('Selected category ID:', selectedCategoryId);
-            try {
-                const subResponse = await fetch(`/api/subcategories?categoryId=${selectedCategoryId}`);
-                if (!subResponse.ok) {
-                    throw new Error('Błąd podczas ładowania podkategorii: ' + subResponse.statusText);
-                }
-                const subcategories = await subResponse.json();
-                console.log('Fetched subcategories:', subcategories);
+        // Jeśli są kategorie, od razu załaduj podkategorie pierwszej
+        if (categories.length > 0) {
+            const initialId = parseInt(categories[0].id);
+            categorySelect.value = String(initialId);
+            await loadSubcategories(initialId);
+        }
 
-                subcategories.forEach(sub => {
-                    const option = document.createElement('option');
-                    option.value = sub.id; 
-                    option.textContent = sub.name;
-                    subcategorySelect.appendChild(option);
-                });
-            } catch (error) {
-                console.error(error);
-                document.getElementById('message').textContent = error.message;
-            }
+        // Obsługa zmiany kategorii
+        categorySelect.addEventListener('change', async () => {
+            const selectedCategoryId = parseInt(categorySelect.value);
+            await loadSubcategories(selectedCategoryId);
         });
     } catch (error) {
- console.error('Błąd podczas ładowania kategorii:', error);
+        console.error('Błąd podczas ładowania kategorii:', error);
         document.getElementById('message').textContent = error.message;
     }
 }
