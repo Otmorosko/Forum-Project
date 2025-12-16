@@ -78,7 +78,10 @@ app.use(helmet.contentSecurityPolicy({
       ...allowedOrigins,
       'https://www.googleapis.com',
       'https://securetoken.googleapis.com',
-      'https://identitytoolkit.googleapis.com'
+      'https://identitytoolkit.googleapis.com',
+      // Allow WebSocket connections for Socket.IO
+      'wss://forum-project-rncg.onrender.com',
+      'ws://localhost:3000'
     ],
   }
 }));

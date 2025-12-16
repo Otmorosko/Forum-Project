@@ -33,11 +33,11 @@
 
                     <label for="content">Treść:</label>
                     <div class="toolbar">
-                        <button type="button" onclick="formatText('bold')" title="Pogrubienie"><b>B</b></button>
-                        <button type="button" onclick="formatText('italic')" title="Kursywa"><i>I</i></button>
-                        <button type="button" onclick="formatText('underline')" title="Podkreślenie"><u>U</u></button>
-                        <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="insertImage(event)">
-                        <button type="button" onclick="document.getElementById('imageInput').click()" title="Dodaj zdjęcie">Dodaj zdjęcie</button>
+                        <button type="button" id="btnBold" title="Pogrubienie"><b>B</b></button>
+                        <button type="button" id="btnItalic" title="Kursywa"><i>I</i></button>
+                        <button type="button" id="btnUnderline" title="Podkreślenie"><u>U</u></button>
+                        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                        <button type="button" id="btnImage" title="Dodaj zdjęcie">Dodaj zdjęcie</button>
                     </div>
                     <div id="editor" contenteditable="true" class="editor" required></div>
 

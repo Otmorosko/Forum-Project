@@ -14,7 +14,7 @@ async function loadCategories() {
                 throw new Error('Błąd podczas ładowania podkategorii: ' + subResponse.statusText);
             }
             const subcategories = await subResponse.json();
-            subcategories.forEach(sub => {
+            subcategories.forEach((sub) => {
                 const option = document.createElement('option');
                 option.value = sub.id;
                 option.textContent = sub.name;
@@ -33,23 +33,20 @@ async function loadCategories() {
         }
         const categories = await response.json();
 
-        // Wypełnianie selecta kategoriami
         categorySelect.innerHTML = '';
-        categories.forEach(category => {
+        categories.forEach((category) => {
             const option = document.createElement('option');
             option.value = category.id;
             option.textContent = category.name;
             categorySelect.appendChild(option);
         });
 
-        // Jeśli są kategorie, od razu załaduj podkategorie pierwszej
         if (categories.length > 0) {
             const initialId = parseInt(categories[0].id);
             categorySelect.value = String(initialId);
             await loadSubcategories(initialId);
         }
 
-        // Obsługa zmiany kategorii
         categorySelect.addEventListener('change', async () => {
             const selectedCategoryId = parseInt(categorySelect.value);
             await loadSubcategories(selectedCategoryId);
@@ -60,23 +57,21 @@ async function loadCategories() {
     }
 }
 
-// Funkcje do formatowania tekstu i dodawania obrazów
-window.formatText = function(command) {
+// Funkcje do formatowania tekstu i dodawania obrazów (bez inline handlers)
+function formatText(command) {
     document.execCommand(command, false, null);
     document.getElementById('editor').focus();
-};
+}
 
-window.insertImage = function(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = `<img src="${e.target.result}" alt="Image" style="max-width: 100%; height: auto;">`;
-            document.getElementById('editor').innerHTML += img;
-        };
-        reader.readAsDataURL(file);
-    }
-};
+function insertImageFromFile(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const img = `<img src="${e.target.result}" alt="Image" style="max-width: 100%; height: auto;">`;
+        document.getElementById('editor').innerHTML += img;
+    };
+    reader.readAsDataURL(file);
+}
 
 // Inicjalizacja
 document.addEventListener('DOMContentLoaded', () => {
@@ -89,16 +84,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Toolbar events
+    const btnBold = document.getElementById('btnBold');
+    const btnItalic = document.getElementById('btnItalic');
+    const btnUnderline = document.getElementById('btnUnderline');
+    const btnImage = document.getElementById('btnImage');
+    const imageInput = document.getElementById('imageInput');
+
+    btnBold?.addEventListener('click', () => formatText('bold'));
+    btnItalic?.addEventListener('click', () => formatText('italic'));
+    btnUnderline?.addEventListener('click', () => formatText('underline'));
+    btnImage?.addEventListener('click', () => imageInput?.click());
+    imageInput?.addEventListener('change', (e) => insertImageFromFile(e.target.files && e.target.files[0]));
+
+    // Submit handler
     const form = document.getElementById('addPostForm');
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
-        
+
         const title = document.getElementById('title').value;
         const category = document.getElementById('category').value;
         const subcategory = document.getElementById('subcategory').value;
         const content = document.getElementById('editor').innerHTML;
 
-        // Wysyłanie danych do serwera
         try {
             const response = await fetch('/api/posts', {
                 method: 'POST',
