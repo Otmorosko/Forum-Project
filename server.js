@@ -65,10 +65,21 @@ app.use(helmet.contentSecurityPolicy({
   useDefaults: true,
   directives: {
     defaultSrc: ["'self'"],
-    scriptSrc: ["'self'"],
+    // Allow Firebase ESM modules and Socket.IO CDN
+    scriptSrc: ["'self'", 'https://www.gstatic.com', 'https://cdn.socket.io'],
+    // Be explicit for browsers that honor script-src-elem separately
+    scriptSrcElem: ["'self'", 'https://www.gstatic.com', 'https://cdn.socket.io'],
     styleSrc: ["'self'", "'unsafe-inline'"],
-    imgSrc: ["'self'", "data:"],
-    connectSrc: ["'self'", ...allowedOrigins],
+    // Allow profile images served by Google if user has photoURL
+    imgSrc: ["'self'", "data:", 'https://lh3.googleusercontent.com'],
+    // Allow Firebase Auth/Identity endpoints for XHR/fetch
+    connectSrc: [
+      "'self'",
+      ...allowedOrigins,
+      'https://www.googleapis.com',
+      'https://securetoken.googleapis.com',
+      'https://identitytoolkit.googleapis.com'
+    ],
   }
 }));
 if (process.env.NODE_ENV === 'production') {
