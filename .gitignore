@@ -3,6 +3,9 @@ node_modules
 /dist
 secrets/forum-project-20acc-firebase-adminsdk-fo2om-75a82d9350.json
 
+# ignore all secret files by default
+secrets/**
+
 
 # local env files
 .env.local
