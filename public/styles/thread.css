@@ -1,0 +1,34 @@
+.thread-main {
+  /* offset under fixed navbar */
+  padding-top: 148px;
+  min-height: calc(100vh - 148px);
+}
+
+.thread-container {
+  width: min(900px, 92vw);
+  margin: 0 auto 2rem;
+  background: #1f1f1f;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.thread-title {
+  margin: 0 0 0.5rem;
+  color: #fff;
+}
+
+.thread-meta {
+  color: #bdbdbd;
+  margin: 0 0 1rem;
+}
+
+.thread-content {
+  color: #f0f0f0;
+  line-height: 1.6;
+}
+
+.thread-content img {
+  max-width: 100%;
+  height: auto;
+}

@@ -3,28 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ModHub - Lista Postów</title>
+    <title>ModHub - Wątek</title>
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/navbar.css">
-    <link rel="stylesheet" href="styles/posts.css">
     <link rel="stylesheet" href="styles/footer.css">
+    <link rel="stylesheet" href="styles/thread.css">
 </head>
-<body class="page-posts">
-    <!-- Navbar -->
+<body>
     <script type="module" src="scripts/navbar.js" defer></script>
 
-    <!-- Główna zawartość -->
-    <main class="posts-main">
-        <div class="content-container">
-            <h1 id="postsPageTitle">Lista Postów</h1>
-            <div id="posts-container"></div>
+    <main class="thread-main">
+        <div class="thread-container" id="threadContainer">
+            <h1 class="thread-title">Ładowanie wątku...</h1>
+            <p class="thread-meta" id="threadMeta"></p>
+            <article class="thread-content" id="threadContent"></article>
         </div>
     </main>
 
-    <!-- Footer -->
     <script type="module" src="scripts/footer.js" defer></script>
-
-    <!-- Skrypty -->
-    <script type="module" src="scripts/posts.js" defer></script>
+    <script type="module" src="scripts/thread.js" defer></script>
 </body>
 </html>

@@ -1,206 +1,211 @@
 /* eslint-env browser */
 /* global DOMPurify */
 
-try {
-  console.log('posts.js loaded');
-} catch (err) {
-  /* eslint-disable-next-line no-console */
-  console.debug('posts.js load ignored error', err);
-}
-
-/* eslint-disable no-console */
-// Safe DOMPurify fallback
 const SafeDOMPurify = (typeof DOMPurify !== 'undefined' && DOMPurify)
   || (typeof window !== 'undefined' && window.DOMPurify)
   || {
-    sanitize: (s) => {
-      // very small fallback: escape angle brackets
-      return String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
+    sanitize: (s) => String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;')
   };
 
-async function fetchPosts() {
-  try {
-    const res = await fetch('data/categories.json', { cache: 'no-store' });
-    if (res.ok) {
-      const json = await res.json();
-      return json;
-    }
-  } catch {
-    // fallback do API jeśli plik nie istnieje
+function isPostsListPage() {
+  const p = window.location.pathname.toLowerCase();
+  return p.endsWith('/posts.html') || p.endsWith('posts.html');
+}
+
+function normalizeName(name) {
+  return (name || '').toLowerCase().replace(/ą/g, 'a').replace(/ć/g, 'c').replace(/ę/g, 'e')
+    .replace(/ł/g, 'l').replace(/ń/g, 'n').replace(/ó/g, 'o').replace(/ś/g, 's')
+    .replace(/ż/g, 'z').replace(/ź/g, 'z').replace(/\s+/g, '');
+}
+
+function parseDate(ts) {
+  if (!ts) return null;
+  if (typeof ts === 'string' || typeof ts === 'number') {
+    const d = new Date(ts);
+    return Number.isNaN(d.getTime()) ? null : d;
   }
-  // Potem API (fallback)
-  const endpoints = ['/api/posts-structured', '/api/posts'];
-  for (const ep of endpoints) {
+  if (ts.seconds) {
+    const d = new Date(ts.seconds * 1000);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  return null;
+}
+
+async function fetchStructuredPosts() {
+  const res = await fetch('/api/posts-structured', { cache: 'no-store' });
+  if (res.ok) return await res.json();
+
+  const fallback = await fetch('data/categories.json', { cache: 'no-store' });
+  if (fallback.ok) return await fallback.json();
+
+  throw new Error('Could not load structured posts');
+}
+
+async function fetchFlatPosts() {
+  const res = await fetch('/api/posts', { cache: 'no-store' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.json();
+}
+
+function getFiltersFromUrl() {
+  const url = new URL(window.location.href);
+  const categoryIdRaw = url.searchParams.get('categoryId');
+  const subcategoryIdRaw = url.searchParams.get('subcategoryId');
+  return {
+    category: url.searchParams.get('category') || '',
+    subcategory: url.searchParams.get('subcategory') || '',
+    categoryId: categoryIdRaw !== null && categoryIdRaw !== '' ? String(categoryIdRaw) : '',
+    subcategoryId: subcategoryIdRaw !== null && subcategoryIdRaw !== '' ? String(subcategoryIdRaw) : '',
+  };
+}
+
+async function resolveFilterIds(filters) {
+  const resolved = { ...filters };
+
+  // Resolve categoryId from category name when missing
+  if (!resolved.categoryId && resolved.category) {
     try {
-      const res = await fetch(ep, { cache: 'no-store' });
-      if (!res.ok) continue;
-      const json = await res.json();
-      return json;
-    } catch {
-      // try next endpoint
-    }
-  }
-  throw new Error('Could not load posts');
-}
-
-// Instrumental log for debugging
-function instrumentLog(tag, obj) {
-  try {
-    console.log('[posts][debug]', tag, obj);
-  } catch (err) {
-    /* eslint-disable-next-line no-console */
-    console.debug('[posts][debug] log failed', err);
-  }
-}
-
-// Robust safeAppend: always ensure parent exists and never call parent.appendChild on null
-function safeAppend(parent, child, ctx) {
-  try {
-    if (!child) {
-      instrumentLog('safeAppend: missing child', { ctx });
-      return parent;
-    }
-    if (!parent) {
-      instrumentLog('safeAppend: parent IS NULL — creating fallback. ctx=', ctx);
-      parent = document.createElement('div');
-      parent.className = 'posts-fallback-container';
-      const main = document.querySelector('main') || document.body;
-      main.appendChild(parent);
-    }
-    if (!(child instanceof Node)) {
-      const wrapper = document.createElement('div');
-      wrapper.innerHTML = String(child);
-      parent.appendChild(wrapper);
-    } else {
-      parent.appendChild(child);
-    }
-    return parent;
-  } catch (err) {
-    console.error('[posts][safeAppend][ERROR]', { parent, child, ctx }, err);
-    throw err;
-  }
-}
-
-// Ensure createPostCard never returns null
-function createPostCard(post) {
-  try {
-    const card = document.createElement('article');
-    card.className = 'post-card';
-
-    const title = document.createElement('h4');
-    title.textContent = post && post.title ? String(post.title) : 'Untitled';
-    safeAppend(card, title);
-
-    const meta = document.createElement('div');
-    meta.className = 'post-meta';
-    const author = document.createElement('span');
-    author.textContent = post && post.author ? String(post.author) : 'Anon';
-    const date = document.createElement('time');
-    if (post && post.timestamp) {
-      try {
-        const ts = (post.timestamp && post.timestamp.seconds) ? new Date(post.timestamp.seconds * 1000) : new Date(post.timestamp);
-        date.textContent = ts.toLocaleString('pl-PL');
-      } catch (err) {
-        /* eslint-disable-next-line no-console */
-        console.debug('posts.js caught error', err);
-        date.textContent = '';
+      const res = await fetch('/api/categories', { cache: 'no-store' });
+      if (res.ok) {
+        const categories = await res.json();
+        const match = categories.find((c) => normalizeName(c.name) === normalizeName(resolved.category));
+        if (match && match.id !== undefined && match.id !== null) {
+          resolved.categoryId = String(match.id);
+        }
       }
-    } else {
-      date.textContent = '';
+    } catch {
+      // ignore and keep name-based filtering
     }
-    safeAppend(meta, author);
-    safeAppend(meta, document.createTextNode(' • '));
-    safeAppend(meta, date);
-    safeAppend(card, meta);
-
-    const content = document.createElement('div');
-    content.className = 'post-content';
-    const raw = (post && post.content) ? String(post.content) : '';
-    const clean = SafeDOMPurify.sanitize(raw, {
-      ALLOWED_TAGS: ['b','i','strong','em','a','p','ul','ol','li','br','img'],
-      ALLOWED_ATTR: ['href','src','alt','rel','target','title','class','style']
-    });
-    content.innerHTML = clean;
-    safeAppend(card, content);
-
-    return card;
-  } catch (err) {
-    console.error('createPostCard error', post, err);
-    // fallback simple node so callers get something
-    const fallback = document.createElement('div');
-    fallback.textContent = 'Invalid post';
-    return fallback;
   }
+
+  // Resolve subcategoryId from subcategory name when missing
+  if (!resolved.subcategoryId && resolved.subcategory && resolved.categoryId !== '') {
+    try {
+      const subRes = await fetch(`/api/subcategories?categoryId=${encodeURIComponent(resolved.categoryId)}`, { cache: 'no-store' });
+      if (subRes.ok) {
+        const subcategories = await subRes.json();
+        const subMatch = subcategories.find((s) => normalizeName(s.name) === normalizeName(resolved.subcategory));
+        if (subMatch && subMatch.id !== undefined && subMatch.id !== null) {
+          resolved.subcategoryId = String(subMatch.id);
+        }
+      }
+    } catch {
+      // ignore and keep name-based filtering
+    }
+  }
+
+  return resolved;
 }
 
-// helper: build a stat card similar to the screenshot
-function buildSubcategoryCard(categoryName, sub, counts) {
+function safeAppend(parent, child) {
+  if (!parent || !child) return;
+  parent.appendChild(child);
+}
+
+function buildThreadLink(post) {
+  if (post && post.id) {
+    return `thread.html?id=${encodeURIComponent(post.id)}`;
+  }
+  const qTitle = encodeURIComponent(post?.title || '');
+  const qAuthor = encodeURIComponent(post?.author || '');
+  const qTs = encodeURIComponent(post?.timestamp || '');
+  return `thread.html?title=${qTitle}&author=${qAuthor}&ts=${qTs}`;
+}
+
+function createPostCard(post) {
+  const card = document.createElement('article');
+  card.className = 'post-card';
+
+  const title = document.createElement('h4');
+  title.className = 'post-title';
+  const link = document.createElement('a');
+  link.href = buildThreadLink(post);
+  link.textContent = post?.title ? String(post.title) : 'Bez tytułu';
+  title.appendChild(link);
+  safeAppend(card, title);
+
+  const meta = document.createElement('div');
+  meta.className = 'post-meta';
+  const d = parseDate(post?.timestamp);
+  meta.textContent = `${post?.author || 'Anonim'}${d ? ` • ${d.toLocaleString('pl-PL')}` : ''}`;
+  safeAppend(card, meta);
+
+  const content = document.createElement('div');
+  content.className = 'post-content';
+  const clean = SafeDOMPurify.sanitize(String(post?.content || ''), {
+    ALLOWED_TAGS: ['b', 'i', 'strong', 'em', 'a', 'p', 'ul', 'ol', 'li', 'br', 'img'],
+    ALLOWED_ATTR: ['href', 'src', 'alt', 'rel', 'target', 'title', 'class', 'style']
+  });
+  content.innerHTML = clean;
+  safeAppend(card, content);
+
+  return card;
+}
+
+function buildSubcategoryCard(category, sub) {
+  const categoryName = category?.name || '';
+  const categoryId = category?.id !== undefined && category?.id !== null ? String(category.id) : '';
+  const subcategoryId = sub?.id !== undefined && sub?.id !== null ? String(sub.id) : '';
+
   const card = document.createElement('div');
   card.className = 'forum-card';
 
   const left = document.createElement('div');
   left.className = 'forum-card-left';
-
   const iconImg = document.createElement('img');
   iconImg.className = 'forum-icon';
-
-  // Mapowanie nazw podkategorii na dostępne pliki ikon
-  const iconMap = {
-    'Zapowiedzi modyfikacji': 'icons8-announcement-50.png',
-    'Zapowiedzi Modyfikacji': 'icons8-announcement-50.png',
-    'Ukończone modyfikacje': 'icons8-check-50.png',
-    'Ukończone Modyfikacje': 'icons8-check-50.png',
-    'Dyskusje techniczne': 'icons8-automation-64.png',
-    'Dyskusje Techniczne': 'icons8-automation-64.png',
-    'Poradniki': 'icons8-books-50.png',
-    'Pomoc techniczna': 'icons8-automation-64.png'
-  };
-
-  let iconFile = iconMap[sub?.name?.trim()] || 'icons8-announcement-50.png';
-  iconImg.src = `icons/${iconFile}`;
+  iconImg.src = `icons/${sub?.icon || 'icons8-announcement-50.png'}`;
   iconImg.alt = sub?.name || 'Ikona kategorii';
-
   left.appendChild(iconImg);
   card.appendChild(left);
 
-  // center: title + subtitle + stats
   const center = document.createElement('div');
   center.className = 'forum-card-center';
 
   const title = document.createElement('div');
   title.className = 'forum-card-title';
-  title.textContent = sub && sub.name ? String(sub.name) : 'Subcategory';
+  const tLink = document.createElement('a');
+  const params = new URLSearchParams({
+    category: categoryName,
+    subcategory: sub?.name || '',
+  });
+  if (categoryId !== '') params.set('categoryId', categoryId);
+  if (subcategoryId !== '') params.set('subcategoryId', subcategoryId);
+  tLink.href = `posts.html?${params.toString()}`;
+  tLink.textContent = sub?.name || 'Subcategory';
+  tLink.style.color = 'inherit';
+  tLink.style.textDecoration = 'none';
+  title.appendChild(tLink);
   center.appendChild(title);
 
   const subtitle = document.createElement('div');
   subtitle.className = 'forum-card-subtitle';
-  subtitle.textContent = sub && sub.description ? String(sub.description) : (categoryName || '');
+  subtitle.textContent = categoryName || '';
   center.appendChild(subtitle);
 
   const stats = document.createElement('div');
   stats.className = 'forum-card-stats';
-  const threadsCount = typeof sub.threadsCount === 'number' ? sub.threadsCount : 0;
-  const repliesCount = typeof sub.repliesCount === 'number' ? sub.repliesCount : 0;
-  stats.innerHTML = `<div class="stat-count">${threadsCount} Wątki</div><div class="stat-replies">${repliesCount} Odpowiedzi</div>`;
+  stats.innerHTML = `<div class="stat-count">${sub?.threadsCount || 0} Wątki</div><div class="stat-replies">${sub?.repliesCount || 0} Odpowiedzi</div>`;
   center.appendChild(stats);
-
   card.appendChild(center);
 
-  // right: last thread info
   const right = document.createElement('div');
   right.className = 'forum-card-right';
-  if (counts.lastThread) {
-    const lt = counts.lastThread;
+  if (sub?.lastThread) {
     const ltTitle = document.createElement('div');
     ltTitle.className = 'forum-card-lasttitle';
-    ltTitle.textContent = lt.title || '';
+    const ltLink = document.createElement('a');
+    ltLink.href = buildThreadLink(sub.lastThread);
+    ltLink.textContent = sub.lastThread.title || 'Zobacz wątek';
+    ltLink.style.color = 'inherit';
+    ltLink.style.textDecoration = 'none';
+    ltTitle.appendChild(ltLink);
     right.appendChild(ltTitle);
 
     const ltMeta = document.createElement('div');
     ltMeta.className = 'forum-card-lastmeta';
-    const dateStr = lt.timestamp ? (new Date((lt.timestamp.seconds || lt.timestamp) * (lt.timestamp.seconds ? 1000 : 1))).toLocaleDateString('pl-PL') : '';
-    ltMeta.textContent = `${dateStr} • ${lt.author || ''}`;
+    const d = parseDate(sub.lastThread.timestamp);
+    ltMeta.textContent = `${d ? d.toLocaleDateString('pl-PL') : ''} • ${sub.lastThread.author || ''}`;
     right.appendChild(ltMeta);
   } else {
     const empty = document.createElement('div');
@@ -209,170 +214,113 @@ function buildSubcategoryCard(categoryName, sub, counts) {
     right.appendChild(empty);
   }
   card.appendChild(right);
-
   return card;
 }
 
-// Move rendering logic into a named function that accepts root and categories
-function renderCategoriesAsCards(rootParam, categoriesParam) {
+function renderCategories(root, categories) {
+  root.innerHTML = '';
   const wrapper = document.createElement('div');
   wrapper.className = 'categories-wrapper';
-  safeAppend(rootParam, wrapper, { path: 'categories-wrapper' });
+  safeAppend(root, wrapper);
 
-  categoriesParam.forEach((category, cIdx) => {
-    // category header
+  categories.forEach((category, cIdx) => {
     const catHeader = document.createElement('h2');
     catHeader.className = 'category-header collapsible';
-    catHeader.textContent = category && category.name ? String(category.name) : `Category ${cIdx+1}`;
+    catHeader.textContent = category?.name || `Category ${cIdx + 1}`;
 
-    // Dodaj przycisk strzałki
     const arrow = document.createElement('span');
     arrow.className = 'arrow';
     arrow.textContent = '▼';
     catHeader.appendChild(arrow);
+    safeAppend(wrapper, catHeader);
 
-    safeAppend(wrapper, catHeader, { path: `categories[${cIdx}].header` });
-
-    // kontener na karty podkategorii
     const cardsContainer = document.createElement('div');
     cardsContainer.className = 'cards-container';
-    safeAppend(wrapper, cardsContainer, { path: `categories[${cIdx}].cardsContainer` });
+    safeAppend(wrapper, cardsContainer);
 
-    // domyślnie schowane poza pierwszą kategorią
     if (cIdx > 0) {
       cardsContainer.classList.add('collapsed');
       arrow.classList.add('collapsed');
       arrow.textContent = '►';
     }
 
-    // obsługa kliknięcia nagłówka
     catHeader.addEventListener('click', () => {
       const isCollapsed = cardsContainer.classList.contains('collapsed');
-      if (isCollapsed) {
-        cardsContainer.classList.remove('collapsed');
-        arrow.textContent = '▼';
-        arrow.classList.remove('collapsed');
-      } else {
-        cardsContainer.classList.add('collapsed');
-        arrow.textContent = '►';
-        arrow.classList.add('collapsed');
-      }
+      cardsContainer.classList.toggle('collapsed', !isCollapsed);
+      arrow.classList.toggle('collapsed', !isCollapsed);
+      arrow.textContent = isCollapsed ? '▼' : '►';
     });
 
-    const subcats = Array.isArray(category.subcategories) ? category.subcategories : [];
-    subcats.forEach((sub, sIdx) => {
-      // ...tworzenie kart podkategorii...
-      const card = buildSubcategoryCard(category.name, sub, sub);
-      safeAppend(cardsContainer, card, { path: `categories[${cIdx}].subcategories[${sIdx}]` });
-    });
+    const subcats = Array.isArray(category?.subcategories) ? category.subcategories : [];
+    subcats.forEach((sub) => safeAppend(cardsContainer, buildSubcategoryCard(category, sub)));
   });
 }
 
-// Robust renderStructured that uses safeAppend everywhere and logs issues
-function renderStructured(root, data) {
-  try {
-    instrumentLog('renderStructured start', { rootExists: !!root, dataShape: Array.isArray(data) ? `array(${data.length})` : Object.keys(data||{}) });
-    if (!root) {
-      instrumentLog('renderStructured: root is null — creating fallback root', null);
-      root = document.createElement('div');
-      root.id = 'posts-container';
-      (document.querySelector('main') || document.body).appendChild(root);
-    }
-    root.innerHTML = '';
-
-    // flat array of posts
-    if (Array.isArray(data) && data.length && (data[0] && (data[0].title !== undefined || data[0].content !== undefined))) {
-      data.forEach((p, idx) => {
-        instrumentLog('renderStructured: appending flat post', { idx, title: p && p.title });
-        safeAppend(root, createPostCard(p), { path: `flat[${idx}]` });
-      });
-      return;
-    }
-
-    // build categories array (from structured response or flat)
-    const categories = (data && Array.isArray(data.categories)) ? data.categories : (Array.isArray(data) ? data : []);
-    instrumentLog('renderStructured: categories count', { count: categories.length });
-
-    if (categories.length) {
-      // use the named function here (no undefined root/data issues)
-      renderCategoriesAsCards(root, categories);
-      return;
-    }
-
-    // fallback: try render raw array/object as flat posts
-    instrumentLog('renderStructured: no categories found, attempting to render raw array or object', data);
-    if (Array.isArray(data)) {
-      data.forEach(p => safeAppend(root, createPostCard(p)));
-    }
-  } catch (err) {
-    console.error('[posts][renderStructured][ERROR] data shape:', data, err);
-    throw err;
+function setPostsTitle(filters) {
+  const h1 = document.getElementById('postsPageTitle');
+  if (!h1) return;
+  if (filters.category && filters.subcategory) {
+    h1.textContent = `Wątki: ${filters.category} / ${filters.subcategory}`;
+  } else if (filters.category) {
+    h1.textContent = `Wątki: ${filters.category}`;
+  } else {
+    h1.textContent = 'Lista Postów';
   }
 }
 
-// rozszerzona lista selektorów, usuwa lub ukrywa typowe statyczne bloki
-function hidePlaceholders() {
-  const selectors = [
-    '.placeholder', '.forum-placeholder', '#placeholder-posts',
-    '.static-categories', '#static-categories', '.static-category-list',
-    '.forum-static-list', '#forum-list'
-  ];
-  selectors.forEach(s => {
-    document.querySelectorAll(s).forEach(n => {
-      
-      try {
-        n.dataset._wasPlaceholder = '1';
-        
-        if (n.parentNode) n.parentNode.removeChild(n);
-        else n.style.display = 'none';
-      } catch {
-        
-        try { n.style.display = 'none'; } catch { /* intentionally empty */ }
-      }
-    });
+function filterPosts(posts, filters) {
+  return posts.filter((p) => {
+    const postCategory = String(p?.category ?? '');
+    const postSubcategory = String(p?.subcategory ?? '');
+
+    const categoryByName = filters.category && normalizeName(postCategory) === normalizeName(filters.category);
+    const categoryById = filters.categoryId !== '' && postCategory === filters.categoryId;
+    const categoryOk = (!filters.category && filters.categoryId === '') || categoryByName || categoryById;
+
+    const subcategoryByName = filters.subcategory && normalizeName(postSubcategory) === normalizeName(filters.subcategory);
+    const subcategoryById = filters.subcategoryId !== '' && postSubcategory === filters.subcategoryId;
+    const subcategoryOk = (!filters.subcategory && filters.subcategoryId === '') || subcategoryByName || subcategoryById;
+
+    return categoryOk && subcategoryOk;
   });
 }
 
+function renderFlatList(root, posts) {
+  root.innerHTML = '';
+  if (!posts.length) {
+    const empty = document.createElement('p');
+    empty.textContent = 'Brak postów do wyświetlenia.';
+    safeAppend(root, empty);
+    return;
+  }
+  posts.forEach((post) => safeAppend(root, createPostCard(post)));
+}
 
 async function loadAndRenderPosts() {
-  console.log('loadAndRenderPosts start');
-  
-  try { hidePlaceholders(); } catch (err) { console.warn('hidePlaceholders failed', err); }
-
-  const containerId = 'posts-container';
-  let root = document.getElementById(containerId);
-
+  let root = document.getElementById('posts-container');
   if (!root) {
     root = document.createElement('div');
-    root.id = containerId;
-    const main = document.querySelector('main') || document.body;
-    main.insertBefore(root, main.firstChild);
+    root.id = 'posts-container';
+    (document.querySelector('main') || document.body).appendChild(root);
   }
 
   try {
-    const data = await fetchPosts();
-    console.log('[posts] fetched shape:', Array.isArray(data) ? `array(${data.length})` : Object.keys(data || {}));
-    renderStructured(root, data);
-  } catch (err) {
-    console.error('Failed to load posts:', err);
-    const demo = [{ title: 'Demo post', author: 'System', timestamp: Date.now(), content: '<p>Demo content</p>' }];
-    renderStructured(root, demo);
+    if (isPostsListPage()) {
+      const rawFilters = getFiltersFromUrl();
+      const filters = await resolveFilterIds(rawFilters);
+      setPostsTitle(filters);
+      const posts = await fetchFlatPosts();
+      renderFlatList(root, filterPosts(posts, filters));
+      return;
+    }
+
+    const structured = await fetchStructuredPosts();
+    const categories = Array.isArray(structured?.categories) ? structured.categories : (Array.isArray(structured) ? structured : []);
+    renderCategories(root, categories);
+  } catch (error) {
+    console.error('Failed to load posts:', error);
+    root.innerHTML = '<p>Nie udało się załadować danych.</p>';
   }
 }
 
 document.addEventListener('DOMContentLoaded', loadAndRenderPosts);
-
-function normalizeName(name) {
-  return (name || '').toLowerCase().replace(/ą/g, 'a').replace(/ć/g, 'c').replace(/ę/g, 'e')
-    .replace(/ł/g, 'l').replace(/ń/g, 'n').replace(/ó/g, 'o').replace(/ś/g, 's')
-    .replace(/ż/g, 'z').replace(/ź/g, 'z').replace(/\s+/g, '');
-}
-
-// Expose normalizeName for external usage (and reference it so linters don't flag it as unused)
-if (typeof window !== 'undefined') {
-  try {
-    window.normalizeName = normalizeName;
-  } catch {
-    /* ignore errors in non-browser or restricted contexts */
-  }
-}

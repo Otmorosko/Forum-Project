@@ -1,17 +1,13 @@
-/* Ogólne ustawienia */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-    line-height: 1.6;
+/* Ustawienia tylko dla stron korzystających z posts.css */
+.page-home,
+.page-posts {
+  line-height: 1.6;
 }
 
 /* Wrapper na całość */
 .categories-wrapper {
   margin: 32px auto 0 auto;
-  max-width: 950px;
-  width: 85%;
+  width: min(980px, 92vw);
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -30,7 +26,6 @@ body {
 /* Nagłówek kategorii */
 .category-header {
   cursor: pointer;
-  user-select: none;
   position: relative;
   display: flex;
   align-items: center;
@@ -158,8 +153,7 @@ body {
 /* Kontener dla kategorii */
 .categories-wrapper {
     margin: 32px auto 0 auto;
-    width: 92vw;
-    max-width: 1800px;
+  width: min(980px, 92vw);
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -189,8 +183,8 @@ body {
 /* Usunięcie sztucznych przerw */
 .cards-container::before,
 .cards-container::after {
-  display: none !important;
-  content: none !important;
+  display: none;
+  content: none;
 }
 
 /* Karta forum */
@@ -201,6 +195,7 @@ body {
   border-radius: 14px;
   box-shadow: 0 4px 24px #0008;
   padding: 24px 32px;
+  box-sizing: border-box;
   min-height: 90px;
   color: #fff;
   width: 100%;
@@ -279,6 +274,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: flex-end;
+  text-align: right;
   font-size: 1rem;
   margin-left: 32px;
 }
@@ -287,6 +283,8 @@ body {
   font-weight: bold;
   color: #fff;
   font-size: 1rem;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .forum-card-lastmeta {
@@ -297,7 +295,7 @@ body {
 
 @media (max-width: 1300px) {
   .categories-wrapper {
-    max-width: 98vw;
+    width: 98vw;
   }
   .forum-card {
     padding: 16px 8px;
@@ -326,4 +324,68 @@ body {
         margin-left: 0;
         margin-top: 10px;
     }
+}
+
+/* Widok pełnej listy postów (posts.html) */
+.page-posts .posts-main {
+  width: 100%;
+  margin-top: 120px;
+  min-height: calc(100vh - 120px);
+}
+
+.page-posts .content-container {
+  width: min(980px, 92vw);
+  margin: 0 auto 2rem;
+}
+
+.page-posts #postsPageTitle {
+  margin: 0 0 1rem;
+  text-align: left;
+}
+
+.page-posts #posts-container {
+  width: min(980px, 92vw);
+  margin: 0 auto 2rem;
+}
+
+.page-home #posts-container {
+  width: 100%;
+}
+
+.post-card {
+  background: #1e1e1e;
+  color: #fff;
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  margin-bottom: 0.9rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.post-title {
+  margin: 0 0 0.4rem;
+}
+
+.post-title a {
+  color: #ffecb3;
+  text-decoration: none;
+}
+
+.post-title a:hover {
+  text-decoration: underline;
+}
+
+.post-meta {
+  color: #bdbdbd;
+  font-size: 0.95rem;
+  margin-bottom: 0.6rem;
+}
+
+.post-content {
+  color: #eee;
+  line-height: 1.55;
+}
+
+.post-content img {
+  max-width: 100%;
+  height: auto;
 }

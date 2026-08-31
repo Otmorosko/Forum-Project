@@ -455,12 +455,14 @@ app.get('/api/posts-structured', async (req, res) => {
           ? threads.reduce((a, b) => (a.createdAt > b.createdAt ? a : b))
           : null;
         return {
+          id: subIndex,
           name: subcat.name,
           icon: subcat.icon,
           threadsCount: threads.length,
           repliesCount: threads.reduce((sum, t) => sum + (t.replies || 0), 0),
           lastThread: lastThread
             ? {
+                id: lastThread.id,
                 title: lastThread.title,
                 author: lastThread.author,
                 timestamp: lastThread.createdAt,
@@ -482,25 +484,59 @@ app.get('/api/posts-structured', async (req, res) => {
   }
 });
 
-// --- temporary test endpoint: return sample posts ---
-app.get('/api/posts', (req, res) => {
-  const sample = [
-    {
-      id: '1',
-      title: 'Welcome — sample post',
-      author: 'System',
-      timestamp: Date.now(),
-      content: '<p>This is a sample post to verify frontend rendering.</p>'
-    },
-    {
-      id: '2',
-      title: 'Second post',
-      author: 'Mod',
-      timestamp: Date.now(),
-      content: '<p>Another example post with <b>bold</b> text.</p>'
+// Fallback endpoint: return posts from Firestore in flat format
+app.get('/api/posts', async (req, res) => {
+  try {
+    const snapshot = await db.collection('posts').orderBy('createdAt', 'desc').get();
+    const posts = snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        title: data.title,
+        author: data.author || 'Anonim',
+        category: data.category,
+        subcategory: data.subcategory,
+        content: data.content || '',
+        timestamp: data.createdAt ? data.createdAt.toDate().toISOString() : null,
+      };
+    });
+
+    res.json(posts);
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    res.status(500).json({ error: 'Failed to fetch posts' });
+  }
+});
+
+// Endpoint: pojedynczy post po ID
+app.get('/api/posts/:id', async (req, res) => {
+  try {
+    const id = String(req.params.id || '').trim();
+    if (!id) {
+      return res.status(400).json({ error: 'Missing post id' });
     }
-  ];
-  res.json(sample);
+
+    const doc = await db.collection('posts').doc(id).get();
+    if (!doc.exists) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    const data = doc.data();
+    return res.json({
+      id: doc.id,
+      title: data.title,
+      author: data.author || 'Anonim',
+      category: data.category,
+      subcategory: data.subcategory,
+      content: data.content || '',
+      timestamp: data.createdAt ? data.createdAt.toDate().toISOString() : null,
+      replies: data.replies !== undefined ? data.replies : 0,
+      likes: data.likes !== undefined ? data.likes : 0,
+    });
+  } catch (error) {
+    console.error('Error fetching post by id:', error);
+    return res.status(500).json({ error: 'Failed to fetch post' });
+  }
 });
 
 
