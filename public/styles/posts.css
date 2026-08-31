@@ -327,3 +327,47 @@ body {
         margin-top: 10px;
     }
 }
+
+/* Widok pełnej listy postów (posts.html) */
+#posts-container {
+  width: min(980px, 92vw);
+  margin: 1rem auto 2rem;
+}
+
+.post-card {
+  background: #1e1e1e;
+  color: #fff;
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  margin-bottom: 0.9rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.post-title {
+  margin: 0 0 0.4rem;
+}
+
+.post-title a {
+  color: #ffecb3;
+  text-decoration: none;
+}
+
+.post-title a:hover {
+  text-decoration: underline;
+}
+
+.post-meta {
+  color: #bdbdbd;
+  font-size: 0.95rem;
+  margin-bottom: 0.6rem;
+}
+
+.post-content {
+  color: #eee;
+  line-height: 1.55;
+}
+
+.post-content img {
+  max-width: 100%;
+  height: auto;
+}
