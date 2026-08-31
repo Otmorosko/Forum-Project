@@ -79,10 +79,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // Edycja nazwy użytkownika
     const editProfileBtn = document.querySelector('.edit-profile');
     editProfileBtn.addEventListener('click', async () => {
-        const newName = prompt('Nowa nazwa:');
+        const authUser = getAuth().currentUser;
+        const previousName = authUser?.displayName || userNameElement.textContent || '';
+        const newNameRaw = prompt('Nowa nazwa:');
+        const newName = (newNameRaw || '').trim();
+
         if (newName) {
             try {
                 await updateUserName(newName);
+
+                const token = await getAuthToken();
+                if (token) {
+                    const csrfToken = await getCsrfToken();
+                    const syncResponse = await fetch('/api/profile/sync-display-name', {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${token}`,
+                            'CSRF-Token': csrfToken,
+                        },
+                        body: JSON.stringify({
+                            displayName: newName,
+                            previousDisplayName: previousName,
+                        }),
+                    });
+
+                    if (!syncResponse.ok) {
+                        console.warn('Nie udało się zsynchronizować nazwy w istniejących postach.');
+                    }
+                }
+
                 userNameElement.textContent = newName;
                 alert('Nazwa zaktualizowana.');
             } catch (error) {

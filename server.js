@@ -223,7 +223,6 @@ async function requireAuth(req, res, next) {
   if (!authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Brak tokenu autoryzacji.' });
   }
-
   const idToken = authHeader.slice(7).trim();
   if (!idToken) {
     return res.status(401).json({ error: 'Nieprawidłowy token autoryzacji.' });
@@ -237,6 +236,26 @@ async function requireAuth(req, res, next) {
     console.error('Auth verify error:', err.message);
     return res.status(401).json({ error: 'Token nieważny lub wygasły.' });
   }
+}
+
+// Resolve current author display names by UID (deduplicated)
+async function resolveDisplayNamesByUid(uids = []) {
+  const uniqueUids = [...new Set((uids || []).map((uid) => String(uid || '').trim()).filter(Boolean))];
+  const result = new Map();
+
+  await Promise.all(uniqueUids.map(async (uid) => {
+    try {
+      const userRecord = await admin.auth().getUser(uid);
+      const liveName = String(userRecord?.displayName || '').trim();
+      if (liveName) {
+        result.set(uid, sanitizeInput(liveName).slice(0, 60));
+      }
+    } catch {
+      // ignore single-user lookup failures, fallback to stored author name
+    }
+  }));
+
+  return result;
 }
 
 // Obsługa Socket.IO
@@ -375,8 +394,20 @@ app.post('/api/posts', requireAuth, csrfProtection, createPostLimiter, async (re
         const sanitizedCategory = sanitizeInput(category);
         const sanitizedSubcategory = subcategory ? sanitizeInput(subcategory) : '';
         const sanitizedContent = sanitizeInput(content);
-        const authorFromToken = req.user?.name || req.user?.email || 'Anonim';
-        const sanitizedAuthor = sanitizeInput(String(authorFromToken)).slice(0, 60);
+        const authorUid = String(req.user?.uid || '').trim();
+
+        let liveDisplayName = '';
+        if (authorUid) {
+          try {
+            const userRecord = await admin.auth().getUser(authorUid);
+            liveDisplayName = String(userRecord?.displayName || '').trim();
+          } catch (userReadError) {
+            console.warn('Nie udało się pobrać aktualnego displayName z Firebase Auth:', userReadError.message);
+          }
+        }
+
+        const authorFromIdentity = liveDisplayName || req.user?.name || req.user?.email || 'Anonim';
+        const sanitizedAuthor = sanitizeInput(String(authorFromIdentity)).slice(0, 60);
 
         const newPost = {
             title: sanitizedTitle,
@@ -384,6 +415,7 @@ app.post('/api/posts', requireAuth, csrfProtection, createPostLimiter, async (re
             subcategory: sanitizedSubcategory,
             content: sanitizedContent,
             author: sanitizedAuthor,
+          authorUid,
             replies: 0,
             likes: 0,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -396,6 +428,63 @@ app.post('/api/posts', requireAuth, csrfProtection, createPostLimiter, async (re
         console.error('Błąd podczas dodawania posta:', error);
         res.status(500).json({ error: 'Wystąpił błąd podczas dodawania posta.' });
     }
+});
+
+// Endpoint: synchronizacja nazwy autora w istniejących postach po zmianie displayName
+app.post('/api/profile/sync-display-name', requireAuth, csrfProtection, createPostLimiter, async (req, res) => {
+  try {
+    const uid = String(req.user?.uid || '').trim();
+    if (!uid) {
+      return res.status(400).json({ error: 'Brak identyfikatora użytkownika.' });
+    }
+
+    const requestedDisplayName = sanitizeInput(String(req.body?.displayName || '')).trim().slice(0, 60);
+    if (!requestedDisplayName) {
+      return res.status(400).json({ error: 'Brak nowej nazwy użytkownika.' });
+    }
+
+    const previousDisplayName = sanitizeInput(String(req.body?.previousDisplayName || '')).trim().slice(0, 60);
+    const emailAlias = sanitizeInput(String(req.user?.email || '')).trim().slice(0, 120);
+
+    const updates = new Map();
+
+    // 1) Pewny przypadek: posty należące do UID
+    const byUidSnapshot = await db.collection('posts').where('authorUid', '==', uid).get();
+    byUidSnapshot.forEach((doc) => {
+      updates.set(doc.id, { ref: doc.ref, data: doc.data() });
+    });
+
+    // 2) Kompatybilność wstecz: starsze posty mogły nie mieć authorUid
+    const aliases = [previousDisplayName, emailAlias].filter(Boolean);
+    for (const alias of aliases) {
+      const byAliasSnapshot = await db.collection('posts').where('author', '==', alias).get();
+      byAliasSnapshot.forEach((doc) => {
+        const data = doc.data() || {};
+        const postUid = String(data.authorUid || '').trim();
+        if (!postUid || postUid === uid) {
+          updates.set(doc.id, { ref: doc.ref, data });
+        }
+      });
+    }
+
+    if (updates.size === 0) {
+      return res.json({ success: true, updated: 0 });
+    }
+
+    const batch = db.batch();
+    for (const { ref } of updates.values()) {
+      batch.update(ref, {
+        author: requestedDisplayName,
+        authorUid: uid,
+      });
+    }
+
+    await batch.commit();
+    return res.json({ success: true, updated: updates.size });
+  } catch (error) {
+    console.error('Error syncing display name:', error);
+    return res.status(500).json({ error: 'Nie udało się zsynchronizować nazwy użytkownika w postach.' });
+  }
 });
 
 const categoriesData = require('./public/data/categories.json');
@@ -427,12 +516,13 @@ app.get('/api/posts-structured', async (req, res) => {
   try {
     // Fetch all posts from Firestore
     const postsSnapshot = await db.collection('posts').get();
-    const posts = postsSnapshot.docs.map(doc => {
+    const rawPosts = postsSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
         id: doc.id,
         title: data.title,
         author: data.author || 'Anonim',
+        authorUid: data.authorUid || '',
         category: data.category,
         subcategory: data.subcategory,
         replies: data.replies !== undefined ? data.replies : 0,
@@ -440,6 +530,12 @@ app.get('/api/posts-structured', async (req, res) => {
         createdAt: data.createdAt ? data.createdAt.toDate().toISOString() : null,
       };
     });
+
+    const liveNamesByUid = await resolveDisplayNamesByUid(rawPosts.map((p) => p.authorUid));
+    const posts = rawPosts.map((post) => ({
+      ...post,
+      author: liveNamesByUid.get(String(post.authorUid || '').trim()) || post.author,
+    }));
 
     // Build structured data: categories -> subcategories -> threads(posts)
     const structured = categoriesData.map((cat, catIndex) => {
@@ -488,18 +584,25 @@ app.get('/api/posts-structured', async (req, res) => {
 app.get('/api/posts', async (req, res) => {
   try {
     const snapshot = await db.collection('posts').orderBy('createdAt', 'desc').get();
-    const posts = snapshot.docs.map((doc) => {
+    const rawPosts = snapshot.docs.map((doc) => {
       const data = doc.data();
       return {
         id: doc.id,
         title: data.title,
         author: data.author || 'Anonim',
+        authorUid: data.authorUid || '',
         category: data.category,
         subcategory: data.subcategory,
         content: data.content || '',
         timestamp: data.createdAt ? data.createdAt.toDate().toISOString() : null,
       };
     });
+
+    const liveNamesByUid = await resolveDisplayNamesByUid(rawPosts.map((p) => p.authorUid));
+    const posts = rawPosts.map((post) => ({
+      ...post,
+      author: liveNamesByUid.get(String(post.authorUid || '').trim()) || post.author,
+    }));
 
     res.json(posts);
   } catch (error) {
@@ -522,10 +625,14 @@ app.get('/api/posts/:id', async (req, res) => {
     }
 
     const data = doc.data();
+    const authorUid = data.authorUid || '';
+    const liveNamesByUid = await resolveDisplayNamesByUid([authorUid]);
+
     return res.json({
       id: doc.id,
       title: data.title,
-      author: data.author || 'Anonim',
+      author: liveNamesByUid.get(String(authorUid).trim()) || data.author || 'Anonim',
+      authorUid,
       category: data.category,
       subcategory: data.subcategory,
       content: data.content || '',

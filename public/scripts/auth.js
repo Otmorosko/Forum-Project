@@ -129,7 +129,7 @@ export function getUserProfile(callback) {
 export async function getAuthToken() {
     const user = auth.currentUser;
     if (!user) return null;
-    return user.getIdToken();
+    return user.getIdToken(true);
 }
 
 // Pobranie tokenu CSRF z backendu (cookie + token pattern)
