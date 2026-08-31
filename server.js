@@ -481,10 +481,10 @@ app.post('/api/profile/sync-display-name', requireAuth, csrfProtection, createPo
 
     const updates = new Map();
 
-    // 1) Pewny przypadek: posty należące do UID
+    // 1) Posty należące do UID
     const byUidSnapshot = await db.collection('posts').where('authorUid', '==', uid).get();
     byUidSnapshot.forEach((doc) => {
-      updates.set(doc.id, { ref: doc.ref, data: doc.data() });
+      updates.set(`posts:${doc.id}`, { ref: doc.ref, data: doc.data(), collection: 'posts' });
     });
 
     // 2) Kompatybilność wstecz: starsze posty mogły nie mieć authorUid
@@ -495,7 +495,25 @@ app.post('/api/profile/sync-display-name', requireAuth, csrfProtection, createPo
         const data = doc.data() || {};
         const postUid = String(data.authorUid || '').trim();
         if (!postUid || postUid === uid) {
-          updates.set(doc.id, { ref: doc.ref, data });
+          updates.set(`posts:${doc.id}`, { ref: doc.ref, data, collection: 'posts' });
+        }
+      });
+    }
+
+    // 3) Wiadomości czatu należące do UID
+    const chatByUidSnapshot = await db.collection('messages').where('authorUid', '==', uid).get();
+    chatByUidSnapshot.forEach((doc) => {
+      updates.set(`messages:${doc.id}`, { ref: doc.ref, data: doc.data(), collection: 'messages' });
+    });
+
+    // 4) Starsze wiadomości czatu bez authorUid, dopasowane po poprzedniej nazwie lub emailu
+    for (const alias of aliases) {
+      const chatByAliasSnapshot = await db.collection('messages').where('author', '==', alias).get();
+      chatByAliasSnapshot.forEach((doc) => {
+        const data = doc.data() || {};
+        const messageUid = String(data.authorUid || '').trim();
+        if (!messageUid || messageUid === uid) {
+          updates.set(`messages:${doc.id}`, { ref: doc.ref, data, collection: 'messages' });
         }
       });
     }
@@ -516,7 +534,7 @@ app.post('/api/profile/sync-display-name', requireAuth, csrfProtection, createPo
     return res.json({ success: true, updated: updates.size });
   } catch (error) {
     console.error('Error syncing display name:', error);
-    return res.status(500).json({ error: 'Nie udało się zsynchronizować nazwy użytkownika w postach.' });
+    return res.status(500).json({ error: 'Nie udało się zsynchronizować nazwy użytkownika w postach i czacie.' });
   }
 });
 
