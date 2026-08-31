@@ -455,6 +455,7 @@ app.get('/api/posts-structured', async (req, res) => {
           ? threads.reduce((a, b) => (a.createdAt > b.createdAt ? a : b))
           : null;
         return {
+          id: subIndex,
           name: subcat.name,
           icon: subcat.icon,
           threadsCount: threads.length,

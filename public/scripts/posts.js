@@ -49,9 +49,13 @@ async function fetchFlatPosts() {
 
 function getFiltersFromUrl() {
   const url = new URL(window.location.href);
+  const categoryIdRaw = url.searchParams.get('categoryId');
+  const subcategoryIdRaw = url.searchParams.get('subcategoryId');
   return {
     category: url.searchParams.get('category') || '',
     subcategory: url.searchParams.get('subcategory') || '',
+    categoryId: categoryIdRaw !== null && categoryIdRaw !== '' ? String(categoryIdRaw) : '',
+    subcategoryId: subcategoryIdRaw !== null && subcategoryIdRaw !== '' ? String(subcategoryIdRaw) : '',
   };
 }
 
@@ -100,7 +104,11 @@ function createPostCard(post) {
   return card;
 }
 
-function buildSubcategoryCard(categoryName, sub) {
+function buildSubcategoryCard(category, sub) {
+  const categoryName = category?.name || '';
+  const categoryId = category?.id !== undefined && category?.id !== null ? String(category.id) : '';
+  const subcategoryId = sub?.id !== undefined && sub?.id !== null ? String(sub.id) : '';
+
   const card = document.createElement('div');
   card.className = 'forum-card';
 
@@ -119,7 +127,13 @@ function buildSubcategoryCard(categoryName, sub) {
   const title = document.createElement('div');
   title.className = 'forum-card-title';
   const tLink = document.createElement('a');
-  tLink.href = `posts.html?category=${encodeURIComponent(categoryName || '')}&subcategory=${encodeURIComponent(sub?.name || '')}`;
+  const params = new URLSearchParams({
+    category: categoryName,
+    subcategory: sub?.name || '',
+  });
+  if (categoryId !== '') params.set('categoryId', categoryId);
+  if (subcategoryId !== '') params.set('subcategoryId', subcategoryId);
+  tLink.href = `posts.html?${params.toString()}`;
   tLink.textContent = sub?.name || 'Subcategory';
   tLink.style.color = 'inherit';
   tLink.style.textDecoration = 'none';
@@ -200,7 +214,7 @@ function renderCategories(root, categories) {
     });
 
     const subcats = Array.isArray(category?.subcategories) ? category.subcategories : [];
-    subcats.forEach((sub) => safeAppend(cardsContainer, buildSubcategoryCard(category.name, sub)));
+    subcats.forEach((sub) => safeAppend(cardsContainer, buildSubcategoryCard(category, sub)));
   });
 }
 
@@ -218,8 +232,17 @@ function setPostsTitle(filters) {
 
 function filterPosts(posts, filters) {
   return posts.filter((p) => {
-    const categoryOk = !filters.category || normalizeName(p?.category) === normalizeName(filters.category);
-    const subcategoryOk = !filters.subcategory || normalizeName(p?.subcategory) === normalizeName(filters.subcategory);
+    const postCategory = String(p?.category ?? '');
+    const postSubcategory = String(p?.subcategory ?? '');
+
+    const categoryByName = filters.category && normalizeName(postCategory) === normalizeName(filters.category);
+    const categoryById = filters.categoryId !== '' && postCategory === filters.categoryId;
+    const categoryOk = (!filters.category && filters.categoryId === '') || categoryByName || categoryById;
+
+    const subcategoryByName = filters.subcategory && normalizeName(postSubcategory) === normalizeName(filters.subcategory);
+    const subcategoryById = filters.subcategoryId !== '' && postSubcategory === filters.subcategoryId;
+    const subcategoryOk = (!filters.subcategory && filters.subcategoryId === '') || subcategoryByName || subcategoryById;
+
     return categoryOk && subcategoryOk;
   });
 }
