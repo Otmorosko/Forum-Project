@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logi bezpieczeństwa - ModHub</title>
+    <link rel="stylesheet" href="styles/navbar.css">
+    <link rel="stylesheet" href="styles/footer.css">
+    <link rel="stylesheet" href="styles/security-events.css">
+</head>
+<body class="page-security-events">
+    <main class="security-events-main">
+        <section class="security-events-panel">
+            <div class="panel-header">
+                <h2>Logi bezpieczeństwa</h2>
+                <button id="refreshBtn" type="button">Odśwież</button>
+            </div>
+
+            <form id="filtersForm" class="filters-grid">
+                <label>
+                    Limit
+                    <input id="limitInput" type="number" min="1" max="200" value="100">
+                </label>
+
+                <label>
+                    Severity
+                    <select id="severityInput">
+                        <option value="">Wszystkie</option>
+                        <option value="info">info</option>
+                        <option value="warn">warn</option>
+                        <option value="error">error</option>
+                    </select>
+                </label>
+
+                <label class="event-type-label">
+                    Event type
+                    <input id="eventTypeInput" type="text" placeholder="np. auth.invalid_token">
+                </label>
+
+                <button id="applyFiltersBtn" type="submit">Zastosuj filtry</button>
+            </form>
+
+            <p id="statusMessage" class="status-message">Ładowanie...</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Czas</th>
+                            <th>Zdarzenie</th>
+                            <th>Severity</th>
+                            <th>Metoda</th>
+                            <th>Route</th>
+                            <th>UID</th>
+                            <th>IP</th>
+                            <th>Opis</th>
+                            <th>Meta</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eventsTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="scripts/navbar.js" defer></script>
+    <script type="module" src="scripts/footer.js" defer></script>
+    <script type="module" src="scripts/security-events.js" defer></script>
+</body>
+</html>

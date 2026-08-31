@@ -47,6 +47,110 @@ app.disable('x-powered-by'); // [SECURITY] ukryj Express
 // Konfiguracja Firebase Firestore
 const db = getFirestore();
 
+function getClientIp(req) {
+  const fwd = req.headers['x-forwarded-for'];
+  if (typeof fwd === 'string' && fwd.trim()) {
+    return fwd.split(',')[0].trim();
+  }
+  return req.ip || req.connection?.remoteAddress || 'unknown';
+}
+
+function truncateText(value, maxLen) {
+  return String(value || '').slice(0, maxLen);
+}
+
+async function auditSecurityEvent(eventType, details = {}) {
+  try {
+    await db.collection('security_events').add({
+      eventType,
+      severity: details.severity || 'info',
+      route: details.route || '',
+      method: details.method || '',
+      ip: details.ip || '',
+      uid: details.uid || '',
+      userAgent: details.userAgent || '',
+      message: details.message || '',
+      meta: details.meta || {},
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (error) {
+    console.error('Audit log write error:', error.message);
+  }
+}
+
+async function auditFromReq(req, eventType, details = {}) {
+  return auditSecurityEvent(eventType, {
+    severity: details.severity || 'info',
+    route: req.originalUrl || req.url || '',
+    method: req.method || '',
+    ip: getClientIp(req),
+    uid: req.user?.uid || '',
+    userAgent: truncateText(req.get('user-agent') || '', 180),
+    message: details.message || '',
+    meta: details.meta || {},
+  });
+}
+
+function sanitizeField(value, maxLen) {
+  return sanitizeInput(String(value ?? '')).trim().slice(0, maxLen);
+}
+
+function validateCreatePostPayload(payload) {
+  const title = sanitizeField(payload?.title, 200);
+  const category = sanitizeField(payload?.category, 100);
+  const subcategory = sanitizeField(payload?.subcategory, 100);
+  const content = sanitizeField(payload?.content, 20000);
+
+  if (!title || !category || !content) {
+    return {
+      ok: false,
+      status: 400,
+      error: 'Brak wymaganych pól: tytuł, kategoria lub treść.',
+    };
+  }
+
+  if (title.length < 3) {
+    return {
+      ok: false,
+      status: 400,
+      error: 'Tytuł jest zbyt krótki (min. 3 znaki).',
+    };
+  }
+
+  return {
+    ok: true,
+    data: {
+      title,
+      category,
+      subcategory,
+      content,
+    },
+  };
+}
+
+function parseCsvEnv(envValue) {
+  return String(envValue || '')
+    .split(',')
+    .map((v) => v.trim())
+    .filter(Boolean);
+}
+
+function isAdminUser(decodedUser) {
+  if (!decodedUser) return false;
+
+  const adminUids = parseCsvEnv(process.env.ADMIN_UIDS);
+  const adminEmails = parseCsvEnv(process.env.ADMIN_EMAILS).map((e) => e.toLowerCase());
+
+  const uid = String(decodedUser.uid || '').trim();
+  const email = String(decodedUser.email || '').trim().toLowerCase();
+
+  if (adminUids.includes(uid)) return true;
+  if (email && adminEmails.includes(email)) return true;
+
+  // Ułatwienie testów lokalnych: w non-production wystarczy poprawne uwierzytelnienie.
+  return process.env.NODE_ENV !== 'production';
+}
+
 const allowedOrigins = ['https://forum-project-rncg.onrender.com', 'http://localhost:3000'];
 
 // Konfiguracja CORS
@@ -221,10 +325,18 @@ async function verifyTurnstileToken(token, remoteIp) {
 async function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization || '';
   if (!authHeader.startsWith('Bearer ')) {
+    await auditFromReq(req, 'auth.missing_bearer', {
+      severity: 'warn',
+      message: 'Brak nagłówka Bearer w żądaniu chronionym.',
+    });
     return res.status(401).json({ error: 'Brak tokenu autoryzacji.' });
   }
   const idToken = authHeader.slice(7).trim();
   if (!idToken) {
+    await auditFromReq(req, 'auth.empty_token', {
+      severity: 'warn',
+      message: 'Pusty token autoryzacji.',
+    });
     return res.status(401).json({ error: 'Nieprawidłowy token autoryzacji.' });
   }
 
@@ -234,6 +346,11 @@ async function requireAuth(req, res, next) {
     return next();
   } catch (err) {
     console.error('Auth verify error:', err.message);
+    await auditFromReq(req, 'auth.invalid_token', {
+      severity: 'warn',
+      message: 'Token nieważny lub wygasły.',
+      meta: { reason: truncateText(err.message, 120) },
+    });
     return res.status(401).json({ error: 'Token nieważny lub wygasły.' });
   }
 }
@@ -273,6 +390,19 @@ io.use(async (socket, next) => {
     return next();
   } catch (error) {
     console.error('Socket auth error:', error.message);
+    await auditSecurityEvent('socket.auth_invalid', {
+      severity: 'warn',
+      route: 'socket.io',
+      method: 'WS_HANDSHAKE',
+      ip: String(socket.handshake?.address || ''),
+      uid: '',
+      userAgent: truncateText(String(socket.handshake?.headers?.['user-agent'] || ''), 180),
+      message: 'Nieudana autoryzacja Socket.IO.',
+      meta: {
+        reason: truncateText(error.message, 120),
+        origin: truncateText(String(socket.handshake?.headers?.origin || ''), 120),
+      },
+    });
     return next(new Error('Unauthorized: invalid token'));
   }
 });
@@ -315,6 +445,15 @@ io.on('connection', async (socket) => {
     socket.on('chat message', async ({ text }) => {
       if (!text) {
         console.error('Nieprawidłowe dane wiadomości: brak tekstu.');
+        await auditSecurityEvent('chat.invalid_payload', {
+          severity: 'warn',
+          route: 'socket.io/chat message',
+          method: 'WS_EVENT',
+          ip: String(socket.handshake?.address || ''),
+          uid: socketUserUid,
+          userAgent: truncateText(String(socket.handshake?.headers?.['user-agent'] || ''), 180),
+          message: 'Odrzucono wiadomość bez treści.',
+        });
             return;
         }
 
@@ -342,8 +481,30 @@ io.on('connection', async (socket) => {
             };
 
             io.emit('chat message', formattedMessage);
+
+            await auditSecurityEvent('chat.message_sent', {
+              severity: 'info',
+              route: 'socket.io/chat message',
+              method: 'WS_EVENT',
+              ip: String(socket.handshake?.address || ''),
+              uid: socketUserUid,
+              userAgent: truncateText(String(socket.handshake?.headers?.['user-agent'] || ''), 180),
+              message: 'Wiadomość czatu zapisana.',
+              meta: { messageId: docRef.id, textLength: safeText.length },
+            });
         } catch (error) {
             console.error('Błąd podczas dodawania wiadomości:', error);
+
+            await auditSecurityEvent('chat.message_error', {
+              severity: 'error',
+              route: 'socket.io/chat message',
+              method: 'WS_EVENT',
+              ip: String(socket.handshake?.address || ''),
+              uid: socketUserUid,
+              userAgent: truncateText(String(socket.handshake?.headers?.['user-agent'] || ''), 180),
+              message: 'Błąd zapisu wiadomości czatu.',
+              meta: { reason: truncateText(error.message, 120) },
+            });
         }
     });
 });
@@ -352,6 +513,10 @@ io.on('connection', async (socket) => {
 app.use('/upload', uploadLimiter); // [SECURITY] limit dla uploadów
 app.post('/upload', requireAuth, csrfProtection, upload.single('file'), async (req, res) => {
     if (!req.file) {
+        await auditFromReq(req, 'upload.missing_or_invalid_file', {
+          severity: 'warn',
+          message: 'Brak pliku lub niedozwolony typ.',
+        });
         return res.status(400).json({ error: 'Brak pliku do przesłania lub niedozwolony typ pliku.' });
     }
 
@@ -360,6 +525,14 @@ app.post('/upload', requireAuth, csrfProtection, upload.single('file'), async (r
         const detected = await fileTypeFromFile(req.file.path);
         if (!detected || !ALLOWED_MIME.includes(detected.mime)) {
             fs.unlink(req.file.path, () => {});
+            await auditFromReq(req, 'upload.blocked_mime', {
+              severity: 'warn',
+              message: 'Upload odrzucony po weryfikacji magic bytes.',
+              meta: {
+                detectedMime: detected?.mime || 'unknown',
+                file: truncateText(req.file.originalname || '', 120),
+              },
+            });
             return res.status(400).json({ error: 'Wykryty typ pliku jest niedozwolony.' });
         }
 
@@ -367,10 +540,24 @@ app.post('/upload', requireAuth, csrfProtection, upload.single('file'), async (r
                          `${req.protocol}://${req.get('host')}`;
         const fileUrl = `${siteBase}/uploads/${req.file.filename}`;
 
+        await auditFromReq(req, 'upload.success', {
+          severity: 'info',
+          message: 'Upload zakończony sukcesem.',
+          meta: {
+            file: truncateText(req.file.originalname || '', 120),
+            mime: truncateText(detected.mime || '', 60),
+          },
+        });
+
         res.json({ url: fileUrl });
     } catch (e) {
         console.error('Błąd walidacji pliku:', e);
         if (req.file?.path) fs.unlink(req.file.path, () => {});
+        await auditFromReq(req, 'upload.error', {
+          severity: 'error',
+          message: 'Błąd przetwarzania uploadu.',
+          meta: { reason: truncateText(e.message, 120) },
+        });
         res.status(500).json({ error: 'Wystąpił błąd podczas przetwarzania pliku.' });
     }
 });
@@ -398,35 +585,32 @@ app.post('/api/security/captcha/verify', async (req, res) => {
   const { token } = req.body || {};
   const isValid = await verifyTurnstileToken(token, req.ip);
   if (!isValid) {
+    await auditFromReq(req, 'captcha.verify_failed', {
+      severity: 'warn',
+      message: 'Nieudana weryfikacja CAPTCHA.',
+    });
     return res.status(400).json({ success: false, error: 'CAPTCHA verification failed.' });
   }
+  await auditFromReq(req, 'captcha.verify_success', {
+    severity: 'info',
+    message: 'CAPTCHA zweryfikowana poprawnie.',
+  });
   return res.json({ success: true });
 });
 
 // Endpoint do dodawania nowego posta
 app.post('/api/posts', requireAuth, csrfProtection, createPostLimiter, async (req, res) => {
     try {
-    const { title, category, subcategory, content } = req.body;
+    const validation = validateCreatePostPayload(req.body || {});
+    if (!validation.ok) {
+      await auditFromReq(req, 'post.create_validation_failed', {
+        severity: 'warn',
+        message: validation.error,
+      });
+      return res.status(validation.status || 400).json({ error: validation.error });
+    }
 
-        if (!title || !category || !content) {
-            return res.status(400).json({ error: 'Brak wymaganych pól: tytuł, kategoria lub treść.' });
-        }
-
-        // [SECURITY] prosta walidacja długości pól
-    if (
-      String(title).length > 200 ||
-      String(category).length > 100 ||
-      String(subcategory || '').length > 100 ||
-          String(content).length > 20000
-    ) {
-            return res.status(400).json({ error: 'Zbyt długie pola wejściowe.' });
-        }
-
-        // Sanitize inputs
-        const sanitizedTitle = sanitizeInput(title);
-        const sanitizedCategory = sanitizeInput(category);
-        const sanitizedSubcategory = subcategory ? sanitizeInput(subcategory) : '';
-        const sanitizedContent = sanitizeInput(content);
+    const { title: sanitizedTitle, category: sanitizedCategory, subcategory: sanitizedSubcategory, content: sanitizedContent } = validation.data;
         const authorUid = String(req.user?.uid || '').trim();
 
         let liveDisplayName = '';
@@ -456,9 +640,26 @@ app.post('/api/posts', requireAuth, csrfProtection, createPostLimiter, async (re
 
         const docRef = await db.collection('posts').add(newPost);
 
+        await auditFromReq(req, 'post.create_success', {
+          severity: 'info',
+          message: 'Post dodany.',
+          meta: {
+            postId: docRef.id,
+            category: sanitizedCategory,
+            subcategory: sanitizedSubcategory,
+            titleLength: sanitizedTitle.length,
+            contentLength: sanitizedContent.length,
+          },
+        });
+
         res.status(201).json({ message: 'Post został dodany pomyślnie.', id: docRef.id });
     } catch (error) {
         console.error('Błąd podczas dodawania posta:', error);
+        await auditFromReq(req, 'post.create_error', {
+          severity: 'error',
+          message: 'Błąd podczas dodawania posta.',
+          meta: { reason: truncateText(error.message, 120) },
+        });
         res.status(500).json({ error: 'Wystąpił błąd podczas dodawania posta.' });
     }
 });
@@ -468,11 +669,19 @@ app.post('/api/profile/sync-display-name', requireAuth, csrfProtection, createPo
   try {
     const uid = String(req.user?.uid || '').trim();
     if (!uid) {
+      await auditFromReq(req, 'profile.sync_display_name_no_uid', {
+        severity: 'warn',
+        message: 'Brak UID przy synchronizacji displayName.',
+      });
       return res.status(400).json({ error: 'Brak identyfikatora użytkownika.' });
     }
 
     const requestedDisplayName = sanitizeInput(String(req.body?.displayName || '')).trim().slice(0, 60);
     if (!requestedDisplayName) {
+      await auditFromReq(req, 'profile.sync_display_name_empty', {
+        severity: 'warn',
+        message: 'Pusta nowa nazwa użytkownika.',
+      });
       return res.status(400).json({ error: 'Brak nowej nazwy użytkownika.' });
     }
 
@@ -501,6 +710,10 @@ app.post('/api/profile/sync-display-name', requireAuth, csrfProtection, createPo
     }
 
     if (updates.size === 0) {
+      await auditFromReq(req, 'profile.sync_display_name_no_changes', {
+        severity: 'info',
+        message: 'Brak postów do aktualizacji nazwy autora.',
+      });
       return res.json({ success: true, updated: 0 });
     }
 
@@ -513,10 +726,99 @@ app.post('/api/profile/sync-display-name', requireAuth, csrfProtection, createPo
     }
 
     await batch.commit();
+    await auditFromReq(req, 'profile.sync_display_name_success', {
+      severity: 'info',
+      message: 'Zsynchronizowano nazwę autora w postach.',
+      meta: { updated: updates.size },
+    });
     return res.json({ success: true, updated: updates.size });
   } catch (error) {
     console.error('Error syncing display name:', error);
+    await auditFromReq(req, 'profile.sync_display_name_error', {
+      severity: 'error',
+      message: 'Błąd synchronizacji nazwy autora.',
+      meta: { reason: truncateText(error.message, 120) },
+    });
     return res.status(500).json({ error: 'Nie udało się zsynchronizować nazwy użytkownika w postach.' });
+  }
+});
+
+// Endpoint admin: podgląd logów bezpieczeństwa (audit trail)
+app.get('/api/admin/security-events', requireAuth, async (req, res) => {
+  try {
+    if (!isAdminUser(req.user)) {
+      await auditFromReq(req, 'admin.security_events_forbidden', {
+        severity: 'warn',
+        message: 'Próba dostępu do logów bezpieczeństwa bez uprawnień.',
+      });
+      return res.status(403).json({ error: 'Brak uprawnień.' });
+    }
+
+    const limitRaw = Number.parseInt(String(req.query.limit || '100'), 10);
+    const limit = Number.isNaN(limitRaw) ? 100 : Math.max(1, Math.min(limitRaw, 200));
+    const eventTypeFilter = sanitizeField(req.query.eventType, 80);
+    const severityFilter = sanitizeField(req.query.severity, 20).toLowerCase();
+
+    const fetchCount = Math.max(limit, 120);
+    const snapshot = await db.collection('security_events')
+      .orderBy('createdAt', 'desc')
+      .limit(fetchCount)
+      .get();
+
+    let items = snapshot.docs.map((doc) => {
+      const data = doc.data() || {};
+      return {
+        id: doc.id,
+        eventType: data.eventType || '',
+        severity: data.severity || 'info',
+        route: data.route || '',
+        method: data.method || '',
+        ip: data.ip || '',
+        uid: data.uid || '',
+        userAgent: data.userAgent || '',
+        message: data.message || '',
+        meta: data.meta || {},
+        createdAt: data.createdAt ? data.createdAt.toDate().toISOString() : null,
+      };
+    });
+
+    if (eventTypeFilter) {
+      items = items.filter((item) => item.eventType === eventTypeFilter);
+    }
+    if (severityFilter) {
+      items = items.filter((item) => String(item.severity || '').toLowerCase() === severityFilter);
+    }
+
+    const events = items.slice(0, limit);
+
+    await auditFromReq(req, 'admin.security_events_read', {
+      severity: 'info',
+      message: 'Pobrano logi bezpieczeństwa.',
+      meta: {
+        requestedLimit: limit,
+        returned: events.length,
+        eventTypeFilter,
+        severityFilter,
+      },
+    });
+
+    return res.json({
+      count: events.length,
+      limit,
+      filters: {
+        eventType: eventTypeFilter || null,
+        severity: severityFilter || null,
+      },
+      events,
+    });
+  } catch (error) {
+    console.error('Error fetching security events:', error);
+    await auditFromReq(req, 'admin.security_events_error', {
+      severity: 'error',
+      message: 'Błąd pobierania logów bezpieczeństwa.',
+      meta: { reason: truncateText(error.message, 120) },
+    });
+    return res.status(500).json({ error: 'Nie udało się pobrać logów bezpieczeństwa.' });
   }
 });
 
@@ -720,6 +1022,19 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Globalny handler błędów (ostatni middleware)
 app.use((err, req, res, _next) => {
+  if (err && err.code === 'EBADCSRFTOKEN') {
+    auditFromReq(req, 'csrf.invalid_token', {
+      severity: 'warn',
+      message: 'Nieprawidłowy lub brakujący token CSRF.',
+    });
+    return res.status(403).json({ error: 'Invalid CSRF token.' });
+  }
+
+  auditFromReq(req, 'server.unhandled_error', {
+    severity: 'error',
+    message: 'Globalny błąd serwera.',
+    meta: { reason: truncateText(err?.message || 'unknown', 120) },
+  });
   console.error('Global error:', err.message);
   res.status(500).json({ error: 'Internal Server Error' });
 });

@@ -1,0 +1,147 @@
+body.page-security-events {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #131313;
+    color: #f2f2f2;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.security-events-main {
+    width: min(1280px, 94vw);
+    margin: 120px auto 24px;
+    flex: 1;
+}
+
+.security-events-panel {
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+    padding: 18px;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.panel-header h2 {
+    margin: 0;
+    color: #fff;
+}
+
+.filters-grid {
+    display: grid;
+    grid-template-columns: 120px 160px 1fr auto;
+    gap: 10px;
+    align-items: end;
+    margin-bottom: 10px;
+}
+
+.filters-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.92rem;
+    color: #d7d7d7;
+}
+
+.filters-grid input,
+.filters-grid select,
+.filters-grid button,
+.panel-header button {
+    background: #2a2a2a;
+    color: #fff;
+    border: 1px solid #4a4a4a;
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.filters-grid button,
+.panel-header button {
+    background: #ccaa00;
+    border-color: #ccaa00;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.filters-grid button:hover,
+.panel-header button:hover {
+    background: #b38f00;
+    border-color: #b38f00;
+}
+
+.status-message {
+    margin: 8px 0 12px;
+    color: #d4d4d4;
+    font-size: 0.92rem;
+}
+
+.table-wrap {
+    overflow: auto;
+    border: 1px solid #333;
+    border-radius: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+    min-width: 960px;
+}
+
+th,
+td {
+    border-bottom: 1px solid #2f2f2f;
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+}
+
+th {
+    background: #252525;
+    color: #ffecb3;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+tbody tr:hover {
+    background: #242424;
+}
+
+.severity-info {
+    color: #9ecbff;
+}
+
+.severity-warn {
+    color: #ffd37a;
+}
+
+.severity-error {
+    color: #ff9b9b;
+}
+
+.meta-cell {
+    max-width: 320px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: #cbcbcb;
+}
+
+@media (max-width: 900px) {
+    .security-events-main {
+        width: 96vw;
+        margin-top: 104px;
+    }
+
+    .filters-grid {
+        grid-template-columns: 1fr;
+    }
+}

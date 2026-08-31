@@ -15,6 +15,7 @@ export const navbarHTML = `
                 <a href="login.html" id="loginLink">Logowanie</a>
                 <a href="register.html" id="registerLink">Zarejestruj się</a>
                 <a href="user-panel.html" id="profileLink" style="display: none;">Profil</a>
+                <a href="security-events.html" id="securityEventsLink" style="display: none;">Logi bezpieczeństwa</a>
                 <a href="#" id="logoutLink" style="display: none;">Wyloguj się</a>
             </div>
         </div>
@@ -38,6 +39,7 @@ export function renderNavbar() {
         const registerLink = document.getElementById('registerLink');
         const logoutLink = document.getElementById('logoutLink');
         const profileLink = document.getElementById('profileLink');
+        const securityEventsLink = document.getElementById('securityEventsLink');
         const navProfilePic = document.getElementById('navProfilePic');
 
         const defaultProfilePic = './icons/user_icon.png';
@@ -47,6 +49,7 @@ export function renderNavbar() {
             loginLink.style.display = 'none';
             registerLink.style.display = 'none';
             profileLink.style.display = 'block';
+            securityEventsLink.style.display = 'block';
             logoutLink.style.display = 'block';
 
             const photoURL = user.photoURL || defaultProfilePic;
@@ -59,6 +62,7 @@ export function renderNavbar() {
             loginLink.style.display = 'block';
             registerLink.style.display = 'block';
             profileLink.style.display = 'none';
+            securityEventsLink.style.display = 'none';
             logoutLink.style.display = 'none';
 
             if (navProfilePic) {
