@@ -3,11 +3,12 @@ body {
     background-color: #121212; /* Dopasowanie do motywu głównej strony */
     color: #fff;
     margin: 0;
-    padding: 0;
+    padding: 110px 0 24px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Wycentrowanie w poziomie */
+    align-items: stretch;
     min-height: 100vh; /* Pełna wysokość widoku */
+    box-sizing: border-box;
 }
 
 /* Formularz główny */
@@ -19,8 +20,12 @@ main {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-    margin-top: auto; /* Automatyczne centrowanie w pionie */
-    margin-bottom: auto; /* Automatyczne centrowanie w pionie */
+    margin: auto auto 24px;
+    align-self: center;
+}
+
+body > footer {
+    margin-top: auto;
 }
 
 /* Nagłówek formularza */
@@ -51,6 +56,10 @@ input[type="text"] {
     border-radius: 4px;
     background-color: #2a2a2a;
     color: #fff;
+}
+
+.captcha-container {
+    margin: 8px 0 12px;
 }
 
 button {
@@ -85,6 +94,10 @@ a:hover {
 
 /* Poprawki dla responsywności */
 @media (max-width: 768px) {
+    body {
+        padding-top: 96px;
+    }
+
     main {
         width: 95%;
     }

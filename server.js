@@ -258,9 +258,42 @@ async function resolveDisplayNamesByUid(uids = []) {
   return result;
 }
 
+// [SECURITY] Socket.IO auth: require Firebase ID token in handshake
+io.use(async (socket, next) => {
+  try {
+    const rawToken = String(socket.handshake?.auth?.token || '').trim();
+    const idToken = rawToken.startsWith('Bearer ') ? rawToken.slice(7).trim() : rawToken;
+
+    if (!idToken) {
+      return next(new Error('Unauthorized: missing token'));
+    }
+
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    socket.user = decodedToken;
+    return next();
+  } catch (error) {
+    console.error('Socket auth error:', error.message);
+    return next(new Error('Unauthorized: invalid token'));
+  }
+});
+
 // Obsługa Socket.IO
 io.on('connection', async (socket) => {
-    console.log('Użytkownik połączony:', socket.id);
+  const socketUserUid = String(socket.user?.uid || '').trim();
+  const socketUserEmail = String(socket.user?.email || '').trim();
+  let socketDisplayName = String(socket.user?.name || '').trim();
+
+  if (socketUserUid) {
+    try {
+      const userRecord = await admin.auth().getUser(socketUserUid);
+      socketDisplayName = String(userRecord?.displayName || socketDisplayName).trim();
+    } catch {
+      // fallback to token claims
+    }
+  }
+
+  const resolvedAuthor = sanitizeInput(socketDisplayName || socketUserEmail || 'Anonim').slice(0, 60);
+  console.log('Użytkownik połączony (socket):', socket.id, socketUserUid || 'unknown-uid');
 
     try {
         const snapshot = await db.collection('messages').orderBy('timestamp', 'asc').get();
@@ -279,19 +312,19 @@ io.on('connection', async (socket) => {
         console.error('Błąd pobierania historii wiadomości:', error);
     }
 
-    socket.on('chat message', async ({ text, author }) => {
-        if (!text || !author) {
-            console.error('Nieprawidłowe dane wiadomości: brak tekstu lub autora.');
+    socket.on('chat message', async ({ text }) => {
+      if (!text) {
+        console.error('Nieprawidłowe dane wiadomości: brak tekstu.');
             return;
         }
 
         // [SECURITY] prosta sanitizacja i limity długości
         const safeText = sanitizeInput(String(text).slice(0, 1000));
-        const safeAuthor = sanitizeInput(String(author).slice(0, 60));
 
         const newMessage = {
             text: safeText,
-            author: safeAuthor,
+        author: resolvedAuthor,
+        authorUid: socketUserUid,
             timestamp: admin.firestore.FieldValue.serverTimestamp(),
         };
 

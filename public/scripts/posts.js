@@ -18,6 +18,36 @@ function normalizeName(name) {
     .replace(/ż/g, 'z').replace(/ź/g, 'z').replace(/\s+/g, '');
 }
 
+function getCategoryImageSrc(categoryName) {
+  const n = normalizeName(categoryName);
+  if (n.includes('skyrim')) return 'images/games/skyrim-se.png';
+  if (n.includes('fallout4')) return 'images/games/fallout-4.png';
+  if (n === 'gothic') return 'images/games/gothic-1.png';
+  if (n.includes('gothic2')) return 'images/games/gothic-2.png';
+  if (n.includes('gothic3')) return 'images/games/gothic-3.png';
+  return 'images/games/default.svg';
+}
+
+function getCategoryDescription(categoryName) {
+  const n = normalizeName(categoryName);
+  if (n.includes('skyrim')) {
+    return 'RPG fantasy od Bethesda, znane z otwartego świata, smoków i rozbudowanej sceny moderskiej.';
+  }
+  if (n.includes('fallout4')) {
+    return 'Postapokaliptyczne RPG osadzone w Bostonie, z naciskiem na eksplorację i budowę osad.';
+  }
+  if (n === 'gothic') {
+    return 'Klasyczne RPG Piranha Bytes z surowym klimatem kolonii karnej i otwartą strukturą zadań.';
+  }
+  if (n.includes('gothic2')) {
+    return 'Rozwinięcie serii Gothic z większym światem, frakcjami i bardzo aktywną społecznością moderską.';
+  }
+  if (n.includes('gothic3')) {
+    return 'Największa odsłona serii z rozległym światem Myrtany i wieloma projektami społeczności.';
+  }
+  return 'Kategoria forum poświęcona dyskusjom i modyfikacjom gry.';
+}
+
 function parseDate(ts) {
   if (!ts) return null;
   if (typeof ts === 'string' || typeof ts === 'number') {
@@ -226,7 +256,45 @@ function renderCategories(root, categories) {
   categories.forEach((category, cIdx) => {
     const catHeader = document.createElement('h2');
     catHeader.className = 'category-header collapsible';
-    catHeader.textContent = category?.name || `Category ${cIdx + 1}`;
+
+    const badgeWrap = document.createElement('span');
+    badgeWrap.className = 'category-game-badge-wrap';
+
+    const badge = document.createElement('img');
+    badge.className = 'category-game-badge';
+    badge.src = getCategoryImageSrc(category?.name || '');
+    badge.alt = `Grafika gry ${category?.name || ''}`;
+
+    const previewBox = document.createElement('span');
+    previewBox.className = 'category-game-hoverbox';
+
+    const previewTitle = document.createElement('span');
+    previewTitle.className = 'category-game-hover-title';
+    previewTitle.textContent = category?.name || '';
+
+    const previewDesc = document.createElement('span');
+    previewDesc.className = 'category-game-hover-desc';
+    previewDesc.textContent = getCategoryDescription(category?.name || '');
+
+    badgeWrap.appendChild(badge);
+    previewBox.appendChild(previewTitle);
+    previewBox.appendChild(previewDesc);
+    badgeWrap.appendChild(previewBox);
+
+    badgeWrap.addEventListener('mouseenter', () => {
+      document.body.classList.add('category-focus-active');
+    });
+
+    badgeWrap.addEventListener('mouseleave', () => {
+      document.body.classList.remove('category-focus-active');
+    });
+
+    catHeader.appendChild(badgeWrap);
+
+    const titleText = document.createElement('span');
+    titleText.className = 'category-title-text';
+    titleText.textContent = category?.name || `Category ${cIdx + 1}`;
+    catHeader.appendChild(titleText);
 
     const arrow = document.createElement('span');
     arrow.className = 'arrow';
@@ -238,11 +306,9 @@ function renderCategories(root, categories) {
     cardsContainer.className = 'cards-container';
     safeAppend(wrapper, cardsContainer);
 
-    if (cIdx > 0) {
-      cardsContainer.classList.add('collapsed');
-      arrow.classList.add('collapsed');
-      arrow.textContent = '►';
-    }
+    cardsContainer.classList.add('collapsed');
+    arrow.classList.add('collapsed');
+    arrow.textContent = '►';
 
     catHeader.addEventListener('click', () => {
       const isCollapsed = cardsContainer.classList.contains('collapsed');

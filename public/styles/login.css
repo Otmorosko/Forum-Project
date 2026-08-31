@@ -1,21 +1,36 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: #121212;
+    color: #fff;
     margin: 0;
-    padding: 20px;
+    padding: 110px 0 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 100vh;
+    box-sizing: border-box;
 }
 
 main {
     max-width: 400px;
-    margin: 100px auto;
-    background: white;
+    width: 90%;
+    background: #1e1e1e;
+    color: #fff;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    margin: auto auto 24px;
+    align-self: center;
+}
+
+body > footer {
+    margin-top: auto;
 }
 
 h2 {
     text-align: center;
+    margin-bottom: 20px;
+    color: #e6b800;
 }
 
 form {
@@ -25,14 +40,22 @@ form {
 
 label {
     margin-bottom: 5px;
+    font-weight: bold;
+    color: #ccc;
 }
 
 input[type="email"],
 input[type="password"] {
     padding: 10px;
     margin-bottom: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #444;
     border-radius: 4px;
+    background-color: #2a2a2a;
+    color: #fff;
+}
+
+.captcha-container {
+    margin: 8px 0 12px;
 }
 
 button {
@@ -52,5 +75,29 @@ button:hover {
 #message {
     margin-top: 10px;
     text-align: center;
-    color: red;
+    color: #e6b800;
+}
+
+p {
+    margin-top: 12px;
+    color: #ccc;
+}
+
+a {
+    color: #e6b800;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-top: 96px;
+    }
+
+    main {
+        width: 95%;
+    }
 }

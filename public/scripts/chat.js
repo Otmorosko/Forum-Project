@@ -1,19 +1,8 @@
 /* eslint-env browser */
 /* global io, DOMPurify */
-import { monitorAuthState } from "./auth.js";
+import { monitorAuthState, getAuthToken } from "./auth.js";
 
 let currentUser = null;
-
-// Monitorowanie stanu logowania i ustawienie aktualnego użytkownika
-monitorAuthState((user) => {
-  if (user) {
-    currentUser = user;
-    console.log("Zalogowany użytkownik:", user.displayName || user.email);
-  } else {
-    console.log("Brak zalogowanego użytkownika.");
-    currentUser = null;
-  }
-});
 
 // Funkcja do renderowania czatu
 function loadChat() {
@@ -40,6 +29,7 @@ function setupChat() {
   console.log("Konfiguracja czatu...");
   const chat = document.getElementById("chat");
   const chatIcon = document.getElementById("chat-icon");
+  let socket = null;
 
   // Sprawdzenie dostępności elementów
   if (!chat || !chatIcon) {
@@ -60,24 +50,67 @@ function setupChat() {
 
   chatIcon.addEventListener("click", toggleChat);
 
-  // Inicjalizacja Socket.IO (bez fatalnego błędu, jeśli klient nie jest załadowany)
-  const socket = (typeof io !== 'undefined')
-    ? io("https://forum-project-rncg.onrender.com/")
-    : (function missingSocketStub(){
-        console.error("Socket.IO client (io) not found on window; chat disabled.");
-        // prosty stub, aby reszta kodu nie rzucała błędów
-        return {
-          on: () => {},
-          emit: () => {},
-          connected: false
-        };
-      })();
+  function attachSocketListeners(activeSocket) {
+    activeSocket.on("connect", () => console.log("Połączono z serwerem Socket.IO"));
 
-  socket.on("connect", () => console.log("Połączono z serwerem Socket.IO"));
+    // Obsługa błędów połączenia
+    activeSocket.on("connect_error", (err) => {
+      console.error("Błąd połączenia z serwerem Socket.IO:", err.message);
+    });
 
-  // Obsługa błędów połączenia
-  socket.on("connect_error", (err) => {
-    console.error("Błąd połączenia z serwerem Socket.IO:", err.message);
+    // Pobieranie historii wiadomości z serwera
+    activeSocket.on("chat history", (messages) => {
+      console.log("Odebrano historię wiadomości:", messages);
+
+      const messagesList = document.getElementById("messages");
+      messagesList.innerHTML = ""; // Wyczyść listę wiadomości
+
+      messages.forEach((msg) => renderMessage(msg)); // Renderuj każdą wiadomość
+    });
+
+    // Obsługa odebrania nowej wiadomości
+    activeSocket.on("chat message", (msg) => {
+      console.log("Nowa wiadomość odebrana:", msg);
+      renderMessage(msg); // Renderuj nową wiadomość
+    });
+  }
+
+  async function reconnectSocketForUser(user) {
+    if (socket) {
+      socket.disconnect();
+      socket = null;
+    }
+
+    if (!user) {
+      return;
+    }
+
+    if (typeof io === 'undefined') {
+      console.error("Socket.IO client (io) not found on window; chat disabled.");
+      return;
+    }
+
+    const token = await getAuthToken();
+    if (!token) {
+      console.warn("Brak tokenu użytkownika. Chat nie zostanie podłączony.");
+      return;
+    }
+
+    socket = io({ auth: { token } });
+    attachSocketListeners(socket);
+  }
+
+  // Monitorowanie stanu logowania i podłączanie autoryzowanego socketu
+  monitorAuthState(async (user) => {
+    if (user) {
+      currentUser = user;
+      console.log("Zalogowany użytkownik:", user.displayName || user.email);
+    } else {
+      console.log("Brak zalogowanego użytkownika.");
+      currentUser = null;
+    }
+
+    await reconnectSocketForUser(user);
   });
 
   // Dodaj na górze pliku (lub tuż przed użyciem SafeDOMPurify)
@@ -112,22 +145,6 @@ function setupChat() {
     messagesList.scrollTop = messagesList.scrollHeight;
   }
 
-  // Pobieranie historii wiadomości z serwera
-  socket.on("chat history", (messages) => {
-    console.log("Odebrano historię wiadomości:", messages);
-
-    const messagesList = document.getElementById("messages");
-    messagesList.innerHTML = ""; // Wyczyść listę wiadomości
-
-    messages.forEach((msg) => renderMessage(msg)); // Renderuj każdą wiadomość
-  });
-
-  // Obsługa odebrania nowej wiadomości
-  socket.on("chat message", (msg) => {
-    console.log("Nowa wiadomość odebrana:", msg);
-    renderMessage(msg); // Renderuj nową wiadomość
-  });
-
   // Obsługa przesyłania wiadomości
   const form = document.getElementById("form");
   if (form) {
@@ -147,10 +164,12 @@ function setupChat() {
         return;
       }
 
-      const message = {
-        text: messageText,
-        author: currentUser.displayName || currentUser.email || "Nieznany użytkownik",
-      };
+      if (!socket || !socket.connected) {
+        alert("Połączenie czatu nie jest aktywne. Spróbuj ponownie za chwilę.");
+        return;
+      }
+
+      const message = { text: messageText };
 
       // Wysłanie wiadomości na serwer
       socket.emit("chat message", message);
