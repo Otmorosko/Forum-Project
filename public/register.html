@@ -20,6 +20,8 @@
             
             <label for="nickname">Nazwa użytkownika:</label>
             <input type="text" id="nickname" name="nickname" required>
+
+            <div id="captchaContainerRegister" class="captcha-container"></div>
             
             <button type="submit">Zarejestruj się</button>
         </form>
@@ -27,6 +29,7 @@
         <div id="message"></div>
         <p>Masz już konto? <a href="login.html">Zaloguj się</a></p>
     </main>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
     <script type="module" src="scripts/navbar.js"></script>
     <script type="module" src="scripts/script.js"></script>
     <script type="module" src="scripts/footer.js" defer></script>

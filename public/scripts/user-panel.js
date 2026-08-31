@@ -1,4 +1,4 @@
-import { getUserProfile, updateUserPhoto, updateUserName } from './auth.js';
+import { getUserProfile, updateUserPhoto, updateUserName, getAuthToken, getCsrfToken } from './auth.js';
 import { getAuth, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -42,8 +42,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const formData = new FormData();
                 formData.append('file', file);
 
+                const token = await getAuthToken();
+                if (!token) throw new Error('Brak sesji użytkownika.');
+                const csrfToken = await getCsrfToken();
+
                 const response = await fetch('/upload', { // Użyj relatywnej ścieżki
                     method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'CSRF-Token': csrfToken,
+                    },
                     body: formData,
                 });
 

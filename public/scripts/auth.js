@@ -124,3 +124,25 @@ export function getUserProfile(callback) {
         }
     });
 }
+
+// Pobranie aktualnego Firebase ID token (JWT) do autoryzacji backendu
+export async function getAuthToken() {
+    const user = auth.currentUser;
+    if (!user) return null;
+    return user.getIdToken();
+}
+
+// Pobranie tokenu CSRF z backendu (cookie + token pattern)
+export async function getCsrfToken() {
+    const response = await fetch('/api/csrf-token', {
+        method: 'GET',
+        credentials: 'same-origin',
+    });
+
+    if (!response.ok) {
+        throw new Error('Nie udało się pobrać tokenu CSRF.');
+    }
+
+    const data = await response.json();
+    return data.csrfToken;
+}

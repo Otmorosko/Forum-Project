@@ -9,11 +9,18 @@ const { getFirestore } = require('firebase-admin/firestore');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const cookieParser = require('cookie-parser');
 const helmet = require('helmet'); // [SECURITY] headers
 const hpp = require('hpp'); // [SECURITY] HTTP Parameter Pollution
 const rateLimit = require('express-rate-limit'); // [SECURITY] rate limiting
+const csrf = require('csurf');
 const { fileTypeFromFile } = require('file-type'); // [SECURITY] magic-bytes check
 const { sanitizeInput } = require('./functions/utils'); // [SECURITY] use sanitization also for sockets
+
+// [SECURITY] Turnstile (CAPTCHA)
+const turnstileEnabled = process.env.TURNSTILE_ENABLED === 'true';
+const turnstileSecret = process.env.TURNSTILE_SECRET_KEY || '';
+const turnstileSiteKey = process.env.TURNSTILE_SITE_KEY || '';
 
 // Inicjalizacja Firebase Admin SDK
 const serviceAccountPath = process.env.NODE_ENV === 'production'
@@ -70,9 +77,10 @@ app.use(helmet.contentSecurityPolicy({
     frameAncestors: ["'none'"],
     formAction: ["'self'"],
     // Allow Firebase ESM modules and Socket.IO CDN
-    scriptSrc: ["'self'", 'https://www.gstatic.com', 'https://cdn.socket.io'],
+    scriptSrc: ["'self'", 'https://www.gstatic.com', 'https://cdn.socket.io', 'https://challenges.cloudflare.com'],
     // Be explicit for browsers that honor script-src-elem separately
-    scriptSrcElem: ["'self'", 'https://www.gstatic.com', 'https://cdn.socket.io'],
+    scriptSrcElem: ["'self'", 'https://www.gstatic.com', 'https://cdn.socket.io', 'https://challenges.cloudflare.com'],
+    frameSrc: ["'self'", 'https://challenges.cloudflare.com'],
     styleSrc: ["'self'", "'unsafe-inline'"],
     // Allow profile images served by Google if user has photoURL
     imgSrc: ["'self'", "data:", 'https://lh3.googleusercontent.com'],
@@ -83,6 +91,7 @@ app.use(helmet.contentSecurityPolicy({
       'https://www.googleapis.com',
       'https://securetoken.googleapis.com',
       'https://identitytoolkit.googleapis.com',
+      'https://challenges.cloudflare.com',
       // Allow WebSocket connections for Socket.IO
       'wss://forum-project-rncg.onrender.com',
       'ws://localhost:3000'
@@ -99,6 +108,16 @@ app.use(hpp());
 // [SECURITY] Ograniczenia rozmiaru body
 app.use(express.json({ limit: '200kb' }));
 app.use(express.urlencoded({ extended: true, limit: '200kb' }));
+app.use(cookieParser());
+
+// [SECURITY] CSRF protection (cookie-based token)
+const csrfProtection = csrf({
+  cookie: {
+    httpOnly: true,
+    sameSite: 'strict',
+    secure: isProd,
+  },
+});
 
 // [SECURITY] Rate limiting: global + per-route
 const globalLimiter = rateLimit({
@@ -157,6 +176,68 @@ const upload = multer({
     fileFilter,
     limits: { fileSize: MAX_FILE_SIZE }
 });
+
+async function verifyTurnstileToken(token, remoteIp) {
+  if (!turnstileEnabled) {
+    // In dev/test we allow disabling CAPTCHA via env flag.
+    return true;
+  }
+
+  if (!turnstileSecret) {
+    console.error('TURNSTILE_ENABLED=true but TURNSTILE_SECRET_KEY is missing.');
+    return false;
+  }
+
+  if (!token) {
+    return false;
+  }
+
+  try {
+    const body = new URLSearchParams({
+      secret: turnstileSecret,
+      response: token,
+      remoteip: remoteIp || '',
+    });
+
+    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body,
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const result = await response.json();
+    return Boolean(result && result.success);
+  } catch (error) {
+    console.error('Turnstile verify error:', error.message);
+    return false;
+  }
+}
+
+// [SECURITY] Middleware: weryfikacja Firebase ID token (Bearer)
+async function requireAuth(req, res, next) {
+  const authHeader = req.headers.authorization || '';
+  if (!authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Brak tokenu autoryzacji.' });
+  }
+
+  const idToken = authHeader.slice(7).trim();
+  if (!idToken) {
+    return res.status(401).json({ error: 'Nieprawidłowy token autoryzacji.' });
+  }
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    req.user = decodedToken;
+    return next();
+  } catch (err) {
+    console.error('Auth verify error:', err.message);
+    return res.status(401).json({ error: 'Token nieważny lub wygasły.' });
+  }
+}
 
 // Obsługa Socket.IO
 io.on('connection', async (socket) => {
@@ -217,7 +298,7 @@ io.on('connection', async (socket) => {
 
 // Endpoint do przesyłania plików
 app.use('/upload', uploadLimiter); // [SECURITY] limit dla uploadów
-app.post('/upload', upload.single('file'), async (req, res) => {
+app.post('/upload', requireAuth, csrfProtection, upload.single('file'), async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'Brak pliku do przesłania lub niedozwolony typ pliku.' });
     }
@@ -250,11 +331,30 @@ app.use('/uploads', express.static(uploadDir, {
 }));
 
 // Endpointy API
+app.get('/api/csrf-token', csrfProtection, (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
+
+app.get('/api/security/captcha/config', (req, res) => {
+  res.json({
+    enabled: turnstileEnabled,
+    siteKey: turnstileEnabled ? turnstileSiteKey : '',
+  });
+});
+
+app.post('/api/security/captcha/verify', async (req, res) => {
+  const { token } = req.body || {};
+  const isValid = await verifyTurnstileToken(token, req.ip);
+  if (!isValid) {
+    return res.status(400).json({ success: false, error: 'CAPTCHA verification failed.' });
+  }
+  return res.json({ success: true });
+});
 
 // Endpoint do dodawania nowego posta
-app.post('/api/posts', createPostLimiter, async (req, res) => {
+app.post('/api/posts', requireAuth, csrfProtection, createPostLimiter, async (req, res) => {
     try {
-        const { title, category, subcategory, content, author } = req.body;
+    const { title, category, subcategory, content } = req.body;
 
         if (!title || !category || !content) {
             return res.status(400).json({ error: 'Brak wymaganych pól: tytuł, kategoria lub treść.' });
@@ -265,8 +365,7 @@ app.post('/api/posts', createPostLimiter, async (req, res) => {
       String(title).length > 200 ||
       String(category).length > 100 ||
       String(subcategory || '').length > 100 ||
-      String(content).length > 20000 ||
-      String(author || '').length > 100
+          String(content).length > 20000
     ) {
             return res.status(400).json({ error: 'Zbyt długie pola wejściowe.' });
         }
@@ -276,7 +375,8 @@ app.post('/api/posts', createPostLimiter, async (req, res) => {
         const sanitizedCategory = sanitizeInput(category);
         const sanitizedSubcategory = subcategory ? sanitizeInput(subcategory) : '';
         const sanitizedContent = sanitizeInput(content);
-        const sanitizedAuthor = author ? sanitizeInput(author).slice(0, 60) : 'Anonim';
+        const authorFromToken = req.user?.name || req.user?.email || 'Anonim';
+        const sanitizedAuthor = sanitizeInput(String(authorFromToken)).slice(0, 60);
 
         const newPost = {
             title: sanitizedTitle,

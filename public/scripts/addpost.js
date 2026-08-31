@@ -1,4 +1,4 @@
-import { monitorAuthState } from './auth.js';
+import { monitorAuthState, getAuthToken, getCsrfToken } from './auth.js';
 
 // Pobieranie kategorii i podkategorii
 async function loadCategories() {
@@ -108,10 +108,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const content = document.getElementById('editor').innerHTML;
 
         try {
+            const token = await getAuthToken();
+            if (!token) {
+                throw new Error('Brak sesji użytkownika. Zaloguj się ponownie.');
+            }
+            const csrfToken = await getCsrfToken();
+
             const response = await fetch('/api/posts', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                    'CSRF-Token': csrfToken,
                 },
                 body: JSON.stringify({ title, category, subcategory, content }),
             });
