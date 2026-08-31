@@ -65,6 +65,10 @@ app.use(helmet.contentSecurityPolicy({
   useDefaults: true,
   directives: {
     defaultSrc: ["'self'"],
+    objectSrc: ["'none'"],
+    baseUri: ["'self'"],
+    frameAncestors: ["'none'"],
+    formAction: ["'self'"],
     // Allow Firebase ESM modules and Socket.IO CDN
     scriptSrc: ["'self'", 'https://www.gstatic.com', 'https://cdn.socket.io'],
     // Be explicit for browsers that honor script-src-elem separately
@@ -107,6 +111,7 @@ app.use(globalLimiter);
 
 const uploadLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 60 });
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
+const createPostLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 40 });
 
 // Inicjalizacja Socket.IO
 const io = new Server(server, {
@@ -247,7 +252,7 @@ app.use('/uploads', express.static(uploadDir, {
 // Endpointy API
 
 // Endpoint do dodawania nowego posta
-app.post('/api/posts', async (req, res) => {
+app.post('/api/posts', createPostLimiter, async (req, res) => {
     try {
         const { title, category, subcategory, content, author } = req.body;
 
@@ -256,7 +261,13 @@ app.post('/api/posts', async (req, res) => {
         }
 
         // [SECURITY] prosta walidacja długości pól
-        if (String(title).length > 200 || String(category).length > 100 || String(subcategory || '').length > 100) {
+    if (
+      String(title).length > 200 ||
+      String(category).length > 100 ||
+      String(subcategory || '').length > 100 ||
+      String(content).length > 20000 ||
+      String(author || '').length > 100
+    ) {
             return res.status(400).json({ error: 'Zbyt długie pola wejściowe.' });
         }
 
