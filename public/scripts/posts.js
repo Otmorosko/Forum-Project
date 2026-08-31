@@ -59,6 +59,44 @@ function getFiltersFromUrl() {
   };
 }
 
+async function resolveFilterIds(filters) {
+  const resolved = { ...filters };
+
+  // Resolve categoryId from category name when missing
+  if (!resolved.categoryId && resolved.category) {
+    try {
+      const res = await fetch('/api/categories', { cache: 'no-store' });
+      if (res.ok) {
+        const categories = await res.json();
+        const match = categories.find((c) => normalizeName(c.name) === normalizeName(resolved.category));
+        if (match && match.id !== undefined && match.id !== null) {
+          resolved.categoryId = String(match.id);
+        }
+      }
+    } catch {
+      // ignore and keep name-based filtering
+    }
+  }
+
+  // Resolve subcategoryId from subcategory name when missing
+  if (!resolved.subcategoryId && resolved.subcategory && resolved.categoryId !== '') {
+    try {
+      const subRes = await fetch(`/api/subcategories?categoryId=${encodeURIComponent(resolved.categoryId)}`, { cache: 'no-store' });
+      if (subRes.ok) {
+        const subcategories = await subRes.json();
+        const subMatch = subcategories.find((s) => normalizeName(s.name) === normalizeName(resolved.subcategory));
+        if (subMatch && subMatch.id !== undefined && subMatch.id !== null) {
+          resolved.subcategoryId = String(subMatch.id);
+        }
+      }
+    } catch {
+      // ignore and keep name-based filtering
+    }
+  }
+
+  return resolved;
+}
+
 function safeAppend(parent, child) {
   if (!parent || !child) return;
   parent.appendChild(child);
@@ -268,7 +306,8 @@ async function loadAndRenderPosts() {
 
   try {
     if (isPostsListPage()) {
-      const filters = getFiltersFromUrl();
+      const rawFilters = getFiltersFromUrl();
+      const filters = await resolveFilterIds(rawFilters);
       setPostsTitle(filters);
       const posts = await fetchFlatPosts();
       renderFlatList(root, filterPosts(posts, filters));
