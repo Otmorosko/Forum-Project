@@ -29,6 +29,7 @@ function setupChat() {
   console.log("Konfiguracja czatu...");
   const chat = document.getElementById("chat");
   const chatIcon = document.getElementById("chat-icon");
+  let isChatOpen = false;
   let socket = null;
 
   // Sprawdzenie dostępności elementów
@@ -37,16 +38,41 @@ function setupChat() {
     return;
   }
 
+  // Ustawienie stanu startowego zgodnie z klasą hidden
+  chat.classList.add("hidden");
+  chat.setAttribute("aria-hidden", "true");
+  chat.style.display = 'none';
+  chat.style.opacity = '0';
+  chatIcon.classList.remove("active");
+
   // Funkcja do przełączania widoczności czatu
   function toggleChat() {
     console.log("toggleChat wywołane");
-    chat.classList.toggle("hidden");
-    chatIcon.classList.toggle("active");
+    isChatOpen = !isChatOpen;
 
-    // Sprawdzenie widoczności
-    console.log("Widoczność chat:", window.getComputedStyle(chat).display);
-}
+    if (isChatOpen) {
+      chat.style.display = 'flex';
+      requestAnimationFrame(() => {
+        chat.style.opacity = '1';
+      });
+      chat.classList.remove("hidden");
+      chatIcon.classList.add("active");
+      chat.setAttribute("aria-hidden", "false");
+      console.log("Widoczność chat: otwarty");
+      return;
+    }
 
+    chat.style.opacity = '0';
+    setTimeout(() => {
+      if (!isChatOpen) {
+        chat.style.display = 'none';
+      }
+    }, 220);
+    chat.classList.add("hidden");
+    chatIcon.classList.remove("active");
+    chat.setAttribute("aria-hidden", "true");
+    console.log("Widoczność chat: zamknięty");
+  }
 
   chatIcon.addEventListener("click", toggleChat);
 
