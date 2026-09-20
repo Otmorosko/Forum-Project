@@ -49,6 +49,39 @@ const db = getFirestore();
 
 const allowedOrigins = ['https://forum-project-rncg.onrender.com', 'http://localhost:3000'];
 
+async function auditSecurityEvent({ eventType, severity = 'medium', req, socket, details = {} }) {
+  try {
+    const source = req || socket?.request;
+    await db.collection('security_events').add({
+      eventType,
+      severity,
+      uid: String(req?.user?.uid || socket?.user?.uid || '').trim() || null,
+      email: String(req?.user?.email || socket?.user?.email || '').trim() || null,
+      ip: String(req?.ip || source?.socket?.remoteAddress || '').trim() || null,
+      userAgent: String(req?.get?.('user-agent') || source?.headers?.['user-agent'] || '').slice(0, 500) || null,
+      details,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (error) {
+    console.error('Audit log error:', error.message);
+  }
+}
+
+function isAdminUser(user) {
+  const adminUids = String(process.env.ADMIN_UIDS || '').split(',').map((value) => value.trim()).filter(Boolean);
+  const adminEmails = String(process.env.ADMIN_EMAILS || '').split(',').map((value) => value.trim().toLowerCase()).filter(Boolean);
+  return adminUids.includes(String(user?.uid || '').trim())
+    || adminEmails.includes(String(user?.email || '').trim().toLowerCase());
+}
+
+async function requireAdmin(req, res, next) {
+  if (!isAdminUser(req.user)) {
+    await auditSecurityEvent({ eventType: 'security_events_access_denied', severity: 'high', req });
+    return res.status(403).json({ error: 'Brak uprawnień administratora.' });
+  }
+  return next();
+}
+
 // Konfiguracja CORS
 app.use(cors({
     origin: function(origin, callback){
@@ -221,10 +254,12 @@ async function verifyTurnstileToken(token, remoteIp) {
 async function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization || '';
   if (!authHeader.startsWith('Bearer ')) {
+    await auditSecurityEvent({ eventType: 'auth_missing_token', severity: 'medium', req });
     return res.status(401).json({ error: 'Brak tokenu autoryzacji.' });
   }
   const idToken = authHeader.slice(7).trim();
   if (!idToken) {
+    await auditSecurityEvent({ eventType: 'auth_empty_token', severity: 'medium', req });
     return res.status(401).json({ error: 'Nieprawidłowy token autoryzacji.' });
   }
 
@@ -234,6 +269,7 @@ async function requireAuth(req, res, next) {
     return next();
   } catch (err) {
     console.error('Auth verify error:', err.message);
+    await auditSecurityEvent({ eventType: 'auth_invalid_token', severity: 'high', req, details: { reason: err.message } });
     return res.status(401).json({ error: 'Token nieważny lub wygasły.' });
   }
 }
@@ -265,6 +301,7 @@ io.use(async (socket, next) => {
     const idToken = rawToken.startsWith('Bearer ') ? rawToken.slice(7).trim() : rawToken;
 
     if (!idToken) {
+      await auditSecurityEvent({ eventType: 'socket_auth_missing_token', severity: 'high', socket });
       return next(new Error('Unauthorized: missing token'));
     }
 
@@ -273,6 +310,7 @@ io.use(async (socket, next) => {
     return next();
   } catch (error) {
     console.error('Socket auth error:', error.message);
+    await auditSecurityEvent({ eventType: 'socket_auth_invalid_token', severity: 'high', socket, details: { reason: error.message } });
     return next(new Error('Unauthorized: invalid token'));
   }
 });
@@ -414,6 +452,7 @@ app.post('/api/posts', requireAuth, csrfProtection, createPostLimiter, async (re
 
         // [SECURITY] prosta walidacja długości pól
     if (
+      String(title).trim().length < 3 ||
       String(title).length > 200 ||
       String(category).length > 100 ||
       String(subcategory || '').length > 100 ||
@@ -535,6 +574,25 @@ app.post('/api/profile/sync-display-name', requireAuth, csrfProtection, createPo
   } catch (error) {
     console.error('Error syncing display name:', error);
     return res.status(500).json({ error: 'Nie udało się zsynchronizować nazwy użytkownika w postach i czacie.' });
+  }
+});
+
+app.get('/api/admin/security-events', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 50, 1), 200);
+    const snapshot = await db.collection('security_events').orderBy('createdAt', 'desc').limit(limit).get();
+    const events = snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate?.().toISOString?.() || null,
+      };
+    });
+    return res.json(events);
+  } catch (error) {
+    console.error('Security events fetch error:', error.message);
+    return res.status(500).json({ error: 'Nie udało się pobrać zdarzeń bezpieczeństwa.' });
   }
 });
 
@@ -737,8 +795,15 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Globalny handler błędów (ostatni middleware)
-app.use((err, req, res, _next) => {
+app.use(async (err, req, res, _next) => {
   console.error('Global error:', err.message);
+  if (err.code === 'EBADCSRFTOKEN' || err.code === 'EBADCSRF') {
+    await auditSecurityEvent({ eventType: 'csrf_rejected', severity: 'high', req });
+    return res.status(403).json({ error: 'Nieprawidłowy lub brakujący token CSRF.' });
+  }
+  if (err instanceof multer.MulterError || err.message === 'Niedozwolony typ pliku. Dozwolone są tylko obrazy JPG, PNG, GIF, WEBP.') {
+    return res.status(400).json({ error: err.message || 'Nieprawidłowy plik.' });
+  }
   res.status(500).json({ error: 'Internal Server Error' });
 });
 const PORT = process.env.PORT || 3000;
